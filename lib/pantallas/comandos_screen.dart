@@ -109,6 +109,9 @@ class ComandosScreenState extends State<ComandosScreen> {
       ..showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 2),
+        // Ver shortcuts_screen.dart: un SnackBar con `action` es "persist"
+        // por defecto en Flutter e ignora `duration`. Lo forzamos a false.
+        persist: false,
         content: const Text('Comando eliminado'),
         action: SnackBarAction(
           label: 'DESHACER',

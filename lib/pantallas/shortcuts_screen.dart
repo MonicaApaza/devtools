@@ -100,6 +100,10 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       ..showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 2),
+        // Un SnackBar con `action` se marca "persist" por defecto en Flutter
+        // y entonces ignora `duration` (para que el usuario alcance a tocar
+        // DESHACER). Lo forzamos a false para que sí se cierre solo.
+        persist: false,
         content: const Text('Shortcut eliminado'),
         action: SnackBarAction(
           label: 'DESHACER',
