@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'pantallas/ajustes_screen.dart';
+import 'pantallas/root_shell.dart';
+import 'theme/theme_controller.dart';
+
 void main() {
   runApp(const MainApp());
 }
@@ -9,12 +13,23 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return AnimatedBuilder(
+      animation: ThemeController.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'QuickDev',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeController.instance.temaClaro,
+          darkTheme: ThemeController.instance.temaOscuro,
+          themeMode: ThemeController.instance.modo,
+          // Ruta inicial + tabla de rutas nombradas (Sesión 5: Rutas Nombradas).
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const RootShell(),
+            '/ajustes': (context) => const AjustesScreen(),
+          },
+        );
+      },
     );
   }
 }
