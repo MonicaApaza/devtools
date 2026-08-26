@@ -138,6 +138,56 @@ class ComandosScreenState extends State<ComandosScreen> {
     return confirmado ?? false;
   }
 
+  Future<void> _confirmarYEliminar(ModeloComando comando) async {
+    if (await _confirmarEliminar(comando)) _eliminar(comando);
+  }
+
+  PopupMenuButton<String> _menuAcciones(ModeloComando comando) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert),
+      onSelected: (valor) {
+        switch (valor) {
+          case 'copiar':
+            _copiar(comando);
+            break;
+          case 'editar':
+            _mostrarFormularioEditar(comando);
+            break;
+          case 'favorito':
+            _alternarFavorito(comando);
+            break;
+          case 'eliminar':
+            _confirmarYEliminar(comando);
+            break;
+        }
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'copiar',
+          child: ListTile(leading: Icon(Icons.copy_outlined), title: Text('Copiar')),
+        ),
+        const PopupMenuItem(
+          value: 'editar',
+          child: ListTile(leading: Icon(Icons.edit_outlined), title: Text('Editar')),
+        ),
+        PopupMenuItem(
+          value: 'favorito',
+          child: ListTile(
+            leading: Icon(comando.esFavorito ? Icons.star : Icons.star_border),
+            title: Text(comando.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'),
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'eliminar',
+          child: ListTile(
+            leading: Icon(Icons.delete_outline, color: Colors.red),
+            title: Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _mostrarAcciones(ModeloComando comando) {
     showModalBottomSheet(
       context: context,
@@ -311,6 +361,7 @@ class ComandosScreenState extends State<ComandosScreen> {
                           ),
                           onPressed: () => _alternarFavorito(c),
                         ),
+                        _menuAcciones(c),
                       ],
                     ),
                     if (c.descripcionComando.isNotEmpty) ...[
@@ -418,13 +469,19 @@ class ComandosScreenState extends State<ComandosScreen> {
                   Positioned(
                     top: 0,
                     right: 0,
-                    child: IconButton(
-                      icon: Icon(
-                        c.esFavorito ? Icons.star : Icons.star_border,
-                        size: 20,
-                        color: c.esFavorito ? Colors.amber.shade700 : null,
-                      ),
-                      onPressed: () => _alternarFavorito(c),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            c.esFavorito ? Icons.star : Icons.star_border,
+                            size: 20,
+                            color: c.esFavorito ? Colors.amber.shade700 : null,
+                          ),
+                          onPressed: () => _alternarFavorito(c),
+                        ),
+                        _menuAcciones(c),
+                      ],
                     ),
                   ),
                 ],

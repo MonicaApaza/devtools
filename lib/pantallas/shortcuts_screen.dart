@@ -130,6 +130,49 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
     return confirmado ?? false;
   }
 
+  Future<void> _confirmarYEliminar(ModeloShortcut shortcut) async {
+    if (await _confirmarEliminar(shortcut)) _eliminar(shortcut);
+  }
+
+  PopupMenuButton<String> _menuAcciones(ModeloShortcut shortcut) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert),
+      onSelected: (valor) {
+        switch (valor) {
+          case 'editar':
+            _mostrarFormularioEditar(shortcut);
+            break;
+          case 'favorito':
+            _alternarFavorito(shortcut);
+            break;
+          case 'eliminar':
+            _confirmarYEliminar(shortcut);
+            break;
+        }
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'editar',
+          child: ListTile(leading: Icon(Icons.edit_outlined), title: Text('Editar')),
+        ),
+        PopupMenuItem(
+          value: 'favorito',
+          child: ListTile(
+            leading: Icon(shortcut.esFavorito ? Icons.star : Icons.star_border),
+            title: Text(shortcut.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'),
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'eliminar',
+          child: ListTile(
+            leading: Icon(Icons.delete_outline, color: Colors.red),
+            title: Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _mostrarAcciones(ModeloShortcut shortcut) {
     showModalBottomSheet(
       context: context,
@@ -341,6 +384,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                           ),
                           onPressed: () => _alternarFavorito(s),
                         ),
+                        _menuAcciones(s),
                       ],
                     ),
                     AnimatedSize(
@@ -406,13 +450,19 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                   Positioned(
                     top: 0,
                     right: 0,
-                    child: IconButton(
-                      icon: Icon(
-                        s.esFavorito ? Icons.star : Icons.star_border,
-                        size: 20,
-                        color: s.esFavorito ? Colors.amber.shade700 : null,
-                      ),
-                      onPressed: () => _alternarFavorito(s),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            s.esFavorito ? Icons.star : Icons.star_border,
+                            size: 20,
+                            color: s.esFavorito ? Colors.amber.shade700 : null,
+                          ),
+                          onPressed: () => _alternarFavorito(s),
+                        ),
+                        _menuAcciones(s),
+                      ],
                     ),
                   ),
                 ],
