@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../datos/cambios_datos.dart';
 import '../datos/categorias.dart';
 import '../helpers/db_helper.dart';
 import '../modelos/modelo_shortcut.dart';
@@ -8,10 +9,7 @@ import '../widgets/shortcut_form_sheet.dart';
 class ShortcutsScreen extends StatefulWidget {
   final bool vistaGrid;
 
-  const ShortcutsScreen({
-    super.key,
-    required this.vistaGrid,
-  });
+  const ShortcutsScreen({super.key, required this.vistaGrid});
 
   @override
   State<ShortcutsScreen> createState() => ShortcutsScreenState();
@@ -38,12 +36,14 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       _shortcuts = datos;
       _cargando = false;
     });
+    CambiosDatos.instance.avisar();
   }
 
   List<ModeloShortcut> get _filtrados {
     final q = _busqueda.trim().toLowerCase();
     return _shortcuts.where((s) {
-      if (_filtroCategoria != 'all' && s.categoriaShortcut != _filtroCategoria) {
+      if (_filtroCategoria != 'all' &&
+          s.categoriaShortcut != _filtroCategoria) {
         return false;
       }
       if (q.isEmpty) return true;
@@ -95,8 +95,11 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
     await _dbHelper.eliminarShortcut(shortcut.pkShortcut!);
     await _cargar();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
       SnackBar(
+        duration: const Duration(seconds: 2),
         content: const Text('Shortcut eliminado'),
         action: SnackBarAction(
           label: 'DESHACER',
@@ -153,13 +156,20 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       itemBuilder: (context) => [
         const PopupMenuItem(
           value: 'editar',
-          child: ListTile(leading: Icon(Icons.edit_outlined), title: Text('Editar')),
+          child: ListTile(
+            leading: Icon(Icons.edit_outlined),
+            title: Text('Editar'),
+          ),
         ),
         PopupMenuItem(
           value: 'favorito',
           child: ListTile(
             leading: Icon(shortcut.esFavorito ? Icons.star : Icons.star_border),
-            title: Text(shortcut.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'),
+            title: Text(
+              shortcut.esFavorito
+                  ? 'Quitar de favoritos'
+                  : 'Agregar a favoritos',
+            ),
           ),
         ),
         const PopupMenuItem(
@@ -191,8 +201,14 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
               },
             ),
             ListTile(
-              leading: Icon(shortcut.esFavorito ? Icons.star : Icons.star_border),
-              title: Text(shortcut.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'),
+              leading: Icon(
+                shortcut.esFavorito ? Icons.star : Icons.star_border,
+              ),
+              title: Text(
+                shortcut.esFavorito
+                    ? 'Quitar de favoritos'
+                    : 'Agregar a favoritos',
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _alternarFavorito(shortcut);
@@ -200,7 +216,10 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+              title: const Text(
+                'Eliminar',
+                style: TextStyle(color: Colors.red),
+              ),
               onTap: () async {
                 Navigator.pop(context);
                 if (await _confirmarEliminar(shortcut)) {
@@ -235,8 +254,19 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(shortcut.tituloShortcut, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text(categoria.nombre, style: TextStyle(color: Theme.of(context).colorScheme.outline)),
+                      Text(
+                        shortcut.tituloShortcut,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        categoria.nombre,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -289,7 +319,8 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                   (cat) => ChoiceChip(
                     label: Text(cat.nombre),
                     selected: _filtroCategoria == cat.id,
-                    onSelected: (_) => setState(() => _filtroCategoria = cat.id),
+                    onSelected: (_) =>
+                        setState(() => _filtroCategoria = cat.id),
                   ),
                 ),
               ],
@@ -306,8 +337,8 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                   ),
                 )
               : widget.vistaGrid
-                  ? _construirGrid(lista)
-                  : _construirLista(lista),
+              ? _construirGrid(lista)
+              : _construirLista(lista),
         ),
       ],
     );
@@ -342,7 +373,9 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
             margin: const EdgeInsets.only(bottom: 10),
             child: InkWell(
               borderRadius: BorderRadius.circular(18),
-              onTap: () => setState(() => _expandidoPk = expandido ? null : s.pkShortcut),
+              onTap: () => setState(
+                () => _expandidoPk = expandido ? null : s.pkShortcut,
+              ),
               onLongPress: () => _mostrarAcciones(s),
               child: Padding(
                 padding: const EdgeInsets.all(14),
@@ -358,7 +391,12 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(s.tituloShortcut, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                s.tituloShortcut,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               _FilaTeclas(teclas: s.teclas),
                               if (s.etiquetas.isNotEmpty) ...[
@@ -366,11 +404,19 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                                 Wrap(
                                   spacing: 6,
                                   children: s.etiquetas
-                                      .map((t) => Chip(
-                                            label: Text(t, style: const TextStyle(fontSize: 11)),
-                                            visualDensity: VisualDensity.compact,
-                                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                          ))
+                                      .map(
+                                        (t) => Chip(
+                                          label: Text(
+                                            t,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                          visualDensity: VisualDensity.compact,
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                      )
                                       .toList(),
                                 ),
                               ],
@@ -395,7 +441,10 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                               padding: const EdgeInsets.only(top: 10, left: 52),
                               child: Text(
                                 s.descripcionShortcut,
-                                style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 13),
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.outline,
+                                  fontSize: 13,
+                                ),
                               ),
                             )
                           : const SizedBox(width: double.infinity),
@@ -441,7 +490,10 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                         s.tituloShortcut,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       _FilaTeclas(teclas: s.teclas.take(2).toList()),
@@ -487,7 +539,8 @@ class _FilaTeclas extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         for (var i = 0; i < teclas.length; i++) ...[
-          if (i > 0) Text('+', style: TextStyle(color: esquema.outline, fontSize: 11)),
+          if (i > 0)
+            Text('+', style: TextStyle(color: esquema.outline, fontSize: 11)),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
             decoration: BoxDecoration(
@@ -497,7 +550,11 @@ class _FilaTeclas extends StatelessWidget {
             ),
             child: Text(
               teclas[i],
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 11, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

@@ -36,7 +36,6 @@ class _RootShellState extends State<RootShell> {
     } else {
       await _shortcutsKey.currentState?.mostrarFormularioNuevo();
     }
-    _homeKey.currentState?.cargar();
   }
 
   @override

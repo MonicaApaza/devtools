@@ -65,7 +65,9 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
     );
     if (existeDuplicado) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
         const SnackBar(content: Text('Ya existe un comando con ese título')),
       );
       return;

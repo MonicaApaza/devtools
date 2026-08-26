@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../datos/cambios_datos.dart';
 import '../datos/categorias.dart';
 import '../helpers/db_helper.dart';
 import '../utilidades/tiempo.dart';
@@ -43,10 +44,15 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     cargar();
+    // Shortcuts y Comandos avisan aquí cuando algo cambia (favorito, alta,
+    // edición, borrado) para que Inicio se refresque sin que nadie más
+    // tenga que acordarse de llamarlo a mano.
+    CambiosDatos.instance.addListener(cargar);
   }
 
   @override
   void dispose() {
+    CambiosDatos.instance.removeListener(cargar);
     _busquedaController.dispose();
     super.dispose();
   }

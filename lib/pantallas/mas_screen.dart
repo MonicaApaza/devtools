@@ -6,7 +6,9 @@ class MasScreen extends StatelessWidget {
   const MasScreen({super.key});
 
   void _mostrarProximamente(BuildContext context, String seccion) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
       SnackBar(content: Text('Próximamente: $seccion')),
     );
   }

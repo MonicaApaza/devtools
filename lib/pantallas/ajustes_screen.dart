@@ -113,7 +113,9 @@ class AjustesScreen extends StatelessWidget {
               onPressed: () async {
                 await Clipboard.setData(const ClipboardData(text: 'QuickDev v1.0.0'));
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  ScaffoldMessenger.of(context)
+                    ..removeCurrentSnackBar()
+                    ..showSnackBar(
                     const SnackBar(content: Text('Copiado')),
                   );
                 }

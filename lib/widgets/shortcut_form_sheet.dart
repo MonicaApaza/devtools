@@ -66,7 +66,9 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
     );
     if (existeDuplicado) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
         const SnackBar(content: Text('Ya existe un shortcut con ese título')),
       );
       return;

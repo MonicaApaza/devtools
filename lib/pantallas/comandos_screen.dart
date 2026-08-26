@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../datos/cambios_datos.dart';
 import '../datos/categorias.dart';
 import '../helpers/db_helper.dart';
 import '../modelos/modelo_comando.dart';
@@ -9,10 +10,7 @@ import '../widgets/comando_form_sheet.dart';
 class ComandosScreen extends StatefulWidget {
   final bool vistaGrid;
 
-  const ComandosScreen({
-    super.key,
-    required this.vistaGrid,
-  });
+  const ComandosScreen({super.key, required this.vistaGrid});
 
   @override
   State<ComandosScreen> createState() => ComandosScreenState();
@@ -38,6 +36,7 @@ class ComandosScreenState extends State<ComandosScreen> {
       _comandos = datos;
       _cargando = false;
     });
+    CambiosDatos.instance.avisar();
   }
 
   List<ModeloComando> get _filtrados {
@@ -86,7 +85,9 @@ class ComandosScreenState extends State<ComandosScreen> {
   Future<void> _copiar(ModeloComando comando) async {
     await Clipboard.setData(ClipboardData(text: comando.textoComando));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
       const SnackBar(content: Text('Comando copiado al portapapeles')),
     );
   }
@@ -103,11 +104,15 @@ class ComandosScreenState extends State<ComandosScreen> {
     await _dbHelper.eliminarComando(comando.pkComando!);
     await _cargar();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
       SnackBar(
+        duration: const Duration(seconds: 2),
         content: const Text('Comando eliminado'),
         action: SnackBarAction(
           label: 'DESHACER',
+
           onPressed: () async {
             await _dbHelper.insertarComando(respaldo);
             _cargar();
@@ -164,17 +169,27 @@ class ComandosScreenState extends State<ComandosScreen> {
       itemBuilder: (context) => [
         const PopupMenuItem(
           value: 'copiar',
-          child: ListTile(leading: Icon(Icons.copy_outlined), title: Text('Copiar')),
+          child: ListTile(
+            leading: Icon(Icons.copy_outlined),
+            title: Text('Copiar'),
+          ),
         ),
         const PopupMenuItem(
           value: 'editar',
-          child: ListTile(leading: Icon(Icons.edit_outlined), title: Text('Editar')),
+          child: ListTile(
+            leading: Icon(Icons.edit_outlined),
+            title: Text('Editar'),
+          ),
         ),
         PopupMenuItem(
           value: 'favorito',
           child: ListTile(
             leading: Icon(comando.esFavorito ? Icons.star : Icons.star_border),
-            title: Text(comando.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'),
+            title: Text(
+              comando.esFavorito
+                  ? 'Quitar de favoritos'
+                  : 'Agregar a favoritos',
+            ),
           ),
         ),
         const PopupMenuItem(
@@ -214,8 +229,14 @@ class ComandosScreenState extends State<ComandosScreen> {
               },
             ),
             ListTile(
-              leading: Icon(comando.esFavorito ? Icons.star : Icons.star_border),
-              title: Text(comando.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'),
+              leading: Icon(
+                comando.esFavorito ? Icons.star : Icons.star_border,
+              ),
+              title: Text(
+                comando.esFavorito
+                    ? 'Quitar de favoritos'
+                    : 'Agregar a favoritos',
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _alternarFavorito(comando);
@@ -223,7 +244,10 @@ class ComandosScreenState extends State<ComandosScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+              title: const Text(
+                'Eliminar',
+                style: TextStyle(color: Colors.red),
+              ),
               onTap: () async {
                 Navigator.pop(context);
                 if (await _confirmarEliminar(comando)) {
@@ -272,7 +296,8 @@ class ComandosScreenState extends State<ComandosScreen> {
                   (cat) => ChoiceChip(
                     label: Text(cat.nombre),
                     selected: _filtroCategoria == cat.id,
-                    onSelected: (_) => setState(() => _filtroCategoria = cat.id),
+                    onSelected: (_) =>
+                        setState(() => _filtroCategoria = cat.id),
                   ),
                 ),
               ],
@@ -289,8 +314,8 @@ class ComandosScreenState extends State<ComandosScreen> {
                   ),
                 )
               : widget.vistaGrid
-                  ? _construirGrid(lista)
-                  : _construirLista(lista),
+              ? _construirGrid(lista)
+              : _construirLista(lista),
         ),
       ],
     );
@@ -339,15 +364,24 @@ class ComandosScreenState extends State<ComandosScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(c.tituloComando, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                c.tituloComando,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               const SizedBox(height: 4),
                               Wrap(
                                 spacing: 6,
                                 children: [
                                   Chip(
-                                    label: Text(categoria.nombre, style: const TextStyle(fontSize: 11)),
+                                    label: Text(
+                                      categoria.nombre,
+                                      style: const TextStyle(fontSize: 11),
+                                    ),
                                     visualDensity: VisualDensity.compact,
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                   ),
                                 ],
                               ),
@@ -370,7 +404,10 @@ class ComandosScreenState extends State<ComandosScreen> {
                         padding: const EdgeInsets.only(left: 52),
                         child: Text(
                           c.descripcionComando,
-                          style: TextStyle(color: Theme.of(context).colorScheme.outline, fontSize: 12.5),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline,
+                            fontSize: 12.5,
+                          ),
                         ),
                       ),
                     ],
@@ -378,7 +415,10 @@ class ComandosScreenState extends State<ComandosScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 52),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black87,
                           borderRadius: BorderRadius.circular(12),
@@ -389,8 +429,20 @@ class ComandosScreenState extends State<ComandosScreen> {
                               child: Text.rich(
                                 TextSpan(
                                   children: [
-                                    const TextSpan(text: r'$ ', style: TextStyle(color: Colors.greenAccent, fontFamily: 'monospace')),
-                                    TextSpan(text: c.textoComando, style: const TextStyle(color: Colors.white, fontFamily: 'monospace')),
+                                    const TextSpan(
+                                      text: r'$ ',
+                                      style: TextStyle(
+                                        color: Colors.greenAccent,
+                                        fontFamily: 'monospace',
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: c.textoComando,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'monospace',
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -399,7 +451,11 @@ class ComandosScreenState extends State<ComandosScreen> {
                             IconButton(
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
-                              icon: const Icon(Icons.copy, color: Colors.white70, size: 18),
+                              icon: const Icon(
+                                Icons.copy,
+                                color: Colors.white70,
+                                size: 18,
+                              ),
                               onPressed: () => _copiar(c),
                             ),
                           ],
@@ -447,12 +503,18 @@ class ComandosScreenState extends State<ComandosScreen> {
                         c.tituloComando,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black87,
                           borderRadius: BorderRadius.circular(8),
@@ -461,7 +523,11 @@ class ComandosScreenState extends State<ComandosScreen> {
                           c.textoComando,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.white, fontFamily: 'monospace', fontSize: 11),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'monospace',
+                            fontSize: 11,
+                          ),
                         ),
                       ),
                     ],
