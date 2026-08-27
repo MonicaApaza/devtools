@@ -264,12 +264,14 @@ class DatabaseHelper {
 
   // ---------- Categorías ----------
 
+  // Una categoría 'ambos' es visible tanto para shortcuts como para
+  // comandos, así que se incluye junto a las del tipo pedido.
   Future<List<ModeloCategoria>> getCategoriasModelo(String tipo) async {
     final db = await database;
     final maps = await db.query(
       'categoria',
-      where: 'tipoCategoria = ?',
-      whereArgs: [tipo],
+      where: 'tipoCategoria = ? OR tipoCategoria = ?',
+      whereArgs: [tipo, 'ambos'],
       orderBy: 'nombreCategoria ASC',
     );
     return List.generate(maps.length, (i) => ModeloCategoria.fromMap(maps[i]));
@@ -288,21 +290,29 @@ class DatabaseHelper {
         .toList();
   }
 
+  // Los tipos que comparten la lista visible con `tipo`: una categoría
+  // 'ambos' aparece junto a 'shortcut' y junto a 'comando', y si `tipo` es
+  // 'ambos' compite con las tres, porque terminará mezclada con todas.
+  List<String> _tiposVisibles(String tipo) =>
+      tipo == 'ambos' ? const ['shortcut', 'comando', 'ambos'] : [tipo, 'ambos'];
+
   Future<bool> existeNombreCategoria(
     String tipo,
     String nombre, {
     int? excluirPk,
   }) async {
     final db = await database;
+    final tipos = _tiposVisibles(tipo);
+    final placeholders = List.filled(tipos.length, '?').join(', ');
     final result = await db.query(
       'categoria',
       columns: ['pkCategoria'],
       where: excluirPk == null
-          ? 'tipoCategoria = ? AND nombreCategoria = ?'
-          : 'tipoCategoria = ? AND nombreCategoria = ? AND pkCategoria != ?',
+          ? 'tipoCategoria IN ($placeholders) AND nombreCategoria = ?'
+          : 'tipoCategoria IN ($placeholders) AND nombreCategoria = ? AND pkCategoria != ?',
       whereArgs: excluirPk == null
-          ? [tipo, nombre]
-          : [tipo, nombre, excluirPk],
+          ? [...tipos, nombre]
+          : [...tipos, nombre, excluirPk],
       limit: 1,
     );
     return result.isNotEmpty;
@@ -315,14 +325,16 @@ class DatabaseHelper {
         .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
         .replaceAll(RegExp(r'^_+|_+$'), '');
     final slugBase = base.isEmpty ? 'categoria' : base;
+    final tipos = _tiposVisibles(tipo);
+    final placeholders = List.filled(tipos.length, '?').join(', ');
     var candidato = slugBase;
     var sufijo = 1;
     while (true) {
       final result = await db.query(
         'categoria',
         columns: ['pkCategoria'],
-        where: 'tipoCategoria = ? AND idCategoria = ?',
-        whereArgs: [tipo, candidato],
+        where: 'tipoCategoria IN ($placeholders) AND idCategoria = ?',
+        whereArgs: [...tipos, candidato],
         limit: 1,
       );
       if (result.isEmpty) return candidato;
@@ -368,7 +380,14 @@ class DatabaseHelper {
     );
   }
 
+  // Para una categoría 'ambos' cuenta el uso en las dos tablas, porque
+  // tanto shortcuts como comandos pueden estar apuntando a su idCategoria.
   Future<int> contarUsoCategoria(String tipo, String idCategoria) async {
+    if (tipo == 'ambos') {
+      final enShortcuts = await contarUsoCategoria('shortcut', idCategoria);
+      final enComandos = await contarUsoCategoria('comando', idCategoria);
+      return enShortcuts + enComandos;
+    }
     final db = await database;
     final tabla = tipo == 'shortcut' ? 'shortcut' : 'comando';
     final columna = tipo == 'shortcut' ? 'categoriaShortcut' : 'categoriaComando';

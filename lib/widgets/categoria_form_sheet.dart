@@ -5,10 +5,12 @@ import '../datos/categorias_controlador.dart';
 import '../helpers/db_helper.dart';
 import '../modelos/modelo_categoria.dart';
 
-/// Formulario de alta/edición de una Categoría (nombre + ícono). El tipo
-/// ('shortcut' o 'comando') se fija al abrir el formulario y no se puede
-/// cambiar al editar, para no dejar huérfanos los shortcuts/comandos que
-/// ya usan esa categoría.
+/// Formulario de alta/edición de una Categoría (nombre + ícono + tipo). El
+/// tipo puede ser 'shortcut', 'comando' o 'ambos' (visible en las dos
+/// secciones). Al editar, si se quita cobertura de un lado (p.ej. de
+/// 'ambos' a 'shortcut') y ese lado todavía tiene shortcuts/comandos
+/// apuntando a esta categoría, se bloquea el guardado para no dejarlos
+/// huérfanos.
 class CategoriaFormSheet extends StatefulWidget {
   final String tipo;
   final ModeloCategoria? existente;
@@ -25,16 +27,27 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
 
   late final TextEditingController _nombre;
   late String _iconoSeleccionado;
+  late String _tipoSeleccionado;
   bool _guardando = false;
 
   bool get _esEdicion => widget.existente != null;
+
+  static const _opcionesTipo = [
+    (valor: 'shortcut', etiqueta: 'Shortcut'),
+    (valor: 'comando', etiqueta: 'Comando'),
+    (valor: 'ambos', etiqueta: 'Ambos'),
+  ];
 
   @override
   void initState() {
     super.initState();
     _nombre = TextEditingController(text: widget.existente?.nombreCategoria ?? '');
     _iconoSeleccionado = widget.existente?.iconoCategoria ?? iconosCategoria.keys.first;
+    _tipoSeleccionado = widget.existente?.tipoCategoria ?? widget.tipo;
   }
+
+  List<String> _ladosDe(String tipo) =>
+      tipo == 'ambos' ? const ['shortcut', 'comando'] : [tipo];
 
   @override
   void dispose() {
@@ -46,8 +59,35 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
     if (!_formKey.currentState!.validate()) return;
 
     final nombre = _nombre.text.trim();
+
+    if (_esEdicion) {
+      final ladosAntes = _ladosDe(widget.existente!.tipoCategoria).toSet();
+      final ladosDespues = _ladosDe(_tipoSeleccionado).toSet();
+      final ladosPerdidos = ladosAntes.difference(ladosDespues);
+      for (final lado in ladosPerdidos) {
+        final enUso = await _dbHelper.contarUsoCategoria(
+          lado,
+          widget.existente!.idCategoria,
+        );
+        if (enUso > 0) {
+          if (!mounted) return;
+          final ladoLabel = lado == 'shortcut' ? 'shortcut(s)' : 'comando(s)';
+          ScaffoldMessenger.of(context)
+            ..removeCurrentSnackBar()
+            ..showSnackBar(
+            SnackBar(
+              content: Text(
+                'No se puede quitar "$lado": $enUso $ladoLabel todavía usan esta categoría',
+              ),
+            ),
+          );
+          return;
+        }
+      }
+    }
+
     final existeDuplicado = await _dbHelper.existeNombreCategoria(
-      widget.tipo,
+      _tipoSeleccionado,
       nombre,
       excluirPk: widget.existente?.pkCategoria,
     );
@@ -66,11 +106,12 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
     if (_esEdicion) {
       final actualizada = widget.existente!
         ..nombreCategoria = nombre
-        ..iconoCategoria = _iconoSeleccionado;
+        ..iconoCategoria = _iconoSeleccionado
+        ..tipoCategoria = _tipoSeleccionado;
       await _dbHelper.actualizarCategoria(actualizada);
     } else {
       await _dbHelper.insertarCategoria(
-        tipo: widget.tipo,
+        tipo: _tipoSeleccionado,
         nombre: nombre,
         iconoClave: _iconoSeleccionado,
       );
@@ -111,6 +152,19 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
               Text(
                 _esEdicion ? 'Editar categoría' : 'Nueva categoría',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              Text('Disponible para', style: Theme.of(context).textTheme.labelLarge),
+              const SizedBox(height: 8),
+              SegmentedButton<String>(
+                segments: _opcionesTipo
+                    .map(
+                      (o) => ButtonSegment(value: o.valor, label: Text(o.etiqueta)),
+                    )
+                    .toList(),
+                selected: {_tipoSeleccionado},
+                onSelectionChanged: (seleccion) =>
+                    setState(() => _tipoSeleccionado = seleccion.first),
               ),
               const SizedBox(height: 16),
               TextFormField(

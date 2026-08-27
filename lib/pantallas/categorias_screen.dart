@@ -180,6 +180,9 @@ class _ListaCategorias extends StatelessWidget {
           child: ListTile(
             leading: CircleAvatar(child: Icon(iconoPorClave(cat.iconoCategoria))),
             title: Text(cat.nombreCategoria),
+            subtitle: cat.tipoCategoria == 'ambos'
+                ? const Text('Shortcuts y comandos')
+                : null,
             trailing: PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
               onSelected: (valor) {
