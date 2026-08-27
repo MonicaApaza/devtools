@@ -59,9 +59,12 @@ class AppDrawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  CircleAvatar(
-                    backgroundColor: esquema.onPrimary,
-                    child: Icon(Icons.bolt, color: esquema.primary),
+                  Hero(
+                    tag: 'app-icon',
+                    child: CircleAvatar(
+                      backgroundColor: esquema.onPrimary,
+                      child: Icon(Icons.bolt, color: esquema.primary),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Text(

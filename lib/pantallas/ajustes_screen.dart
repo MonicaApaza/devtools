@@ -27,16 +27,25 @@ class AjustesScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 22,
-                  backgroundColor: esquema.primary,
-                  child: Icon(Icons.bolt, color: esquema.onPrimary),
+                Hero(
+                  tag: 'app-icon',
+                  child: CircleAvatar(
+                    radius: 22,
+                    backgroundColor: esquema.primary,
+                    child: Icon(Icons.bolt, color: esquema.onPrimary),
+                  ),
                 ),
                 const SizedBox(width: 14),
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('QuickDev', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      'QuickDev',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     Text('Versión 1.0.0'),
                   ],
                 ),
@@ -44,7 +53,14 @@ class AjustesScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Text('APARIENCIA', style: TextStyle(fontWeight: FontWeight.bold, color: esquema.outline, letterSpacing: 1)),
+          Text(
+            'APARIENCIA',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: esquema.outline,
+              letterSpacing: 1,
+            ),
+          ),
           const SizedBox(height: 8),
           Card(
             child: AnimatedBuilder(
@@ -52,8 +68,14 @@ class AjustesScreen extends StatelessWidget {
               builder: (context, _) {
                 final controlador = ThemeController.instance;
                 return SwitchListTile(
-                  secondary: Icon(controlador.esOscuro ? Icons.dark_mode_outlined : Icons.light_mode_outlined),
-                  title: Text('Tema ${controlador.esOscuro ? "oscuro" : "claro"}'),
+                  secondary: Icon(
+                    controlador.esOscuro
+                        ? Icons.dark_mode_outlined
+                        : Icons.light_mode_outlined,
+                  ),
+                  title: Text(
+                    'Tema ${controlador.esOscuro ? "oscuro" : "claro"}',
+                  ),
                   value: controlador.esOscuro,
                   onChanged: (_) => controlador.alternar(),
                 );
@@ -67,57 +89,18 @@ class AjustesScreen extends StatelessWidget {
               color: esquema.surfaceContainerHighest.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Conceptos de Flutter aplicados', style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                const _ConceptoItem(
-                  titulo: 'Navegación',
-                  detalle: 'Barra inferior, Drawer lateral y rutas nombradas (/ajustes).',
-                ),
-                const _ConceptoItem(
-                  titulo: 'Gestos',
-                  detalle: 'Deslizar para eliminar (Dismissible), mantener presionado (long-press) y tocar para expandir.',
-                ),
-                const _ConceptoItem(
-                  titulo: 'Temas',
-                  detalle: 'ColorScheme.fromSeed con modo claro/oscuro global.',
-                ),
-                const _ConceptoItem(
-                  titulo: 'ListView y GridView',
-                  detalle: 'Listas y cuadrícula con alternador de vista.',
-                ),
-                const _ConceptoItem(
-                  titulo: 'Diseño con curvas',
-                  detalle: 'BottomAppBar con muesca circular para el FAB y esquinas redondeadas.',
-                ),
-                const _ConceptoItem(
-                  titulo: 'Animaciones',
-                  detalle: 'AnimatedSize para el acordeón y transiciones del Material implícitas.',
-                ),
-                const _ConceptoItem(
-                  titulo: 'Formularios',
-                  detalle: 'Form + TextFormField + validator para altas y ediciones.',
-                ),
-                _ConceptoItem(
-                  titulo: 'Persistencia local',
-                  detalle: 'SQLite (sqflite) — ${kDebugMode ? 'modo debug' : 'modo release'}.',
-                ),
-              ],
-            ),
           ),
           const SizedBox(height: 12),
           Center(
             child: TextButton.icon(
               onPressed: () async {
-                await Clipboard.setData(const ClipboardData(text: 'QuickDev v1.0.0'));
+                await Clipboard.setData(
+                  const ClipboardData(text: 'QuickDev v1.0.0'),
+                );
                 if (context.mounted) {
                   ScaffoldMessenger.of(context)
                     ..removeCurrentSnackBar()
-                    ..showSnackBar(
-                    const SnackBar(content: Text('Copiado')),
-                  );
+                    ..showSnackBar(const SnackBar(content: Text('Copiado')));
                 }
               },
               icon: const Icon(Icons.copy, size: 16),
@@ -152,9 +135,17 @@ class _ConceptoItem extends StatelessWidget {
           Expanded(
             child: RichText(
               text: TextSpan(
-                style: DefaultTextStyle.of(context).style.copyWith(fontSize: 12.5, color: esquema.outline),
+                style: DefaultTextStyle.of(
+                  context,
+                ).style.copyWith(fontSize: 12.5, color: esquema.outline),
                 children: [
-                  TextSpan(text: '$titulo: ', style: TextStyle(fontWeight: FontWeight.bold, color: esquema.onSurface)),
+                  TextSpan(
+                    text: '$titulo: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: esquema.onSurface,
+                    ),
+                  ),
                   TextSpan(text: detalle),
                 ],
               ),
