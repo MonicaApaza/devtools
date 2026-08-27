@@ -88,6 +88,15 @@ class AppDrawer extends StatelessWidget {
             item(indice: 3, icono: Icons.more_horiz, titulo: 'Más'),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.bar_chart_outlined),
+              title: const Text('Estadísticas'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/estadisticas');
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Ajustes y acerca de'),
               trailing: const Icon(Icons.chevron_right),

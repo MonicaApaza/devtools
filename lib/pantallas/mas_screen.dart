@@ -69,11 +69,22 @@ class MasScreen extends StatelessWidget {
         Text('GENERAL', style: TextStyle(fontWeight: FontWeight.bold, color: esquema.outline, letterSpacing: 1)),
         const SizedBox(height: 8),
         Card(
-          child: ListTile(
-            leading: const Icon(Icons.settings_outlined),
-            title: const Text('Ajustes y acerca de'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.pushNamed(context, '/ajustes'),
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.bar_chart_outlined),
+                title: const Text('Estadísticas'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.pushNamed(context, '/estadisticas'),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.settings_outlined),
+                title: const Text('Ajustes y acerca de'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.pushNamed(context, '/ajustes'),
+              ),
+            ],
           ),
         ),
       ],

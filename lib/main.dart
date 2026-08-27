@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'pantallas/ajustes_screen.dart';
+import 'pantallas/estadisticas_screen.dart';
 import 'pantallas/root_shell.dart';
 import 'theme/theme_controller.dart';
 
@@ -27,6 +28,7 @@ class MainApp extends StatelessWidget {
           routes: {
             '/': (context) => const RootShell(),
             '/ajustes': (context) => const AjustesScreen(),
+            '/estadisticas': (context) => const EstadisticasScreen(),
           },
         );
       },

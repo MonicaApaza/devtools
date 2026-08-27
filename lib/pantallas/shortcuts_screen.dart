@@ -17,6 +17,7 @@ class ShortcutsScreen extends StatefulWidget {
 
 class ShortcutsScreenState extends State<ShortcutsScreen> {
   final _dbHelper = DatabaseHelper();
+  final _busquedaController = TextEditingController();
   List<ModeloShortcut> _shortcuts = [];
   bool _cargando = true;
   String _busqueda = '';
@@ -27,6 +28,12 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
   void initState() {
     super.initState();
     _cargar();
+  }
+
+  @override
+  void dispose() {
+    _busquedaController.dispose();
+    super.dispose();
   }
 
   Future<void> _cargar() async {
@@ -299,9 +306,19 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: TextField(
-            decoration: const InputDecoration(
+            controller: _busquedaController,
+            decoration: InputDecoration(
               hintText: 'Buscar shortcut...',
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _busqueda.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => setState(() {
+                        _busqueda = '';
+                        _busquedaController.clear();
+                      }),
+                    ),
             ),
             onChanged: (valor) => setState(() => _busqueda = valor),
           ),

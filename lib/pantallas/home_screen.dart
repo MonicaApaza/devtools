@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../datos/cambios_datos.dart';
 import '../datos/categorias.dart';
 import '../helpers/db_helper.dart';
+import '../theme/theme_controller.dart';
 import '../utilidades/tiempo.dart';
 import '../widgets/fondo_saludo.dart';
 
@@ -132,7 +133,7 @@ class HomeScreenState extends State<HomeScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [oscurecer(esquema.primary, 0.16), esquema.primary],
+                colors: [oscurecer(colorSemilla, 0.16), colorSemilla],
               ),
             ),
             // ClipRRect recorta el brillo y la curva a las esquinas
@@ -177,7 +178,7 @@ class HomeScreenState extends State<HomeScreen> {
                         Text(
                           '${_saludo()} Monica 😃',
                           style: TextStyle(
-                            color: esquema.onPrimary,
+                            color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -186,23 +187,23 @@ class HomeScreenState extends State<HomeScreen> {
                         Text(
                           'Domina los atajos del teclado',
                           style: TextStyle(
-                            color: esquema.onPrimary.withValues(alpha: 0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                           ),
                         ),
                         const SizedBox(height: 16),
                         TextField(
                           controller: _busquedaController,
-                          style: TextStyle(color: esquema.onPrimary),
+                          style: TextStyle(color: Colors.white),
                           onChanged: (valor) =>
                               setState(() => _busqueda = valor),
                           decoration: InputDecoration(
                             hintText: 'Buscar shortcut o comando...',
                             hintStyle: TextStyle(
-                              color: esquema.onPrimary.withValues(alpha: 0.85),
+                              color: Colors.white.withValues(alpha: 0.85),
                             ),
                             prefixIcon: Icon(
                               Icons.search,
-                              color: esquema.onPrimary,
+                              color: Colors.white,
                               size: 18,
                             ),
                             suffixIcon: _busqueda.isEmpty
@@ -210,7 +211,7 @@ class HomeScreenState extends State<HomeScreen> {
                                 : IconButton(
                                     icon: Icon(
                                       Icons.close,
-                                      color: esquema.onPrimary,
+                                      color: Colors.white,
                                       size: 18,
                                     ),
                                     onPressed: () => setState(() {
@@ -219,24 +220,24 @@ class HomeScreenState extends State<HomeScreen> {
                                     }),
                                   ),
                             filled: true,
-                            fillColor: esquema.onPrimary.withValues(
+                            fillColor: Colors.white.withValues(
                               alpha: 0.16,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide(
-                                color: esquema.onPrimary.withValues(alpha: 0.3),
+                                color: Colors.white.withValues(alpha: 0.3),
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide: BorderSide(
-                                color: esquema.onPrimary.withValues(alpha: 0.3),
+                                color: Colors.white.withValues(alpha: 0.3),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
-                              borderSide: BorderSide(color: esquema.onPrimary),
+                              borderSide: BorderSide(color: Colors.white),
                             ),
                           ),
                         ),
