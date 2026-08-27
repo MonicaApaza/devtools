@@ -4,6 +4,7 @@ import '../datos/cambios_datos.dart';
 import '../datos/categorias.dart';
 import '../helpers/db_helper.dart';
 import '../utilidades/tiempo.dart';
+import '../widgets/fondo_saludo.dart';
 
 class _ItemReciente {
   final String titulo;
@@ -126,82 +127,124 @@ class HomeScreenState extends State<HomeScreen> {
         children: [
           Container(
             margin: const EdgeInsets.only(top: 12, bottom: 20),
-            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [esquema.primary, esquema.primaryContainer],
+                colors: [oscurecer(esquema.primary, 0.16), esquema.primary],
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${_saludo()} Monica 😃',
-                  style: TextStyle(
-                    color: esquema.onPrimary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Domina los atajos del teclado',
-                  style: TextStyle(
-                    color: esquema.onPrimary.withValues(alpha: 0.9),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _busquedaController,
-                  style: TextStyle(color: esquema.onPrimary),
-                  onChanged: (valor) => setState(() => _busqueda = valor),
-                  decoration: InputDecoration(
-                    hintText: 'Buscar shortcut o comando...',
-                    hintStyle: TextStyle(
-                      color: esquema.onPrimary.withValues(alpha: 0.85),
+            // ClipRRect recorta el brillo y la curva a las esquinas
+            // redondeadas de la tarjeta, para que no se salgan.
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: Stack(
+                children: [
+                  // Brillo circular difuminado (como un reflejo suave),
+                  // arriba a la derecha.
+                  Positioned(
+                    top: -50,
+                    right: -40,
+                    child: Container(
+                      width: 190,
+                      height: 190,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Colors.white.withValues(alpha: 0.18),
+                            Colors.white.withValues(alpha: 0),
+                          ],
+                        ),
+                      ),
                     ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: esquema.onPrimary,
-                      size: 18,
+                  ),
+                  // Onda sutil pegada abajo, para dar textura sin competir
+                  // con el saludo ni con el buscador.
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: FondoSaludoPainter(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
                     ),
-                    suffixIcon: _busqueda.isEmpty
-                        ? null
-                        : IconButton(
-                            icon: Icon(
-                              Icons.close,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${_saludo()} Monica 😃',
+                          style: TextStyle(
+                            color: esquema.onPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Domina los atajos del teclado',
+                          style: TextStyle(
+                            color: esquema.onPrimary.withValues(alpha: 0.9),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: _busquedaController,
+                          style: TextStyle(color: esquema.onPrimary),
+                          onChanged: (valor) =>
+                              setState(() => _busqueda = valor),
+                          decoration: InputDecoration(
+                            hintText: 'Buscar shortcut o comando...',
+                            hintStyle: TextStyle(
+                              color: esquema.onPrimary.withValues(alpha: 0.85),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
                               color: esquema.onPrimary,
                               size: 18,
                             ),
-                            onPressed: () => setState(() {
-                              _busqueda = '';
-                              _busquedaController.clear();
-                            }),
+                            suffixIcon: _busqueda.isEmpty
+                                ? null
+                                : IconButton(
+                                    icon: Icon(
+                                      Icons.close,
+                                      color: esquema.onPrimary,
+                                      size: 18,
+                                    ),
+                                    onPressed: () => setState(() {
+                                      _busqueda = '';
+                                      _busquedaController.clear();
+                                    }),
+                                  ),
+                            filled: true,
+                            fillColor: esquema.onPrimary.withValues(
+                              alpha: 0.16,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                color: esquema.onPrimary.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(
+                                color: esquema.onPrimary.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide(color: esquema.onPrimary),
+                            ),
                           ),
-                    filled: true,
-                    fillColor: esquema.onPrimary.withValues(alpha: 0.16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(
-                        color: esquema.onPrimary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(
-                        color: esquema.onPrimary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: esquema.onPrimary),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           if (_busqueda.trim().isNotEmpty) ...[
