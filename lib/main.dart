@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'datos/categorias_controlador.dart';
 import 'pantallas/ajustes_screen.dart';
+import 'pantallas/categorias_screen.dart';
 import 'pantallas/estadisticas_screen.dart';
 import 'pantallas/root_shell.dart';
 import 'theme/theme_controller.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await CategoriasController.instance.cargar();
   runApp(const MainApp());
 }
 
@@ -29,6 +33,7 @@ class MainApp extends StatelessWidget {
             '/': (context) => const RootShell(),
             '/ajustes': (context) => const AjustesScreen(),
             '/estadisticas': (context) => const EstadisticasScreen(),
+            '/categorias': (context) => const CategoriasScreen(),
           },
         );
       },

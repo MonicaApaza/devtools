@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../datos/cambios_datos.dart';
-import '../datos/categorias.dart';
+import '../datos/categorias_controlador.dart';
 import '../helpers/db_helper.dart';
 import '../modelos/modelo_comando.dart';
 import '../modelos/modelo_shortcut.dart';
@@ -26,11 +26,13 @@ class _EstadisticasScreenState extends State<EstadisticasScreen> {
     super.initState();
     _cargar();
     CambiosDatos.instance.addListener(_cargar);
+    CategoriasController.instance.addListener(_cargar);
   }
 
   @override
   void dispose() {
     CambiosDatos.instance.removeListener(_cargar);
+    CategoriasController.instance.removeListener(_cargar);
     super.dispose();
   }
 
@@ -139,7 +141,7 @@ class _EstadisticasScreenState extends State<EstadisticasScreen> {
                 child: _shortcuts.isEmpty
                     ? const Text('Aún no hay shortcuts guardados.')
                     : Column(
-                        children: categoriasShortcut
+                        children: CategoriasController.instance.categoriasShortcut
                             .map(
                               (cat) => BarraEstadistica(
                                 icono: cat.icono,
@@ -172,7 +174,7 @@ class _EstadisticasScreenState extends State<EstadisticasScreen> {
                 child: _comandos.isEmpty
                     ? const Text('Aún no hay comandos guardados.')
                     : Column(
-                        children: categoriasComando
+                        children: CategoriasController.instance.categoriasComando
                             .map(
                               (cat) => BarraEstadistica(
                                 icono: cat.icono,

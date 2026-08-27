@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../datos/cambios_datos.dart';
-import '../datos/categorias.dart';
+import '../datos/categorias_controlador.dart';
 import '../helpers/db_helper.dart';
 import '../modelos/modelo_shortcut.dart';
 import '../widgets/shortcut_form_sheet.dart';
@@ -28,10 +28,14 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
   void initState() {
     super.initState();
     _cargar();
+    // Si se crea, edita o elimina una categoría desde CategoriasScreen, esta
+    // lista se refresca para mostrar los chips e íconos actualizados.
+    CategoriasController.instance.addListener(_cargar);
   }
 
   @override
   void dispose() {
+    CategoriasController.instance.removeListener(_cargar);
     _busquedaController.dispose();
     super.dispose();
   }
@@ -245,7 +249,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
   }
 
   void _mostrarDetalle(ModeloShortcut shortcut) {
-    final categoria = buscarCategoriaShortcut(shortcut.categoriaShortcut);
+    final categoria = CategoriasController.instance.buscarCategoriaShortcut(shortcut.categoriaShortcut);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -336,7 +340,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                   selected: _filtroCategoria == 'all',
                   onSelected: (_) => setState(() => _filtroCategoria = 'all'),
                 ),
-                ...categoriasShortcut.map(
+                ...CategoriasController.instance.categoriasShortcut.map(
                   (cat) => ChoiceChip(
                     label: Text(cat.nombre),
                     selected: _filtroCategoria == cat.id,
@@ -371,7 +375,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       itemCount: lista.length,
       itemBuilder: (context, index) {
         final s = lista[index];
-        final categoria = buscarCategoriaShortcut(s.categoriaShortcut);
+        final categoria = CategoriasController.instance.buscarCategoriaShortcut(s.categoriaShortcut);
         final expandido = _expandidoPk == s.pkShortcut;
 
         return Dismissible(
@@ -492,7 +496,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       itemCount: lista.length,
       itemBuilder: (context, index) {
         final s = lista[index];
-        final categoria = buscarCategoriaShortcut(s.categoriaShortcut);
+        final categoria = CategoriasController.instance.buscarCategoriaShortcut(s.categoriaShortcut);
         return Card(
           child: InkWell(
             borderRadius: BorderRadius.circular(18),

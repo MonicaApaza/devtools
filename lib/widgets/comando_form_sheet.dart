@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../datos/categorias.dart';
+import '../datos/categorias_controlador.dart';
 import '../helpers/db_helper.dart';
 import '../modelos/modelo_comando.dart';
 
@@ -159,7 +159,7 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: categoriasComando.map((cat) {
+                children: CategoriasController.instance.categoriasComando.map((cat) {
                   final seleccionada = cat.id == _categoriaSeleccionada;
                   return ChoiceChip(
                     label: Text(cat.nombre),

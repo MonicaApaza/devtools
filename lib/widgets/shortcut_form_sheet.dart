@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../datos/categorias.dart';
+import '../datos/categorias_controlador.dart';
 import '../helpers/db_helper.dart';
 import '../modelos/modelo_shortcut.dart';
 
@@ -160,7 +160,7 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: categoriasShortcut.map((cat) {
+                children: CategoriasController.instance.categoriasShortcut.map((cat) {
                   final seleccionada = cat.id == _categoriaSeleccionada;
                   return ChoiceChip(
                     label: Text(cat.nombre),

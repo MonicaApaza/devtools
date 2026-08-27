@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../datos/cambios_datos.dart';
-import '../datos/categorias.dart';
+import '../datos/categorias_controlador.dart';
 import '../helpers/db_helper.dart';
 import '../modelos/modelo_comando.dart';
 import '../widgets/comando_form_sheet.dart';
@@ -28,10 +28,12 @@ class ComandosScreenState extends State<ComandosScreen> {
   void initState() {
     super.initState();
     _cargar();
+    CategoriasController.instance.addListener(_cargar);
   }
 
   @override
   void dispose() {
+    CategoriasController.instance.removeListener(_cargar);
     _busquedaController.dispose();
     super.dispose();
   }
@@ -312,7 +314,7 @@ class ComandosScreenState extends State<ComandosScreen> {
                   selected: _filtroCategoria == 'all',
                   onSelected: (_) => setState(() => _filtroCategoria = 'all'),
                 ),
-                ...categoriasComando.map(
+                ...CategoriasController.instance.categoriasComando.map(
                   (cat) => ChoiceChip(
                     label: Text(cat.nombre),
                     selected: _filtroCategoria == cat.id,
@@ -347,7 +349,7 @@ class ComandosScreenState extends State<ComandosScreen> {
       itemCount: lista.length,
       itemBuilder: (context, index) {
         final c = lista[index];
-        final categoria = buscarCategoriaComando(c.categoriaComando);
+        final categoria = CategoriasController.instance.buscarCategoriaComando(c.categoriaComando);
 
         return Dismissible(
           key: ValueKey(c.pkComando),
@@ -504,7 +506,7 @@ class ComandosScreenState extends State<ComandosScreen> {
       itemCount: lista.length,
       itemBuilder: (context, index) {
         final c = lista[index];
-        final categoria = buscarCategoriaComando(c.categoriaComando);
+        final categoria = CategoriasController.instance.buscarCategoriaComando(c.categoriaComando);
         return Card(
           child: InkWell(
             borderRadius: BorderRadius.circular(18),

@@ -1,6 +1,8 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../datos/categorias.dart';
+import '../modelos/modelo_categoria.dart';
 import '../modelos/modelo_comando.dart';
 import '../modelos/modelo_shortcut.dart';
 
@@ -12,7 +14,7 @@ class DatabaseHelper {
   static Database? _db;
 
   static const String dbName = 'quickdev.db';
-  static const int dbVersion = 1;
+  static const int dbVersion = 2;
 
   static Future<Database> get database async {
     if (_db != null) return _db!;
@@ -23,7 +25,12 @@ class DatabaseHelper {
   static Future<Database> _initDB() async {
     String dbPath = await getDatabasesPath();
     String path = join(dbPath, dbName);
-    return await openDatabase(path, version: dbVersion, onCreate: _onCreate);
+    return await openDatabase(
+      path,
+      version: dbVersion,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   static Future _onCreate(Database db, int version) async {
@@ -53,7 +60,74 @@ class DatabaseHelper {
       )
     ''');
 
+    await _crearTablaCategoria(db);
+    await _sembrarCategorias(db);
     await _sembrarDatos(db);
+  }
+
+  static Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _crearTablaCategoria(db);
+      await _sembrarCategorias(db);
+    }
+  }
+
+  static Future _crearTablaCategoria(Database db) async {
+    await db.execute('''
+      CREATE TABLE categoria (
+        pkCategoria INTEGER PRIMARY KEY AUTOINCREMENT,
+        idCategoria TEXT NOT NULL,
+        nombreCategoria TEXT NOT NULL,
+        iconoCategoria TEXT NOT NULL,
+        tipoCategoria TEXT NOT NULL,
+        creadoEnCategoria INTEGER NOT NULL,
+        UNIQUE(idCategoria, tipoCategoria)
+      )
+    ''');
+  }
+
+  // Categorías por defecto, iguales a las que antes estaban fijas en
+  // código (lib/datos/categorias.dart), para que los shortcuts/comandos
+  // ya guardados sigan resolviendo a una categoría válida.
+  static Future _sembrarCategorias(Database db) async {
+    const shortcuts = [
+      ('vscode', 'VS Code', 'code'),
+      ('android', 'Android Studio', 'developer_mode'),
+      ('intellij', 'IntelliJ', 'diamond'),
+      ('git', 'Git', 'git'),
+      ('terminal', 'Terminal', 'terminal'),
+      ('browser', 'Navegador', 'browser'),
+      ('flutter', 'Flutter', 'flutter'),
+    ];
+    const comandos = [
+      ('git', 'Git', 'git'),
+      ('flutter', 'Flutter', 'flutter'),
+      ('terminal', 'Terminal', 'terminal'),
+      ('pub', 'Pub', 'pub'),
+    ];
+
+    for (final (id, nombre, icono) in shortcuts) {
+      await db.insert(
+        'categoria',
+        ModeloCategoria(
+          idCategoria: id,
+          nombreCategoria: nombre,
+          iconoCategoria: icono,
+          tipoCategoria: 'shortcut',
+        ).toMap(),
+      );
+    }
+    for (final (id, nombre, icono) in comandos) {
+      await db.insert(
+        'categoria',
+        ModeloCategoria(
+          idCategoria: id,
+          nombreCategoria: nombre,
+          iconoCategoria: icono,
+          tipoCategoria: 'comando',
+        ).toMap(),
+      );
+    }
   }
 
   static Future<void> _sembrarDatos(Database db) async {
@@ -186,5 +260,122 @@ class DatabaseHelper {
       limit: 1,
     );
     return result.isNotEmpty;
+  }
+
+  // ---------- Categorías ----------
+
+  Future<List<ModeloCategoria>> getCategoriasModelo(String tipo) async {
+    final db = await database;
+    final maps = await db.query(
+      'categoria',
+      where: 'tipoCategoria = ?',
+      whereArgs: [tipo],
+      orderBy: 'nombreCategoria ASC',
+    );
+    return List.generate(maps.length, (i) => ModeloCategoria.fromMap(maps[i]));
+  }
+
+  Future<List<Categoria>> getCategorias(String tipo) async {
+    final modelos = await getCategoriasModelo(tipo);
+    return modelos
+        .map(
+          (m) => Categoria(
+            id: m.idCategoria,
+            nombre: m.nombreCategoria,
+            icono: iconoPorClave(m.iconoCategoria),
+          ),
+        )
+        .toList();
+  }
+
+  Future<bool> existeNombreCategoria(
+    String tipo,
+    String nombre, {
+    int? excluirPk,
+  }) async {
+    final db = await database;
+    final result = await db.query(
+      'categoria',
+      columns: ['pkCategoria'],
+      where: excluirPk == null
+          ? 'tipoCategoria = ? AND nombreCategoria = ?'
+          : 'tipoCategoria = ? AND nombreCategoria = ? AND pkCategoria != ?',
+      whereArgs: excluirPk == null
+          ? [tipo, nombre]
+          : [tipo, nombre, excluirPk],
+      limit: 1,
+    );
+    return result.isNotEmpty;
+  }
+
+  Future<String> _generarIdCategoria(Database db, String tipo, String nombre) async {
+    final base = nombre
+        .toLowerCase()
+        .trim()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+        .replaceAll(RegExp(r'^_+|_+$'), '');
+    final slugBase = base.isEmpty ? 'categoria' : base;
+    var candidato = slugBase;
+    var sufijo = 1;
+    while (true) {
+      final result = await db.query(
+        'categoria',
+        columns: ['pkCategoria'],
+        where: 'tipoCategoria = ? AND idCategoria = ?',
+        whereArgs: [tipo, candidato],
+        limit: 1,
+      );
+      if (result.isEmpty) return candidato;
+      sufijo++;
+      candidato = '${slugBase}_$sufijo';
+    }
+  }
+
+  Future<void> insertarCategoria({
+    required String tipo,
+    required String nombre,
+    required String iconoClave,
+  }) async {
+    final db = await database;
+    final id = await _generarIdCategoria(db, tipo, nombre);
+    await db.insert(
+      'categoria',
+      ModeloCategoria(
+        idCategoria: id,
+        nombreCategoria: nombre,
+        iconoCategoria: iconoClave,
+        tipoCategoria: tipo,
+      ).toMap(),
+    );
+  }
+
+  Future<void> actualizarCategoria(ModeloCategoria categoria) async {
+    final db = await database;
+    await db.update(
+      'categoria',
+      categoria.toMap(),
+      where: 'pkCategoria = ?',
+      whereArgs: [categoria.pkCategoria],
+    );
+  }
+
+  Future<void> eliminarCategoria(int pkCategoria) async {
+    final db = await database;
+    await db.delete(
+      'categoria',
+      where: 'pkCategoria = ?',
+      whereArgs: [pkCategoria],
+    );
+  }
+
+  Future<int> contarUsoCategoria(String tipo, String idCategoria) async {
+    final db = await database;
+    final tabla = tipo == 'shortcut' ? 'shortcut' : 'comando';
+    final columna = tipo == 'shortcut' ? 'categoriaShortcut' : 'categoriaComando';
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) AS total FROM $tabla WHERE $columna = ?',
+      [idCategoria],
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
   }
 }

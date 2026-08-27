@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../datos/cambios_datos.dart';
-import '../datos/categorias.dart';
+import '../datos/categorias_controlador.dart';
 import '../helpers/db_helper.dart';
 import '../theme/theme_controller.dart';
 import '../utilidades/tiempo.dart';
@@ -33,15 +33,21 @@ class _CategoriaFiltro {
 }
 
 // Unión de las categorías de shortcuts y comandos (sin duplicados), para
-// poder filtrar ambos tipos de elementos con un solo set de chips.
-final List<_CategoriaFiltro> _categoriasHome = () {
+// poder filtrar ambos tipos de elementos con un solo set de chips. Se
+// recalcula en cada build porque las categorías pueden cambiar en tiempo
+// de ejecución (alta/edición/borrado desde CategoriasScreen).
+List<_CategoriaFiltro> _categoriasHome() {
+  final controlador = CategoriasController.instance;
   final vistas = <String>{};
   final resultado = <_CategoriaFiltro>[];
-  for (final cat in [...categoriasShortcut, ...categoriasComando]) {
+  for (final cat in [
+    ...controlador.categoriasShortcut,
+    ...controlador.categoriasComando,
+  ]) {
     if (vistas.add(cat.id)) resultado.add(_CategoriaFiltro(cat.id, cat.nombre));
   }
   return resultado;
-}();
+}
 
 class HomeScreen extends StatefulWidget {
   final ValueChanged<int> onNavegar;
@@ -68,11 +74,13 @@ class HomeScreenState extends State<HomeScreen> {
     // edición, borrado) para que Inicio se refresque sin que nadie más
     // tenga que acordarse de llamarlo a mano.
     CambiosDatos.instance.addListener(cargar);
+    CategoriasController.instance.addListener(cargar);
   }
 
   @override
   void dispose() {
     CambiosDatos.instance.removeListener(cargar);
+    CategoriasController.instance.removeListener(cargar);
     _busquedaController.dispose();
     super.dispose();
   }
@@ -86,7 +94,7 @@ class HomeScreenState extends State<HomeScreen> {
         (s) => _ItemReciente(
           s.tituloShortcut,
           s.teclas.join(' + '),
-          buscarCategoriaShortcut(s.categoriaShortcut).icono,
+          CategoriasController.instance.buscarCategoriaShortcut(s.categoriaShortcut).icono,
           s.creadoEnShortcut,
           1,
           s.esFavorito,
@@ -97,7 +105,7 @@ class HomeScreenState extends State<HomeScreen> {
         (c) => _ItemReciente(
           c.tituloComando,
           c.textoComando,
-          buscarCategoriaComando(c.categoriaComando).icono,
+          CategoriasController.instance.buscarCategoriaComando(c.categoriaComando).icono,
           c.creadoEnComando,
           2,
           c.esFavorito,
@@ -287,7 +295,7 @@ class HomeScreenState extends State<HomeScreen> {
                   selected: _filtroCategoria == 'all',
                   onSelected: (_) => setState(() => _filtroCategoria = 'all'),
                 ),
-                ..._categoriasHome.map(
+                ..._categoriasHome().map(
                   (cat) => ChoiceChip(
                     label: Text(cat.nombre),
                     selected: _filtroCategoria == cat.id,

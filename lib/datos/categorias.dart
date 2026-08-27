@@ -8,33 +8,28 @@ class Categoria {
   const Categoria({required this.id, required this.nombre, required this.icono});
 }
 
-const List<Categoria> categoriasShortcut = [
-  Categoria(id: 'vscode', nombre: 'VS Code', icono: Icons.code),
-  Categoria(id: 'android', nombre: 'Android Studio', icono: Icons.developer_mode),
-  Categoria(id: 'intellij', nombre: 'IntelliJ', icono: Icons.diamond_outlined),
-  Categoria(id: 'git', nombre: 'Git', icono: Icons.account_tree_outlined),
-  Categoria(id: 'terminal', nombre: 'Terminal', icono: Icons.terminal),
-  Categoria(id: 'browser', nombre: 'Navegador', icono: Icons.public),
-  Categoria(id: 'flutter', nombre: 'Flutter', icono: Icons.smartphone),
-];
+// Catálogo fijo de íconos seleccionables al crear/editar una categoría.
+// Se guarda la clave (String) en la base de datos en vez del IconData: así
+// el "tree shaker" de íconos de Flutter puede seguir viendo referencias
+// const directas a Icons.* y no falla en los builds de release.
+const Map<String, IconData> iconosCategoria = {
+  'code': Icons.code,
+  'developer_mode': Icons.developer_mode,
+  'diamond': Icons.diamond_outlined,
+  'git': Icons.account_tree_outlined,
+  'terminal': Icons.terminal,
+  'browser': Icons.public,
+  'flutter': Icons.smartphone,
+  'pub': Icons.inventory_2_outlined,
+  'star': Icons.star_outline,
+  'bug': Icons.bug_report_outlined,
+  'cloud': Icons.cloud_outlined,
+  'settings': Icons.settings_outlined,
+  'extension': Icons.extension_outlined,
+  'build': Icons.build_outlined,
+  'folder': Icons.folder_outlined,
+  'category': Icons.category_outlined,
+};
 
-const List<Categoria> categoriasComando = [
-  Categoria(id: 'git', nombre: 'Git', icono: Icons.account_tree_outlined),
-  Categoria(id: 'flutter', nombre: 'Flutter', icono: Icons.smartphone),
-  Categoria(id: 'terminal', nombre: 'Terminal', icono: Icons.terminal),
-  Categoria(id: 'pub', nombre: 'Pub', icono: Icons.inventory_2_outlined),
-];
-
-Categoria buscarCategoriaShortcut(String id) {
-  return categoriasShortcut.firstWhere(
-    (c) => c.id == id,
-    orElse: () => categoriasShortcut.first,
-  );
-}
-
-Categoria buscarCategoriaComando(String id) {
-  return categoriasComando.firstWhere(
-    (c) => c.id == id,
-    orElse: () => categoriasComando.first,
-  );
-}
+IconData iconoPorClave(String clave) =>
+    iconosCategoria[clave] ?? Icons.category_outlined;
