@@ -14,6 +14,7 @@ class _ItemReciente {
   final int creadoEn;
   final int destino; // 1 = shortcuts, 2 = comandos
   final bool favorito;
+  final String categoriaId;
   _ItemReciente(
     this.titulo,
     this.meta,
@@ -21,8 +22,26 @@ class _ItemReciente {
     this.creadoEn,
     this.destino,
     this.favorito,
+    this.categoriaId,
   );
 }
+
+class _CategoriaFiltro {
+  final String id;
+  final String nombre;
+  const _CategoriaFiltro(this.id, this.nombre);
+}
+
+// Unión de las categorías de shortcuts y comandos (sin duplicados), para
+// poder filtrar ambos tipos de elementos con un solo set de chips.
+final List<_CategoriaFiltro> _categoriasHome = () {
+  final vistas = <String>{};
+  final resultado = <_CategoriaFiltro>[];
+  for (final cat in [...categoriasShortcut, ...categoriasComando]) {
+    if (vistas.add(cat.id)) resultado.add(_CategoriaFiltro(cat.id, cat.nombre));
+  }
+  return resultado;
+}();
 
 class HomeScreen extends StatefulWidget {
   final ValueChanged<int> onNavegar;
@@ -38,9 +57,8 @@ class HomeScreenState extends State<HomeScreen> {
   final _busquedaController = TextEditingController();
   bool _cargando = true;
   String _busqueda = '';
+  String _filtroCategoria = 'all';
   List<_ItemReciente> _todos = [];
-  List<_ItemReciente> _favoritos = [];
-  List<_ItemReciente> _recientes = [];
 
   @override
   void initState() {
@@ -72,6 +90,7 @@ class HomeScreenState extends State<HomeScreen> {
           s.creadoEnShortcut,
           1,
           s.esFavorito,
+          s.categoriaShortcut,
         ),
       ),
       ...comandos.map(
@@ -82,6 +101,7 @@ class HomeScreenState extends State<HomeScreen> {
           c.creadoEnComando,
           2,
           c.esFavorito,
+          c.categoriaComando,
         ),
       ),
     ];
@@ -91,16 +111,24 @@ class HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     setState(() {
       _todos = items;
-      _favoritos = items.where((i) => i.favorito).toList();
-      _recientes = items.take(5).toList();
       _cargando = false;
     });
   }
 
+  List<_ItemReciente> get _itemsFiltrados {
+    if (_filtroCategoria == 'all') return _todos;
+    return _todos.where((i) => i.categoriaId == _filtroCategoria).toList();
+  }
+
+  List<_ItemReciente> get _favoritos =>
+      _itemsFiltrados.where((i) => i.favorito).toList();
+
+  List<_ItemReciente> get _recientes => _itemsFiltrados.take(5).toList();
+
   List<_ItemReciente> get _resultadosBusqueda {
     final q = _busqueda.trim().toLowerCase();
     if (q.isEmpty) return const [];
-    return _todos
+    return _itemsFiltrados
         .where(
           (i) =>
               i.titulo.toLowerCase().contains(q) ||
@@ -248,6 +276,29 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ChoiceChip(
+                  label: const Text('Todos'),
+                  selected: _filtroCategoria == 'all',
+                  onSelected: (_) => setState(() => _filtroCategoria = 'all'),
+                ),
+                ..._categoriasHome.map(
+                  (cat) => ChoiceChip(
+                    label: Text(cat.nombre),
+                    selected: _filtroCategoria == cat.id,
+                    onSelected: (_) =>
+                        setState(() => _filtroCategoria = cat.id),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           if (_busqueda.trim().isNotEmpty) ...[
             Text(
               'RESULTADOS',
