@@ -93,6 +93,8 @@ class ComandosScreenState extends State<ComandosScreen> {
 
   Future<void> _copiar(ModeloComando comando) async {
     await Clipboard.setData(ClipboardData(text: comando.textoComando));
+    await _dbHelper.incrementarUsoComando(comando.pkComando!);
+    setState(() => comando.usosComando++);
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
@@ -109,6 +111,7 @@ class ComandosScreenState extends State<ComandosScreen> {
       categoriaComando: comando.categoriaComando,
       etiquetasComando: comando.etiquetasComando,
       favoritoComando: comando.favoritoComando,
+      usosComando: comando.usosComando,
     );
     await _dbHelper.eliminarComando(comando.pkComando!);
     await _cargar();
@@ -484,6 +487,19 @@ class ComandosScreenState extends State<ComandosScreen> {
                         ),
                       ),
                     ),
+                    if (c.usosComando > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 52, top: 6),
+                        child: Text(
+                          c.usosComando == 1
+                              ? 'Copiado 1 vez'
+                              : 'Copiado ${c.usosComando} veces',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline,
+                            fontSize: 11.5,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -552,6 +568,26 @@ class ComandosScreenState extends State<ComandosScreen> {
                           ),
                         ),
                       ),
+                      if (c.usosComando > 0) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.repeat,
+                              size: 12,
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              '${c.usosComando}',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.outline,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                   Positioned(

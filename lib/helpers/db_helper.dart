@@ -14,7 +14,7 @@ class DatabaseHelper {
   static Database? _db;
 
   static const String dbName = 'quickdev.db';
-  static const int dbVersion = 2;
+  static const int dbVersion = 3;
 
   static Future<Database> get database async {
     if (_db != null) return _db!;
@@ -56,7 +56,8 @@ class DatabaseHelper {
         categoriaComando TEXT NOT NULL,
         etiquetasComando TEXT,
         favoritoComando INTEGER NOT NULL DEFAULT 0,
-        creadoEnComando INTEGER NOT NULL
+        creadoEnComando INTEGER NOT NULL,
+        usosComando INTEGER NOT NULL DEFAULT 0
       )
     ''');
 
@@ -69,6 +70,11 @@ class DatabaseHelper {
     if (oldVersion < 2) {
       await _crearTablaCategoria(db);
       await _sembrarCategorias(db);
+    }
+    if (oldVersion < 3) {
+      await db.execute(
+        'ALTER TABLE comando ADD COLUMN usosComando INTEGER NOT NULL DEFAULT 0',
+      );
     }
   }
 
@@ -240,6 +246,14 @@ class DatabaseHelper {
   Future<void> eliminarComando(int pkComando) async {
     final db = await database;
     await db.delete('comando', where: 'pkComando = ?', whereArgs: [pkComando]);
+  }
+
+  Future<void> incrementarUsoComando(int pkComando) async {
+    final db = await database;
+    await db.rawUpdate(
+      'UPDATE comando SET usosComando = usosComando + 1 WHERE pkComando = ?',
+      [pkComando],
+    );
   }
 
   Future<List<ModeloComando>> getComandos() async {

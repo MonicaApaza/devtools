@@ -7,6 +7,7 @@ class ModeloComando {
   String etiquetasComando;
   int favoritoComando;
   int creadoEnComando;
+  int usosComando;
 
   ModeloComando({
     this.pkComando,
@@ -17,6 +18,7 @@ class ModeloComando {
     this.etiquetasComando = '',
     this.favoritoComando = 0,
     int? creadoEnComando,
+    this.usosComando = 0,
   }) : creadoEnComando = creadoEnComando ?? DateTime.now().millisecondsSinceEpoch;
 
   List<String> get etiquetas => etiquetasComando
@@ -37,6 +39,7 @@ class ModeloComando {
       'etiquetasComando': etiquetasComando,
       'favoritoComando': favoritoComando,
       'creadoEnComando': creadoEnComando,
+      'usosComando': usosComando,
     };
   }
 
@@ -50,6 +53,7 @@ class ModeloComando {
       etiquetasComando: map['etiquetasComando'] ?? '',
       favoritoComando: map['favoritoComando'] ?? 0,
       creadoEnComando: map['creadoEnComando'],
+      usosComando: map['usosComando'] ?? 0,
     );
   }
 }
