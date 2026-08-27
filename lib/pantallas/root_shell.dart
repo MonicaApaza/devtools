@@ -29,13 +29,56 @@ class _RootShellState extends State<RootShell> {
   }
 
   Future<void> _presionarFab() async {
-    // En Inicio y Más no hay una lista propia que agregar, así que por
-    // defecto se ofrece un nuevo shortcut (igual que en el diseño).
+    if (_indice == 1) {
+      await _shortcutsKey.currentState?.mostrarFormularioNuevo();
+      return;
+    }
     if (_indice == 2) {
       await _comandosKey.currentState?.mostrarFormularioNuevo();
-    } else {
-      await _shortcutsKey.currentState?.mostrarFormularioNuevo();
+      return;
     }
+    // En Inicio y Más no hay una lista propia que agregar, así que se
+    // pregunta primero qué se quiere crear.
+    final tipo = await _elegirTipoNuevo();
+    if (tipo == 1) {
+      await _shortcutsKey.currentState?.mostrarFormularioNuevo();
+    } else if (tipo == 2) {
+      await _comandosKey.currentState?.mostrarFormularioNuevo();
+    }
+  }
+
+  Future<int?> _elegirTipoNuevo() {
+    return showModalBottomSheet<int>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 4),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '¿Qué deseas crear?',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.keyboard_outlined),
+              title: const Text('Shortcut'),
+              onTap: () => Navigator.of(context).pop(1),
+            ),
+            ListTile(
+              leading: const Icon(Icons.terminal),
+              title: const Text('Comando'),
+              onTap: () => Navigator.of(context).pop(2),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
