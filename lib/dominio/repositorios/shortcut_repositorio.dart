@@ -5,9 +5,9 @@ import '../../data/modelos/modelo_shortcut.dart';
 /// origen de datos (hoy SQLite, mañana quizá Supabase) sea intercambiable
 /// sin tocar controladores ni pantallas.
 abstract class ShortcutRepositorio {
-  Future<List<ModeloShortcut>> listar();
+  Future<List<ModeloShortcut>> listar(String usuario);
   Future<int> crear(ModeloShortcut shortcut);
   Future<void> actualizar(ModeloShortcut shortcut);
   Future<void> eliminar(int pkShortcut);
-  Future<bool> existeTitulo(String titulo, {int? excluirPk});
+  Future<bool> existeTitulo(String titulo, String usuario, {int? excluirPk});
 }

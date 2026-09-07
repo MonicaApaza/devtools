@@ -9,7 +9,8 @@ class ShortcutRepositorioImpl implements ShortcutRepositorio {
     : _dbHelper = dbHelper ?? DatabaseHelper();
 
   @override
-  Future<List<ModeloShortcut>> listar() => _dbHelper.getShortcuts();
+  Future<List<ModeloShortcut>> listar(String usuario) =>
+      _dbHelper.getShortcuts(usuario);
 
   @override
   Future<int> crear(ModeloShortcut shortcut) =>
@@ -24,6 +25,6 @@ class ShortcutRepositorioImpl implements ShortcutRepositorio {
       _dbHelper.eliminarShortcut(pkShortcut);
 
   @override
-  Future<bool> existeTitulo(String titulo, {int? excluirPk}) =>
-      _dbHelper.existeTituloShortcut(titulo, excluirPk: excluirPk);
+  Future<bool> existeTitulo(String titulo, String usuario, {int? excluirPk}) =>
+      _dbHelper.existeTituloShortcut(titulo, usuario, excluirPk: excluirPk);
 }

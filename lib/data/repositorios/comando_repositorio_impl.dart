@@ -9,7 +9,8 @@ class ComandoRepositorioImpl implements ComandoRepositorio {
     : _dbHelper = dbHelper ?? DatabaseHelper();
 
   @override
-  Future<List<ModeloComando>> listar() => _dbHelper.getComandos();
+  Future<List<ModeloComando>> listar(String usuario) =>
+      _dbHelper.getComandos(usuario);
 
   @override
   Future<int> crear(ModeloComando comando) =>
@@ -27,6 +28,6 @@ class ComandoRepositorioImpl implements ComandoRepositorio {
       _dbHelper.incrementarUsoComando(pkComando);
 
   @override
-  Future<bool> existeTitulo(String titulo, {int? excluirPk}) =>
-      _dbHelper.existeTituloComando(titulo, excluirPk: excluirPk);
+  Future<bool> existeTitulo(String titulo, String usuario, {int? excluirPk}) =>
+      _dbHelper.existeTituloComando(titulo, usuario, excluirPk: excluirPk);
 }

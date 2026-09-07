@@ -10,25 +10,37 @@ class CategoriaRepositorioImpl implements CategoriaRepositorio {
     : _dbHelper = dbHelper ?? DatabaseHelper();
 
   @override
-  Future<List<ModeloCategoria>> listarModelo(String tipo) =>
-      _dbHelper.getCategoriasModelo(tipo);
+  Future<List<ModeloCategoria>> listarModelo(String tipo, String usuario) =>
+      _dbHelper.getCategoriasModelo(tipo, usuario);
 
   @override
-  Future<List<Categoria>> listar(String tipo) => _dbHelper.getCategorias(tipo);
+  Future<List<Categoria>> listar(String tipo, String usuario) =>
+      _dbHelper.getCategorias(tipo, usuario);
 
   @override
-  Future<bool> existeNombre(String tipo, String nombre, {int? excluirPk}) =>
-      _dbHelper.existeNombreCategoria(tipo, nombre, excluirPk: excluirPk);
+  Future<bool> existeNombre(
+    String tipo,
+    String nombre,
+    String usuario, {
+    int? excluirPk,
+  }) => _dbHelper.existeNombreCategoria(
+    tipo,
+    nombre,
+    usuario,
+    excluirPk: excluirPk,
+  );
 
   @override
   Future<void> crear({
     required String tipo,
     required String nombre,
     required String iconoClave,
+    required String usuario,
   }) => _dbHelper.insertarCategoria(
     tipo: tipo,
     nombre: nombre,
     iconoClave: iconoClave,
+    usuario: usuario,
   );
 
   @override
@@ -40,6 +52,6 @@ class CategoriaRepositorioImpl implements CategoriaRepositorio {
       _dbHelper.eliminarCategoria(pkCategoria);
 
   @override
-  Future<int> contarUso(String tipo, String idCategoria) =>
-      _dbHelper.contarUsoCategoria(tipo, idCategoria);
+  Future<int> contarUso(String tipo, String idCategoria, String usuario) =>
+      _dbHelper.contarUsoCategoria(tipo, idCategoria, usuario);
 }
