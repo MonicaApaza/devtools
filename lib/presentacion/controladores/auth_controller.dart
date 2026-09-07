@@ -24,6 +24,11 @@ class AuthController extends GetxController {
   final Rxn<Sesion> sesion = Rxn<Sesion>();
   final mostrarContrasena = false.obs;
 
+  // Cadena vacía cuando no hay sesión: no matchea ningún usuario guardado
+  // en la base, así que shortcuts/comandos/categorías simplemente se ven
+  // como listas vacías en vez de fallar.
+  String get usuarioActual => sesion.value?.usuario ?? '';
+
   void alternarVisibilidadContrasena() {
     mostrarContrasena.toggle();
   }

@@ -74,6 +74,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       categoriaShortcut: shortcut.categoriaShortcut,
       etiquetasShortcut: shortcut.etiquetasShortcut,
       favoritoShortcut: shortcut.favoritoShortcut,
+      usuarioShortcut: shortcut.usuarioShortcut,
     );
     await controller.eliminar(shortcut);
     if (!mounted) return;

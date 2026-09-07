@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../data/modelos/modelo_comando.dart';
 import '../../data/repositorios/comando_repositorio_impl.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
+import 'auth_controller.dart';
 import 'busqueda_controller.dart';
 import 'notificador_cambios.dart';
 
@@ -27,7 +28,9 @@ class ComandosController extends GetxController {
 
   Future<void> cargar() async {
     cargando.value = true;
-    comandos.assignAll(await _repositorio.listar());
+    comandos.assignAll(
+      await _repositorio.listar(AuthController.instance.usuarioActual),
+    );
     cargando.value = false;
     await avisarCambioDeDatos();
   }

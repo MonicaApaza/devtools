@@ -92,6 +92,7 @@ class ComandosScreenState extends State<ComandosScreen> {
       etiquetasComando: comando.etiquetasComando,
       favoritoComando: comando.favoritoComando,
       usosComando: comando.usosComando,
+      usuarioComando: comando.usuarioComando,
     );
     await controller.eliminar(comando);
     if (!mounted) return;

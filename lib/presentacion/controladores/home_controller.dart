@@ -6,6 +6,7 @@ import '../../data/repositorios/shortcut_repositorio_impl.dart';
 import '../../datos/categorias_controlador.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
+import 'auth_controller.dart';
 import 'busqueda_controller.dart';
 
 class ItemReciente {
@@ -56,8 +57,9 @@ class HomeController extends GetxController {
   }
 
   Future<void> cargar() async {
-    final shortcuts = await _shortcutRepositorio.listar();
-    final comandos = await _comandoRepositorio.listar();
+    final usuario = AuthController.instance.usuarioActual;
+    final shortcuts = await _shortcutRepositorio.listar(usuario);
+    final comandos = await _comandoRepositorio.listar(usuario);
 
     final items = <ItemReciente>[
       ...shortcuts.map(

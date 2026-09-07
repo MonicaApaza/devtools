@@ -6,6 +6,7 @@ import '../../data/repositorios/comando_repositorio_impl.dart';
 import '../../data/repositorios/shortcut_repositorio_impl.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
+import 'auth_controller.dart';
 
 /// Estado y lógica de la pantalla Estadísticas: totales, favoritos y
 /// conteo por categoría, calculados sobre los shortcuts/comandos actuales.
@@ -30,8 +31,9 @@ class EstadisticasController extends GetxController {
   }
 
   Future<void> cargar() async {
-    shortcuts.assignAll(await _shortcutRepositorio.listar());
-    comandos.assignAll(await _comandoRepositorio.listar());
+    final usuario = AuthController.instance.usuarioActual;
+    shortcuts.assignAll(await _shortcutRepositorio.listar(usuario));
+    comandos.assignAll(await _comandoRepositorio.listar(usuario));
     cargando.value = false;
   }
 

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../data/datos_estaticos/categorias.dart';
 import '../data/repositorios/categoria_repositorio_impl.dart';
 import '../dominio/repositorios/categoria_repositorio.dart';
+import '../presentacion/controladores/auth_controller.dart';
 
 /// Caché en memoria de las categorías (de shortcuts y de comandos), cargada
 /// desde la base de datos a través de CategoriaRepositorio. Se registra una
@@ -22,9 +23,20 @@ class CategoriasController extends GetxController {
   final RxList<Categoria> categoriasComando = <Categoria>[].obs;
   final RxInt version = 0.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    // A diferencia de los demás controladores (que se recrean al hacer
+    // login/logout junto con RootShell), este vive desde antes del primer
+    // login (permanent: true en main()), así que necesita recargar solo
+    // cuando cambia la sesión.
+    ever(AuthController.instance.sesion, (_) => cargar());
+  }
+
   Future<void> cargar() async {
-    categoriasShortcut.assignAll(await _repositorio.listar('shortcut'));
-    categoriasComando.assignAll(await _repositorio.listar('comando'));
+    final usuario = AuthController.instance.usuarioActual;
+    categoriasShortcut.assignAll(await _repositorio.listar('shortcut', usuario));
+    categoriasComando.assignAll(await _repositorio.listar('comando', usuario));
     version.value++;
   }
 
