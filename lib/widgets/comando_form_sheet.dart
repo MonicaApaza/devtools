@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../datos/categorias_controlador.dart';
 import '../data/datasources/db_helper.dart';
 import '../data/modelos/modelo_comando.dart';
+import '../presentacion/controladores/auth_controller.dart';
 
 /// Formulario de alta/edición de un Comando. Misma estructura `Form` +
 /// `TextFormField` + `GlobalKey<FormState>` que ShortcutFormSheet.
@@ -59,8 +60,13 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
     if (!formValido || !categoriaValida) return;
 
     final titulo = _titulo.text.trim();
+    // Al editar se conserva el dueño original; al crear, queda a nombre de
+    // quien tiene la sesión iniciada.
+    final usuario =
+        widget.existente?.usuarioComando ?? AuthController.instance.usuarioActual;
     final existeDuplicado = await _dbHelper.existeTituloComando(
       titulo,
+      usuario,
       excluirPk: widget.existente?.pkComando,
     );
     if (existeDuplicado) {
@@ -84,6 +90,7 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
       etiquetasComando: _etiquetas.text.trim(),
       favoritoComando: _favorito ? 1 : 0,
       creadoEnComando: widget.existente?.creadoEnComando,
+      usuarioComando: usuario,
     );
 
     if (_esEdicion) {

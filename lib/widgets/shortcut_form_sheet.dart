@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../datos/categorias_controlador.dart';
 import '../data/datasources/db_helper.dart';
 import '../data/modelos/modelo_shortcut.dart';
+import '../presentacion/controladores/auth_controller.dart';
 
 /// Formulario de alta/edición de un Shortcut.
 /// Usa `Form` + `TextFormField` + `GlobalKey<FormState>` (validación estándar
@@ -60,8 +61,13 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
     if (!formValido || !categoriaValida) return;
 
     final titulo = _titulo.text.trim();
+    // Al editar se conserva el dueño original; al crear, queda a nombre de
+    // quien tiene la sesión iniciada.
+    final usuario =
+        widget.existente?.usuarioShortcut ?? AuthController.instance.usuarioActual;
     final existeDuplicado = await _dbHelper.existeTituloShortcut(
       titulo,
+      usuario,
       excluirPk: widget.existente?.pkShortcut,
     );
     if (existeDuplicado) {
@@ -85,6 +91,7 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
       etiquetasShortcut: _etiquetas.text.trim(),
       favoritoShortcut: _favorito ? 1 : 0,
       creadoEnShortcut: widget.existente?.creadoEnShortcut,
+      usuarioShortcut: usuario,
     );
 
     if (_esEdicion) {

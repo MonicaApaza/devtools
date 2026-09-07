@@ -4,6 +4,7 @@ import '../data/datos_estaticos/categorias.dart';
 import '../datos/categorias_controlador.dart';
 import '../data/datasources/db_helper.dart';
 import '../data/modelos/modelo_categoria.dart';
+import '../presentacion/controladores/auth_controller.dart';
 
 /// Formulario de alta/edición de una Categoría (nombre + ícono + tipo). El
 /// tipo puede ser 'shortcut', 'comando' o 'ambos' (visible en las dos
@@ -59,6 +60,10 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
     if (!_formKey.currentState!.validate()) return;
 
     final nombre = _nombre.text.trim();
+    // Al editar se conserva el dueño original; al crear, queda a nombre de
+    // quien tiene la sesión iniciada.
+    final usuario =
+        widget.existente?.usuarioCategoria ?? AuthController.instance.usuarioActual;
 
     if (_esEdicion) {
       final ladosAntes = _ladosDe(widget.existente!.tipoCategoria).toSet();
@@ -68,6 +73,7 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
         final enUso = await _dbHelper.contarUsoCategoria(
           lado,
           widget.existente!.idCategoria,
+          usuario,
         );
         if (enUso > 0) {
           if (!mounted) return;
@@ -89,6 +95,7 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
     final existeDuplicado = await _dbHelper.existeNombreCategoria(
       _tipoSeleccionado,
       nombre,
+      usuario,
       excluirPk: widget.existente?.pkCategoria,
     );
     if (existeDuplicado) {
@@ -114,6 +121,7 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
         tipo: _tipoSeleccionado,
         nombre: nombre,
         iconoClave: _iconoSeleccionado,
+        usuario: usuario,
       );
     }
     await CategoriasController.instance.cargar();
