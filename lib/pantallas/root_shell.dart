@@ -18,14 +18,29 @@ class _RootShellState extends State<RootShell> {
   bool _vistaGridShortcuts = false;
   bool _vistaGridComandos = false;
 
+  // No es un Hero (cambiar de pestaña no es una navegación de rutas, así
+  // que Hero no puede animar ahí): es un fundido rápido de
+  // salida-cambio-entrada alrededor del IndexedStack para suavizar el
+  // cambio, sin destruir ni recrear ninguna pantalla (los GlobalKey y el
+  // estado de cada tab se conservan igual que antes).
+  bool _visible = true;
+  static const _duracionFundido = Duration(milliseconds: 150);
+
   final _homeKey = GlobalKey<HomeScreenState>();
   final _shortcutsKey = GlobalKey<ShortcutsScreenState>();
   final _comandosKey = GlobalKey<ComandosScreenState>();
 
   static const _titulos = ['Inicio', 'Shortcuts', 'Comandos', 'Más'];
 
-  void _irA(int indice) {
-    setState(() => _indice = indice);
+  Future<void> _irA(int indice) async {
+    if (indice == _indice) return;
+    setState(() => _visible = false);
+    await Future.delayed(_duracionFundido);
+    if (!mounted) return;
+    setState(() {
+      _indice = indice;
+      _visible = true;
+    });
   }
 
   Future<void> _presionarFab() async {
@@ -89,33 +104,41 @@ class _RootShellState extends State<RootShell> {
         actions: [
           if (_indice == 1)
             IconButton(
-              icon: Icon(_vistaGridShortcuts ? Icons.view_list : Icons.grid_view),
-              tooltip: _vistaGridShortcuts ? 'Ver como lista' : 'Ver como cuadrícula',
-              onPressed: () => setState(() => _vistaGridShortcuts = !_vistaGridShortcuts),
+              icon: Icon(
+                _vistaGridShortcuts ? Icons.view_list : Icons.grid_view,
+              ),
+              tooltip: _vistaGridShortcuts
+                  ? 'Ver como lista'
+                  : 'Ver como cuadrícula',
+              onPressed: () =>
+                  setState(() => _vistaGridShortcuts = !_vistaGridShortcuts),
             ),
           if (_indice == 2)
             IconButton(
-              icon: Icon(_vistaGridComandos ? Icons.view_list : Icons.grid_view),
-              tooltip: _vistaGridComandos ? 'Ver como lista' : 'Ver como cuadrícula',
-              onPressed: () => setState(() => _vistaGridComandos = !_vistaGridComandos),
+              icon: Icon(
+                _vistaGridComandos ? Icons.view_list : Icons.grid_view,
+              ),
+              tooltip: _vistaGridComandos
+                  ? 'Ver como lista'
+                  : 'Ver como cuadrícula',
+              onPressed: () =>
+                  setState(() => _vistaGridComandos = !_vistaGridComandos),
             ),
         ],
       ),
       drawer: AppDrawer(indiceActual: _indice, onSeleccionar: _irA),
-      body: IndexedStack(
-        index: _indice,
-        children: [
-          HomeScreen(key: _homeKey, onNavegar: _irA),
-          ShortcutsScreen(
-            key: _shortcutsKey,
-            vistaGrid: _vistaGridShortcuts,
-          ),
-          ComandosScreen(
-            key: _comandosKey,
-            vistaGrid: _vistaGridComandos,
-          ),
-          const MasScreen(),
-        ],
+      body: AnimatedOpacity(
+        opacity: _visible ? 1 : 0,
+        duration: _duracionFundido,
+        child: IndexedStack(
+          index: _indice,
+          children: [
+            HomeScreen(key: _homeKey, onNavegar: _irA),
+            ShortcutsScreen(key: _shortcutsKey, vistaGrid: _vistaGridShortcuts),
+            ComandosScreen(key: _comandosKey, vistaGrid: _vistaGridComandos),
+            const MasScreen(),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _presionarFab,
@@ -128,11 +151,31 @@ class _RootShellState extends State<RootShell> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _BotonNav(icono: Icons.home_outlined, etiqueta: 'Inicio', activo: _indice == 0, onTap: () => _irA(0)),
-            _BotonNav(icono: Icons.keyboard_outlined, etiqueta: 'Shortcuts', activo: _indice == 1, onTap: () => _irA(1)),
+            _BotonNav(
+              icono: Icons.home_outlined,
+              etiqueta: 'Inicio',
+              activo: _indice == 0,
+              onTap: () => _irA(0),
+            ),
+            _BotonNav(
+              icono: Icons.keyboard_outlined,
+              etiqueta: 'Shortcuts',
+              activo: _indice == 1,
+              onTap: () => _irA(1),
+            ),
             const SizedBox(width: 40),
-            _BotonNav(icono: Icons.terminal, etiqueta: 'Comandos', activo: _indice == 2, onTap: () => _irA(2)),
-            _BotonNav(icono: Icons.more_horiz, etiqueta: 'Más', activo: _indice == 3, onTap: () => _irA(3)),
+            _BotonNav(
+              icono: Icons.terminal,
+              etiqueta: 'Comandos',
+              activo: _indice == 2,
+              onTap: () => _irA(2),
+            ),
+            _BotonNav(
+              icono: Icons.more_horiz,
+              etiqueta: 'Más',
+              activo: _indice == 3,
+              onTap: () => _irA(3),
+            ),
           ],
         ),
       ),
