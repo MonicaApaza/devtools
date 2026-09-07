@@ -7,6 +7,7 @@ class ModeloShortcut {
   String etiquetasShortcut;
   int favoritoShortcut;
   int creadoEnShortcut;
+  String usuarioShortcut;
 
   ModeloShortcut({
     this.pkShortcut,
@@ -17,6 +18,7 @@ class ModeloShortcut {
     this.etiquetasShortcut = '',
     this.favoritoShortcut = 0,
     int? creadoEnShortcut,
+    required this.usuarioShortcut,
   }) : creadoEnShortcut = creadoEnShortcut ?? DateTime.now().millisecondsSinceEpoch;
 
   List<String> get teclas =>
@@ -40,6 +42,7 @@ class ModeloShortcut {
       'etiquetasShortcut': etiquetasShortcut,
       'favoritoShortcut': favoritoShortcut,
       'creadoEnShortcut': creadoEnShortcut,
+      'usuarioShortcut': usuarioShortcut,
     };
   }
 
@@ -53,6 +56,7 @@ class ModeloShortcut {
       etiquetasShortcut: map['etiquetasShortcut'] ?? '',
       favoritoShortcut: map['favoritoShortcut'] ?? 0,
       creadoEnShortcut: map['creadoEnShortcut'],
+      usuarioShortcut: map['usuarioShortcut'],
     );
   }
 }

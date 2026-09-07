@@ -5,6 +5,7 @@ class ModeloCategoria {
   String iconoCategoria;
   String tipoCategoria; // 'shortcut' o 'comando'
   int creadoEnCategoria;
+  String usuarioCategoria;
 
   ModeloCategoria({
     this.pkCategoria,
@@ -13,6 +14,7 @@ class ModeloCategoria {
     required this.iconoCategoria,
     required this.tipoCategoria,
     int? creadoEnCategoria,
+    required this.usuarioCategoria,
   }) : creadoEnCategoria = creadoEnCategoria ?? DateTime.now().millisecondsSinceEpoch;
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class ModeloCategoria {
       'iconoCategoria': iconoCategoria,
       'tipoCategoria': tipoCategoria,
       'creadoEnCategoria': creadoEnCategoria,
+      'usuarioCategoria': usuarioCategoria,
     };
   }
 
@@ -34,6 +37,7 @@ class ModeloCategoria {
       iconoCategoria: map['iconoCategoria'],
       tipoCategoria: map['tipoCategoria'],
       creadoEnCategoria: map['creadoEnCategoria'],
+      usuarioCategoria: map['usuarioCategoria'],
     );
   }
 }
