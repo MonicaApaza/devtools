@@ -124,7 +124,10 @@ class AppDrawer extends StatelessWidget {
             item(indice: 3, icono: Icons.more_horiz, titulo: 'Más'),
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.bar_chart_outlined),
+              leading: const Hero(
+                tag: 'icon-estadisticas',
+                child: Icon(Icons.bar_chart_outlined),
+              ),
               title: const Text('Estadísticas'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
@@ -133,7 +136,10 @@ class AppDrawer extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.category_outlined),
+              leading: const Hero(
+                tag: 'icon-categorias',
+                child: Icon(Icons.category_outlined),
+              ),
               title: const Text('Categorías'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {

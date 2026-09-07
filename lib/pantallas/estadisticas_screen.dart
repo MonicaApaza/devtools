@@ -62,7 +62,19 @@ class _EstadisticasScreenState extends State<EstadisticasScreen> {
           : conteoComandos.values.reduce((a, b) => a > b ? a : b);
 
       return Scaffold(
-        appBar: AppBar(title: const Text('Estadísticas')),
+        appBar: AppBar(
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Hero(
+                tag: 'icon-estadisticas',
+                child: Icon(Icons.bar_chart_outlined),
+              ),
+              SizedBox(width: 12),
+              Text('Estadísticas'),
+            ],
+          ),
+        ),
         body: RefreshIndicator(
           onRefresh: controller.cargar,
           child: ListView(

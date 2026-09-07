@@ -104,7 +104,17 @@ class _CategoriasScreenState extends State<CategoriasScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Categorías'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Hero(
+              tag: 'icon-categorias',
+              child: Icon(Icons.category_outlined),
+            ),
+            SizedBox(width: 12),
+            Text('Categorías'),
+          ],
+        ),
         bottom: TabBar(
           controller: _tabController,
           onTap: (_) => setState(() {}),
