@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../datos/cambios_datos.dart';
 import '../datos/categorias_controlador.dart';
-import '../data/datasources/db_helper.dart';
 import '../data/modelos/modelo_shortcut.dart';
+import '../presentacion/controladores/shortcuts_controller.dart';
 import '../widgets/shortcut_form_sheet.dart';
 
 class ShortcutsScreen extends StatefulWidget {
@@ -17,53 +16,27 @@ class ShortcutsScreen extends StatefulWidget {
 }
 
 class ShortcutsScreenState extends State<ShortcutsScreen> {
-  final _dbHelper = DatabaseHelper();
-  final _busquedaController = TextEditingController();
-  List<ModeloShortcut> _shortcuts = [];
-  bool _cargando = true;
-  String _busqueda = '';
-  String _filtroCategoria = 'all';
+  late final ShortcutsController controller;
   int? _expandidoPk;
   late final Worker _workerCategorias;
 
   @override
   void initState() {
     super.initState();
-    _cargar();
+    controller = Get.put(ShortcutsController());
     // Si se crea, edita o elimina una categoría desde CategoriasScreen, esta
     // lista se refresca para mostrar los chips e íconos actualizados.
-    _workerCategorias = ever(CategoriasController.instance.version, (_) => _cargar());
+    _workerCategorias = ever(
+      CategoriasController.instance.version,
+      (_) => controller.cargar(),
+    );
   }
 
   @override
   void dispose() {
     _workerCategorias.dispose();
-    _busquedaController.dispose();
+    Get.delete<ShortcutsController>();
     super.dispose();
-  }
-
-  Future<void> _cargar() async {
-    final datos = await _dbHelper.getShortcuts();
-    if (!mounted) return;
-    setState(() {
-      _shortcuts = datos;
-      _cargando = false;
-    });
-    CambiosDatos.instance.avisar();
-  }
-
-  List<ModeloShortcut> get _filtrados {
-    final q = _busqueda.trim().toLowerCase();
-    return _shortcuts.where((s) {
-      if (_filtroCategoria != 'all' &&
-          s.categoriaShortcut != _filtroCategoria) {
-        return false;
-      }
-      if (q.isEmpty) return true;
-      return s.tituloShortcut.toLowerCase().contains(q) ||
-          s.teclasShortcut.toLowerCase().contains(q) ||
-          s.etiquetasShortcut.toLowerCase().contains(q);
-    }).toList();
   }
 
   Future<void> mostrarFormularioNuevo() async {
@@ -75,7 +48,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       ),
       builder: (_) => const ShortcutFormSheet(),
     );
-    if (creado == true) _cargar();
+    if (creado == true) controller.cargar();
   }
 
   Future<void> _mostrarFormularioEditar(ModeloShortcut shortcut) async {
@@ -87,13 +60,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       ),
       builder: (_) => ShortcutFormSheet(existente: shortcut),
     );
-    if (editado == true) _cargar();
-  }
-
-  Future<void> _alternarFavorito(ModeloShortcut shortcut) async {
-    shortcut.favoritoShortcut = shortcut.esFavorito ? 0 : 1;
-    await _dbHelper.actualizarShortcut(shortcut);
-    _cargar();
+    if (editado == true) controller.cargar();
   }
 
   Future<void> _eliminar(ModeloShortcut shortcut) async {
@@ -105,8 +72,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       etiquetasShortcut: shortcut.etiquetasShortcut,
       favoritoShortcut: shortcut.favoritoShortcut,
     );
-    await _dbHelper.eliminarShortcut(shortcut.pkShortcut!);
-    await _cargar();
+    await controller.eliminar(shortcut);
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
@@ -120,10 +86,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
         content: const Text('Shortcut eliminado'),
         action: SnackBarAction(
           label: 'DESHACER',
-          onPressed: () async {
-            await _dbHelper.insertarShortcut(respaldo);
-            _cargar();
-          },
+          onPressed: () => controller.restaurar(respaldo),
         ),
       ),
     );
@@ -163,7 +126,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
             _mostrarFormularioEditar(shortcut);
             break;
           case 'favorito':
-            _alternarFavorito(shortcut);
+            controller.alternarFavorito(shortcut);
             break;
           case 'eliminar':
             _confirmarYEliminar(shortcut);
@@ -228,7 +191,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
               ),
               onTap: () {
                 Navigator.pop(context);
-                _alternarFavorito(shortcut);
+                controller.alternarFavorito(shortcut);
               },
             ),
             ListTile(
@@ -303,72 +266,72 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_cargando) return const Center(child: CircularProgressIndicator());
-    final esquema = Theme.of(context).colorScheme;
-    final lista = _filtrados;
+    return Obx(() {
+      if (controller.cargando.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      final esquema = Theme.of(context).colorScheme;
+      final lista = controller.filtrados;
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: TextField(
-            controller: _busquedaController,
-            decoration: InputDecoration(
-              hintText: 'Buscar shortcut...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _busqueda.isEmpty
-                  ? null
-                  : IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => setState(() {
-                        _busqueda = '';
-                        _busquedaController.clear();
-                      }),
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: TextField(
+              controller: controller.busquedaController,
+              decoration: InputDecoration(
+                hintText: 'Buscar shortcut...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: controller.busqueda.value.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: controller.limpiarBusqueda,
+                      ),
+              ),
+              onChanged: controller.actualizarBusqueda,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: const Text('Todos'),
+                    selected: controller.filtroCategoria.value == 'all',
+                    onSelected: (_) => controller.actualizarFiltroCategoria('all'),
+                  ),
+                  ...CategoriasController.instance.categoriasShortcut.map(
+                    (cat) => ChoiceChip(
+                      label: Text(cat.nombre),
+                      selected: controller.filtroCategoria.value == cat.id,
+                      onSelected: (_) => controller.actualizarFiltroCategoria(cat.id),
                     ),
-            ),
-            onChanged: (valor) => setState(() => _busqueda = valor),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ChoiceChip(
-                  label: const Text('Todos'),
-                  selected: _filtroCategoria == 'all',
-                  onSelected: (_) => setState(() => _filtroCategoria = 'all'),
-                ),
-                ...CategoriasController.instance.categoriasShortcut.map(
-                  (cat) => ChoiceChip(
-                    label: Text(cat.nombre),
-                    selected: _filtroCategoria == cat.id,
-                    onSelected: (_) =>
-                        setState(() => _filtroCategoria = cat.id),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: lista.isEmpty
-              ? Center(
-                  child: Text(
-                    'No hay shortcuts que coincidan',
-                    style: TextStyle(color: esquema.outline),
-                  ),
-                )
-              : widget.vistaGrid
-              ? _construirGrid(lista)
-              : _construirLista(lista),
-        ),
-      ],
-    );
+          const SizedBox(height: 8),
+          Expanded(
+            child: lista.isEmpty
+                ? Center(
+                    child: Text(
+                      'No hay shortcuts que coincidan',
+                      style: TextStyle(color: esquema.outline),
+                    ),
+                  )
+                : widget.vistaGrid
+                ? _construirGrid(lista)
+                : _construirLista(lista),
+          ),
+        ],
+      );
+    });
   }
 
   Widget _construirLista(List<ModeloShortcut> lista) {
@@ -455,7 +418,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                             s.esFavorito ? Icons.star : Icons.star_border,
                             color: s.esFavorito ? Colors.amber.shade700 : null,
                           ),
-                          onPressed: () => _alternarFavorito(s),
+                          onPressed: () => controller.alternarFavorito(s),
                         ),
                         _menuAcciones(s),
                       ],
@@ -538,7 +501,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                             size: 20,
                             color: s.esFavorito ? Colors.amber.shade700 : null,
                           ),
-                          onPressed: () => _alternarFavorito(s),
+                          onPressed: () => controller.alternarFavorito(s),
                         ),
                         _menuAcciones(s),
                       ],

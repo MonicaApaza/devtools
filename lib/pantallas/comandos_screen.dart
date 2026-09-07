@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../datos/cambios_datos.dart';
 import '../datos/categorias_controlador.dart';
-import '../data/datasources/db_helper.dart';
 import '../data/modelos/modelo_comando.dart';
+import '../presentacion/controladores/comandos_controller.dart';
 import '../widgets/comando_form_sheet.dart';
 
 class ComandosScreen extends StatefulWidget {
@@ -18,49 +17,24 @@ class ComandosScreen extends StatefulWidget {
 }
 
 class ComandosScreenState extends State<ComandosScreen> {
-  final _dbHelper = DatabaseHelper();
-  final _busquedaController = TextEditingController();
-  List<ModeloComando> _comandos = [];
-  bool _cargando = true;
-  String _busqueda = '';
-  String _filtroCategoria = 'all';
+  late final ComandosController controller;
   late final Worker _workerCategorias;
 
   @override
   void initState() {
     super.initState();
-    _cargar();
-    _workerCategorias = ever(CategoriasController.instance.version, (_) => _cargar());
+    controller = Get.put(ComandosController());
+    _workerCategorias = ever(
+      CategoriasController.instance.version,
+      (_) => controller.cargar(),
+    );
   }
 
   @override
   void dispose() {
     _workerCategorias.dispose();
-    _busquedaController.dispose();
+    Get.delete<ComandosController>();
     super.dispose();
-  }
-
-  Future<void> _cargar() async {
-    final datos = await _dbHelper.getComandos();
-    if (!mounted) return;
-    setState(() {
-      _comandos = datos;
-      _cargando = false;
-    });
-    CambiosDatos.instance.avisar();
-  }
-
-  List<ModeloComando> get _filtrados {
-    final q = _busqueda.trim().toLowerCase();
-    return _comandos.where((c) {
-      if (_filtroCategoria != 'all' && c.categoriaComando != _filtroCategoria) {
-        return false;
-      }
-      if (q.isEmpty) return true;
-      return c.tituloComando.toLowerCase().contains(q) ||
-          c.textoComando.toLowerCase().contains(q) ||
-          c.etiquetasComando.toLowerCase().contains(q);
-    }).toList();
   }
 
   Future<void> mostrarFormularioNuevo() async {
@@ -72,7 +46,7 @@ class ComandosScreenState extends State<ComandosScreen> {
       ),
       builder: (_) => const ComandoFormSheet(),
     );
-    if (creado == true) _cargar();
+    if (creado == true) controller.cargar();
   }
 
   Future<void> _mostrarFormularioEditar(ModeloComando comando) async {
@@ -84,19 +58,12 @@ class ComandosScreenState extends State<ComandosScreen> {
       ),
       builder: (_) => ComandoFormSheet(existente: comando),
     );
-    if (editado == true) _cargar();
-  }
-
-  Future<void> _alternarFavorito(ModeloComando comando) async {
-    comando.favoritoComando = comando.esFavorito ? 0 : 1;
-    await _dbHelper.actualizarComando(comando);
-    _cargar();
+    if (editado == true) controller.cargar();
   }
 
   Future<void> _copiar(ModeloComando comando) async {
     await Clipboard.setData(ClipboardData(text: comando.textoComando));
-    await _dbHelper.incrementarUsoComando(comando.pkComando!);
-    setState(() => comando.usosComando++);
+    await controller.incrementarUso(comando);
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
@@ -115,8 +82,7 @@ class ComandosScreenState extends State<ComandosScreen> {
       favoritoComando: comando.favoritoComando,
       usosComando: comando.usosComando,
     );
-    await _dbHelper.eliminarComando(comando.pkComando!);
-    await _cargar();
+    await controller.eliminar(comando);
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
@@ -129,11 +95,7 @@ class ComandosScreenState extends State<ComandosScreen> {
         content: const Text('Comando eliminado'),
         action: SnackBarAction(
           label: 'DESHACER',
-
-          onPressed: () async {
-            await _dbHelper.insertarComando(respaldo);
-            _cargar();
-          },
+          onPressed: () => controller.restaurar(respaldo),
         ),
       ),
     );
@@ -176,7 +138,7 @@ class ComandosScreenState extends State<ComandosScreen> {
             _mostrarFormularioEditar(comando);
             break;
           case 'favorito':
-            _alternarFavorito(comando);
+            controller.alternarFavorito(comando);
             break;
           case 'eliminar':
             _confirmarYEliminar(comando);
@@ -256,7 +218,7 @@ class ComandosScreenState extends State<ComandosScreen> {
               ),
               onTap: () {
                 Navigator.pop(context);
-                _alternarFavorito(comando);
+                controller.alternarFavorito(comando);
               },
             ),
             ListTile(
@@ -280,72 +242,72 @@ class ComandosScreenState extends State<ComandosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_cargando) return const Center(child: CircularProgressIndicator());
-    final esquema = Theme.of(context).colorScheme;
-    final lista = _filtrados;
+    return Obx(() {
+      if (controller.cargando.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      final esquema = Theme.of(context).colorScheme;
+      final lista = controller.filtrados;
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: TextField(
-            controller: _busquedaController,
-            decoration: InputDecoration(
-              hintText: 'Buscar comando...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _busqueda.isEmpty
-                  ? null
-                  : IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => setState(() {
-                        _busqueda = '';
-                        _busquedaController.clear();
-                      }),
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: TextField(
+              controller: controller.busquedaController,
+              decoration: InputDecoration(
+                hintText: 'Buscar comando...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: controller.busqueda.value.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: controller.limpiarBusqueda,
+                      ),
+              ),
+              onChanged: controller.actualizarBusqueda,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: const Text('Todos'),
+                    selected: controller.filtroCategoria.value == 'all',
+                    onSelected: (_) => controller.actualizarFiltroCategoria('all'),
+                  ),
+                  ...CategoriasController.instance.categoriasComando.map(
+                    (cat) => ChoiceChip(
+                      label: Text(cat.nombre),
+                      selected: controller.filtroCategoria.value == cat.id,
+                      onSelected: (_) => controller.actualizarFiltroCategoria(cat.id),
                     ),
-            ),
-            onChanged: (valor) => setState(() => _busqueda = valor),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ChoiceChip(
-                  label: const Text('Todos'),
-                  selected: _filtroCategoria == 'all',
-                  onSelected: (_) => setState(() => _filtroCategoria = 'all'),
-                ),
-                ...CategoriasController.instance.categoriasComando.map(
-                  (cat) => ChoiceChip(
-                    label: Text(cat.nombre),
-                    selected: _filtroCategoria == cat.id,
-                    onSelected: (_) =>
-                        setState(() => _filtroCategoria = cat.id),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: lista.isEmpty
-              ? Center(
-                  child: Text(
-                    'No hay comandos que coincidan',
-                    style: TextStyle(color: esquema.outline),
-                  ),
-                )
-              : widget.vistaGrid
-              ? _construirGrid(lista)
-              : _construirLista(lista),
-        ),
-      ],
-    );
+          const SizedBox(height: 8),
+          Expanded(
+            child: lista.isEmpty
+                ? Center(
+                    child: Text(
+                      'No hay comandos que coincidan',
+                      style: TextStyle(color: esquema.outline),
+                    ),
+                  )
+                : widget.vistaGrid
+                ? _construirGrid(lista)
+                : _construirLista(lista),
+          ),
+        ],
+      );
+    });
   }
 
   Widget _construirLista(List<ModeloComando> lista) {
@@ -420,7 +382,7 @@ class ComandosScreenState extends State<ComandosScreen> {
                             c.esFavorito ? Icons.star : Icons.star_border,
                             color: c.esFavorito ? Colors.amber.shade700 : null,
                           ),
-                          onPressed: () => _alternarFavorito(c),
+                          onPressed: () => controller.alternarFavorito(c),
                         ),
                         _menuAcciones(c),
                       ],
@@ -604,7 +566,7 @@ class ComandosScreenState extends State<ComandosScreen> {
                             size: 20,
                             color: c.esFavorito ? Colors.amber.shade700 : null,
                           ),
-                          onPressed: () => _alternarFavorito(c),
+                          onPressed: () => controller.alternarFavorito(c),
                         ),
                         _menuAcciones(c),
                       ],
