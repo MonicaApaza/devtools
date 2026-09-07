@@ -53,7 +53,10 @@ class _CategoriasScreenState extends State<CategoriasScreen>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => CategoriaFormSheet(tipo: categoria.tipoCategoria, existente: categoria),
+      builder: (_) => CategoriaFormSheet(
+        tipo: categoria.tipoCategoria,
+        existente: categoria,
+      ),
     );
     if (editado == true) controller.cargar();
   }
@@ -68,12 +71,12 @@ class _CategoriasScreenState extends State<CategoriasScreen>
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
         ..showSnackBar(
-        SnackBar(
-          content: Text(
-            'No se puede eliminar: $enUso elemento(s) usan "${categoria.nombreCategoria}"',
+          SnackBar(
+            content: Text(
+              'No se puede eliminar: $enUso elemento(s) usan "${categoria.nombreCategoria}"',
+            ),
           ),
-        ),
-      );
+        );
       return;
     }
 
@@ -107,10 +110,7 @@ class _CategoriasScreenState extends State<CategoriasScreen>
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: const [
-            Hero(
-              tag: 'icon-categorias',
-              child: Icon(Icons.category_outlined),
-            ),
+            Hero(tag: 'icon-categorias', child: Icon(Icons.category_outlined)),
             SizedBox(width: 12),
             Text('Categorías'),
           ],
@@ -128,6 +128,11 @@ class _CategoriasScreenState extends State<CategoriasScreen>
         if (controller.cargando.value) {
           return const Center(child: CircularProgressIndicator());
         }
+        // Sin esto Obx solo depende de `cargando`: al crear/editar una
+        // categoría, cargando ya está en false y no vuelve a notificar,
+        // así que la lista no se refresca hasta salir y volver a entrar.
+        controller.shortcuts.length;
+        controller.comandos.length;
         return TabBarView(
           controller: _tabController,
           children: [
@@ -176,7 +181,9 @@ class _ListaCategorias extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.only(bottom: 10),
           child: ListTile(
-            leading: CircleAvatar(child: Icon(iconoPorClave(cat.iconoCategoria))),
+            leading: CircleAvatar(
+              child: Icon(iconoPorClave(cat.iconoCategoria)),
+            ),
             title: Text(cat.nombreCategoria),
             subtitle: cat.tipoCategoria == 'ambos'
                 ? const Text('Shortcuts y comandos')
@@ -199,7 +206,10 @@ class _ListaCategorias extends StatelessWidget {
                   value: 'eliminar',
                   child: ListTile(
                     leading: Icon(Icons.delete_outline, color: Colors.red),
-                    title: Text('Eliminar', style: TextStyle(color: Colors.red)),
+                    title: Text(
+                      'Eliminar',
+                      style: TextStyle(color: Colors.red),
+                    ),
                   ),
                 ),
               ],

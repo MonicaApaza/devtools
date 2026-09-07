@@ -47,7 +47,10 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
     );
     _iconoSeleccionado =
         widget.existente?.iconoCategoria ?? iconosCategoria.keys.first;
-    _tipoSeleccionado = widget.existente?.tipoCategoria ?? widget.tipo;
+    // Al crear, se sugiere 'ambos' por defecto (independiente de la pestaña
+    // desde la que se abrió el formulario); al editar se respeta el tipo
+    // guardado.
+    _tipoSeleccionado = widget.existente?.tipoCategoria ?? 'ambos';
   }
 
   List<String> _ladosDe(String tipo) =>
