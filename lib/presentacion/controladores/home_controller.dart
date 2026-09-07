@@ -64,7 +64,9 @@ class HomeController extends GetxController {
         (s) => ItemReciente(
           s.tituloShortcut,
           s.teclas.join(' + '),
-          CategoriasController.instance.buscarCategoriaShortcut(s.categoriaShortcut).icono,
+          CategoriasController.instance
+              .buscarCategoriaShortcut(s.categoriaShortcut)
+              .icono,
           s.creadoEnShortcut,
           1,
           s.esFavorito,
@@ -75,7 +77,9 @@ class HomeController extends GetxController {
         (c) => ItemReciente(
           c.tituloComando,
           c.textoComando,
-          CategoriasController.instance.buscarCategoriaComando(c.categoriaComando).icono,
+          CategoriasController.instance
+              .buscarCategoriaComando(c.categoriaComando)
+              .icono,
           c.creadoEnComando,
           2,
           c.esFavorito,
@@ -121,7 +125,9 @@ class HomeController extends GetxController {
       ...controlador.categoriasShortcut,
       ...controlador.categoriasComando,
     ]) {
-      if (vistas.add(cat.id)) resultado.add(CategoriaFiltro(cat.id, cat.nombre));
+      if (vistas.add(cat.id)) {
+        resultado.add(CategoriaFiltro(cat.id, cat.nombre));
+      }
     }
     return resultado;
   }

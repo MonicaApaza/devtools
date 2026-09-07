@@ -8,22 +8,43 @@ Color oscurecer(Color color, double cantidad) {
 
 class FondoSaludoPainter extends CustomPainter {
   final Color color;
+  final Color colorAcento;
 
-  FondoSaludoPainter({required this.color});
+  FondoSaludoPainter({required this.color, required this.colorAcento});
 
   @override
   void paint(Canvas canvas, Size size) {
+    final pinturaAcento = Paint()
+      ..style = PaintingStyle.fill
+      ..color = colorAcento;
+    final curvaAcento = Path()
+      ..moveTo(0, size.height * 0.62)
+      ..cubicTo(
+        size.width * 0.24,
+        size.height * 0.78,
+        size.width * 0.76,
+        size.height * 0.78,
+        size.width,
+        size.height * 0.62,
+      )
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(curvaAcento, pinturaAcento);
+
     final pintura = Paint()
       ..style = PaintingStyle.fill
       ..color = color;
 
     final curva = Path()
-      ..moveTo(0, size.height * 0.88)
-      ..quadraticBezierTo(
-        size.width * 0.55,
-        size.height * 1.18,
+      ..moveTo(0, size.height * 0.74)
+      ..cubicTo(
+        size.width * 0.24,
+        size.height * 0.94,
+        size.width * 0.76,
+        size.height * 0.94,
         size.width,
-        size.height * 0.82,
+        size.height * 0.74,
       )
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
@@ -33,6 +54,6 @@ class FondoSaludoPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant FondoSaludoPainter oldDelegate) {
-    return oldDelegate.color != color;
+    return oldDelegate.color != color || oldDelegate.colorAcento != colorAcento;
   }
 }

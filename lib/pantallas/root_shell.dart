@@ -99,9 +99,13 @@ class _RootShellState extends State<RootShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titulos[_indice]),
-        actions: [
+      // Inicio tiene su propia cabecera inmersiva; las demás pestañas
+      // conservan una AppBar con su título y sus acciones.
+      appBar: _indice == 0
+          ? null
+          : AppBar(
+              title: Text(_titulos[_indice]),
+              actions: [
           if (_indice == 1)
             IconButton(
               icon: Icon(
@@ -124,8 +128,8 @@ class _RootShellState extends State<RootShell> {
               onPressed: () =>
                   setState(() => _vistaGridComandos = !_vistaGridComandos),
             ),
-        ],
-      ),
+              ],
+            ),
       drawer: AppDrawer(indiceActual: _indice, onSeleccionar: _irA),
       body: AnimatedOpacity(
         opacity: _visible ? 1 : 0,
