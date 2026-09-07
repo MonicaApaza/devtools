@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../data/modelos/modelo_comando.dart';
 import '../../data/repositorios/comando_repositorio_impl.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
+import 'busqueda_controller.dart';
 import 'notificador_cambios.dart';
 
 /// Estado y lógica de la pestaña Comandos: carga, búsqueda, filtro por
@@ -15,23 +15,14 @@ class ComandosController extends GetxController {
   ComandosController({ComandoRepositorio? repositorio})
     : _repositorio = repositorio ?? ComandoRepositorioImpl();
 
-  final busquedaController = TextEditingController();
-
   final RxList<ModeloComando> comandos = <ModeloComando>[].obs;
   final RxBool cargando = true.obs;
-  final RxString busqueda = ''.obs;
   final RxString filtroCategoria = 'all'.obs;
 
   @override
   void onInit() {
     super.onInit();
     cargar();
-  }
-
-  @override
-  void onClose() {
-    busquedaController.dispose();
-    super.onClose();
   }
 
   Future<void> cargar() async {
@@ -42,7 +33,7 @@ class ComandosController extends GetxController {
   }
 
   List<ModeloComando> get filtrados {
-    final q = busqueda.value.trim().toLowerCase();
+    final q = BusquedaController.instance.texto.value.trim().toLowerCase();
     return comandos.where((c) {
       if (filtroCategoria.value != 'all' &&
           c.categoriaComando != filtroCategoria.value) {
@@ -53,13 +44,6 @@ class ComandosController extends GetxController {
           c.textoComando.toLowerCase().contains(q) ||
           c.etiquetasComando.toLowerCase().contains(q);
     }).toList();
-  }
-
-  void actualizarBusqueda(String valor) => busqueda.value = valor;
-
-  void limpiarBusqueda() {
-    busqueda.value = '';
-    busquedaController.clear();
   }
 
   void actualizarFiltroCategoria(String id) => filtroCategoria.value = id;

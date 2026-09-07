@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../data/modelos/modelo_shortcut.dart';
 import '../../data/repositorios/shortcut_repositorio_impl.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
+import 'busqueda_controller.dart';
 import 'notificador_cambios.dart';
 
 /// Estado y lógica de la pestaña Shortcuts: carga, búsqueda, filtro por
@@ -15,23 +15,14 @@ class ShortcutsController extends GetxController {
   ShortcutsController({ShortcutRepositorio? repositorio})
     : _repositorio = repositorio ?? ShortcutRepositorioImpl();
 
-  final busquedaController = TextEditingController();
-
   final RxList<ModeloShortcut> shortcuts = <ModeloShortcut>[].obs;
   final RxBool cargando = true.obs;
-  final RxString busqueda = ''.obs;
   final RxString filtroCategoria = 'all'.obs;
 
   @override
   void onInit() {
     super.onInit();
     cargar();
-  }
-
-  @override
-  void onClose() {
-    busquedaController.dispose();
-    super.onClose();
   }
 
   Future<void> cargar() async {
@@ -42,7 +33,7 @@ class ShortcutsController extends GetxController {
   }
 
   List<ModeloShortcut> get filtrados {
-    final q = busqueda.value.trim().toLowerCase();
+    final q = BusquedaController.instance.texto.value.trim().toLowerCase();
     return shortcuts.where((s) {
       if (filtroCategoria.value != 'all' &&
           s.categoriaShortcut != filtroCategoria.value) {
@@ -53,13 +44,6 @@ class ShortcutsController extends GetxController {
           s.teclasShortcut.toLowerCase().contains(q) ||
           s.etiquetasShortcut.toLowerCase().contains(q);
     }).toList();
-  }
-
-  void actualizarBusqueda(String valor) => busqueda.value = valor;
-
-  void limpiarBusqueda() {
-    busqueda.value = '';
-    busquedaController.clear();
   }
 
   void actualizarFiltroCategoria(String id) => filtroCategoria.value = id;

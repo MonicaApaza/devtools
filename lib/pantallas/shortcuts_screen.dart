@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../datos/categorias_controlador.dart';
 import '../data/modelos/modelo_shortcut.dart';
+import '../presentacion/controladores/busqueda_controller.dart';
 import '../presentacion/controladores/shortcuts_controller.dart';
 import '../presentacion/pantallas/shortcut_detalle_screen.dart';
 import '../presentacion/widgets/fila_teclas.dart';
@@ -238,18 +239,18 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: TextField(
-              controller: controller.busquedaController,
+              controller: BusquedaController.instance.textoController,
               decoration: InputDecoration(
                 hintText: 'Buscar shortcut...',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: controller.busqueda.value.isEmpty
+                suffixIcon: BusquedaController.instance.texto.value.isEmpty
                     ? null
                     : IconButton(
                         icon: const Icon(Icons.close),
-                        onPressed: controller.limpiarBusqueda,
+                        onPressed: BusquedaController.instance.limpiar,
                       ),
               ),
-              onChanged: controller.actualizarBusqueda,
+              onChanged: BusquedaController.instance.actualizar,
             ),
           ),
           Padding(

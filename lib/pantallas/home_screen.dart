@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../datos/categorias_controlador.dart';
+import '../presentacion/controladores/busqueda_controller.dart';
 import '../presentacion/controladores/home_controller.dart';
 import '../theme/theme_controller.dart';
 import '../utilidades/tiempo.dart';
@@ -125,9 +126,9 @@ class HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 16),
                           TextField(
-                            controller: controller.busquedaController,
+                            controller: BusquedaController.instance.textoController,
                             style: TextStyle(color: Colors.white),
-                            onChanged: controller.actualizarBusqueda,
+                            onChanged: BusquedaController.instance.actualizar,
                             decoration: InputDecoration(
                               hintText: 'Buscar shortcut o comando...',
                               hintStyle: TextStyle(
@@ -138,7 +139,7 @@ class HomeScreenState extends State<HomeScreen> {
                                 color: Colors.white,
                                 size: 18,
                               ),
-                              suffixIcon: controller.busqueda.value.isEmpty
+                              suffixIcon: BusquedaController.instance.texto.value.isEmpty
                                   ? null
                                   : IconButton(
                                       icon: Icon(
@@ -146,7 +147,7 @@ class HomeScreenState extends State<HomeScreen> {
                                         color: Colors.white,
                                         size: 18,
                                       ),
-                                      onPressed: controller.limpiarBusqueda,
+                                      onPressed: BusquedaController.instance.limpiar,
                                     ),
                               filled: true,
                               fillColor: Colors.white.withValues(
@@ -199,7 +200,7 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            if (controller.busqueda.value.trim().isNotEmpty) ...[
+            if (BusquedaController.instance.texto.value.trim().isNotEmpty) ...[
               Text(
                 'RESULTADOS',
                 style: TextStyle(

@@ -6,6 +6,7 @@ import '../../data/repositorios/shortcut_repositorio_impl.dart';
 import '../../datos/categorias_controlador.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
+import 'busqueda_controller.dart';
 
 class ItemReciente {
   final String titulo;
@@ -44,23 +45,14 @@ class HomeController extends GetxController {
   }) : _shortcutRepositorio = shortcutRepositorio ?? ShortcutRepositorioImpl(),
        _comandoRepositorio = comandoRepositorio ?? ComandoRepositorioImpl();
 
-  final busquedaController = TextEditingController();
-
   final RxList<ItemReciente> todos = <ItemReciente>[].obs;
   final RxBool cargando = true.obs;
-  final RxString busqueda = ''.obs;
   final RxString filtroCategoria = 'all'.obs;
 
   @override
   void onInit() {
     super.onInit();
     cargar();
-  }
-
-  @override
-  void onClose() {
-    busquedaController.dispose();
-    super.onClose();
   }
 
   Future<void> cargar() async {
@@ -108,7 +100,7 @@ class HomeController extends GetxController {
   List<ItemReciente> get recientes => itemsFiltrados.take(5).toList();
 
   List<ItemReciente> get resultadosBusqueda {
-    final q = busqueda.value.trim().toLowerCase();
+    final q = BusquedaController.instance.texto.value.trim().toLowerCase();
     if (q.isEmpty) return const [];
     return itemsFiltrados
         .where(
@@ -132,13 +124,6 @@ class HomeController extends GetxController {
       if (vistas.add(cat.id)) resultado.add(CategoriaFiltro(cat.id, cat.nombre));
     }
     return resultado;
-  }
-
-  void actualizarBusqueda(String valor) => busqueda.value = valor;
-
-  void limpiarBusqueda() {
-    busqueda.value = '';
-    busquedaController.clear();
   }
 
   void actualizarFiltroCategoria(String id) => filtroCategoria.value = id;
