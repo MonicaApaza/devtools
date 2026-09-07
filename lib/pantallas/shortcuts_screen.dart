@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import '../datos/categorias_controlador.dart';
 import '../data/modelos/modelo_shortcut.dart';
 import '../presentacion/controladores/shortcuts_controller.dart';
+import '../presentacion/pantallas/shortcut_detalle_screen.dart';
+import '../presentacion/widgets/fila_teclas.dart';
 import '../widgets/shortcut_form_sheet.dart';
 
 class ShortcutsScreen extends StatefulWidget {
@@ -213,53 +215,11 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
     );
   }
 
-  void _mostrarDetalle(ModeloShortcut shortcut) {
-    final categoria = CategoriasController.instance.buscarCategoriaShortcut(shortcut.categoriaShortcut);
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(child: Icon(categoria.icono)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        shortcut.tituloShortcut,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        categoria.nombre,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _FilaTeclas(teclas: shortcut.teclas),
-            if (shortcut.descripcionShortcut.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(shortcut.descripcionShortcut),
-            ],
-          ],
-        ),
+  void _abrirDetalle(ModeloShortcut shortcut) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ShortcutDetalleScreen(shortcut: shortcut),
       ),
     );
   }
@@ -388,7 +348,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              _FilaTeclas(teclas: s.teclas),
+                              FilaTeclas(teclas: s.teclas),
                               if (s.etiquetas.isNotEmpty) ...[
                                 const SizedBox(height: 8),
                                 Wrap(
@@ -465,7 +425,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
         return Card(
           child: InkWell(
             borderRadius: BorderRadius.circular(18),
-            onTap: () => _mostrarDetalle(s),
+            onTap: () => _abrirDetalle(s),
             onLongPress: () => _mostrarAcciones(s),
             child: Padding(
               padding: const EdgeInsets.all(14),
@@ -474,7 +434,10 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(child: Icon(categoria.icono, size: 18)),
+                      Hero(
+                        tag: 'shortcut-${s.pkShortcut}',
+                        child: CircleAvatar(child: Icon(categoria.icono, size: 18)),
+                      ),
                       const SizedBox(height: 10),
                       Text(
                         s.tituloShortcut,
@@ -486,7 +449,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      _FilaTeclas(teclas: s.teclas.take(2).toList()),
+                      FilaTeclas(teclas: s.teclas.take(2).toList()),
                     ],
                   ),
                   Positioned(
@@ -513,42 +476,6 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class _FilaTeclas extends StatelessWidget {
-  final List<String> teclas;
-  const _FilaTeclas({required this.teclas});
-
-  @override
-  Widget build(BuildContext context) {
-    final esquema = Theme.of(context).colorScheme;
-    return Wrap(
-      spacing: 4,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        for (var i = 0; i < teclas.length; i++) ...[
-          if (i > 0)
-            Text('+', style: TextStyle(color: esquema.outline, fontSize: 11)),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-            decoration: BoxDecoration(
-              color: esquema.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: esquema.outlineVariant),
-            ),
-            child: Text(
-              teclas[i],
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ],
     );
   }
 }

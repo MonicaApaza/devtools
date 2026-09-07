@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../datos/categorias_controlador.dart';
 import '../data/modelos/modelo_comando.dart';
 import '../presentacion/controladores/comandos_controller.dart';
+import '../presentacion/pantallas/comando_detalle_screen.dart';
 import '../widgets/comando_form_sheet.dart';
 
 class ComandosScreen extends StatefulWidget {
@@ -59,6 +60,15 @@ class ComandosScreenState extends State<ComandosScreen> {
       builder: (_) => ComandoFormSheet(existente: comando),
     );
     if (editado == true) controller.cargar();
+  }
+
+  void _abrirDetalle(ModeloComando comando) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ComandoDetalleScreen(comando: comando),
+      ),
+    );
   }
 
   Future<void> _copiar(ModeloComando comando) async {
@@ -490,7 +500,7 @@ class ComandosScreenState extends State<ComandosScreen> {
         return Card(
           child: InkWell(
             borderRadius: BorderRadius.circular(18),
-            onTap: () => _copiar(c),
+            onTap: () => _abrirDetalle(c),
             onLongPress: () => _mostrarAcciones(c),
             child: Padding(
               padding: const EdgeInsets.all(14),
@@ -499,7 +509,10 @@ class ComandosScreenState extends State<ComandosScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(child: Icon(categoria.icono, size: 18)),
+                      Hero(
+                        tag: 'comando-${c.pkComando}',
+                        child: CircleAvatar(child: Icon(categoria.icono, size: 18)),
+                      ),
                       const SizedBox(height: 10),
                       Text(
                         c.tituloComando,
