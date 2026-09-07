@@ -15,9 +15,7 @@ class MasScreen extends StatelessWidget {
   void _mostrarProximamente(BuildContext context, String seccion) {
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
-      ..showSnackBar(
-      SnackBar(content: Text('Próximamente: $seccion')),
-    );
+      ..showSnackBar(SnackBar(content: Text('Próximamente: $seccion')));
   }
 
   Future<void> _abrirDetalleShortcutDeMuestra() async {
@@ -39,10 +37,7 @@ class MasScreen extends StatelessWidget {
   }
 
   Future<void> _cerrarSesion() async {
-    final auth = Get.isRegistered<AuthController>()
-        ? Get.find<AuthController>()
-        : Get.put(AuthController());
-    await auth.cerrarSesion();
+    await AuthController.instance.cerrarSesion();
     Get.offAllNamed(AppRutas.login);
   }
 
@@ -53,7 +48,14 @@ class MasScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
       children: [
-        Text('APARIENCIA', style: TextStyle(fontWeight: FontWeight.bold, color: esquema.outline, letterSpacing: 1)),
+        Text(
+          'APARIENCIA',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: esquema.outline,
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 8),
         Card(
           child: AnimatedBuilder(
@@ -61,8 +63,14 @@ class MasScreen extends StatelessWidget {
             builder: (context, _) {
               final controlador = ThemeController.instance;
               return SwitchListTile(
-                secondary: Icon(controlador.esOscuro ? Icons.dark_mode_outlined : Icons.light_mode_outlined),
-                title: Text('Tema ${controlador.esOscuro ? "oscuro" : "claro"}'),
+                secondary: Icon(
+                  controlador.esOscuro
+                      ? Icons.dark_mode_outlined
+                      : Icons.light_mode_outlined,
+                ),
+                title: Text(
+                  'Tema ${controlador.esOscuro ? "oscuro" : "claro"}',
+                ),
                 value: controlador.esOscuro,
                 onChanged: (_) => controlador.alternar(),
               );
@@ -70,7 +78,14 @@ class MasScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Text('SECCIONES (PRÓXIMAMENTE)', style: TextStyle(fontWeight: FontWeight.bold, color: esquema.outline, letterSpacing: 1)),
+        Text(
+          'SECCIONES (PRÓXIMAMENTE)',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: esquema.outline,
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 8),
         Card(
           child: Column(
@@ -99,7 +114,14 @@ class MasScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Text('GENERAL', style: TextStyle(fontWeight: FontWeight.bold, color: esquema.outline, letterSpacing: 1)),
+        Text(
+          'GENERAL',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: esquema.outline,
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 8),
         Card(
           child: Column(
@@ -128,7 +150,14 @@ class MasScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Text('VER TODAS LAS PANTALLAS', style: TextStyle(fontWeight: FontWeight.bold, color: esquema.outline, letterSpacing: 1)),
+        Text(
+          'VER TODAS LAS PANTALLAS',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: esquema.outline,
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 8),
         Card(
           child: Column(
@@ -160,7 +189,10 @@ class MasScreen extends StatelessWidget {
         Card(
           child: ListTile(
             leading: Icon(Icons.logout, color: esquema.error),
-            title: Text('Cerrar sesión', style: TextStyle(color: esquema.error)),
+            title: Text(
+              'Cerrar sesión',
+              style: TextStyle(color: esquema.error),
+            ),
             onTap: _cerrarSesion,
           ),
         ),
@@ -183,7 +215,12 @@ class _PillProximamente extends StatelessWidget {
       ),
       child: Text(
         'PRONTO',
-        style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: esquema.outline, letterSpacing: .5),
+        style: TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+          color: esquema.outline,
+          letterSpacing: .5,
+        ),
       ),
     );
   }

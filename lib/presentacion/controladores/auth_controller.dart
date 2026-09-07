@@ -16,6 +16,8 @@ class AuthController extends GetxController {
   AuthController({AuthRepositorio? repositorio})
     : _repositorio = repositorio ?? AuthRepositorioImpl();
 
+  static AuthController get instance => Get.find<AuthController>();
+
   final tecUsuario = TextEditingController();
   final tecPassword = TextEditingController();
 

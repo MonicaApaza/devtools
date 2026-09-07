@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 
-import '../bindings/auth_binding.dart';
 import '../pantallas/ajustes_screen.dart';
 import '../pantallas/categorias_screen.dart';
 import '../pantallas/estadisticas_screen.dart';
@@ -17,11 +16,7 @@ class AppPaginas {
 
   static final paginas = [
     GetPage(name: AppRutas.inicio, page: () => const RootShell()),
-    GetPage(
-      name: AppRutas.login,
-      page: () => const LoginScreen(),
-      binding: AuthBinding(),
-    ),
+    GetPage(name: AppRutas.login, page: () => const LoginScreen()),
     GetPage(name: AppRutas.ajustes, page: () => const AjustesScreen()),
     GetPage(
       name: AppRutas.estadisticas,

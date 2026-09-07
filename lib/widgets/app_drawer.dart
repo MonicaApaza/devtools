@@ -71,10 +71,7 @@ class AppDrawer extends StatelessWidget {
 
     Future<void> cerrarSesion() async {
       Navigator.pop(context);
-      final auth = Get.isRegistered<AuthController>()
-          ? Get.find<AuthController>()
-          : Get.put(AuthController());
-      await auth.cerrarSesion();
+      await AuthController.instance.cerrarSesion();
       Get.offAllNamed(AppRutas.login);
     }
 
@@ -113,13 +110,19 @@ class AppDrawer extends StatelessWidget {
                   ),
                   Text(
                     'Tu referencia rápida',
-                    style: TextStyle(color: esquema.onPrimary.withValues(alpha: 0.85)),
+                    style: TextStyle(
+                      color: esquema.onPrimary.withValues(alpha: 0.85),
+                    ),
                   ),
                 ],
               ),
             ),
             item(indice: 0, icono: Icons.home_outlined, titulo: 'Inicio'),
-            item(indice: 1, icono: Icons.keyboard_outlined, titulo: 'Shortcuts'),
+            item(
+              indice: 1,
+              icono: Icons.keyboard_outlined,
+              titulo: 'Shortcuts',
+            ),
             item(indice: 2, icono: Icons.terminal, titulo: 'Comandos'),
             item(indice: 3, icono: Icons.more_horiz, titulo: 'Más'),
             const Divider(),
@@ -162,7 +165,9 @@ class AppDrawer extends StatelessWidget {
                 final controlador = ThemeController.instance;
                 return SwitchListTile(
                   secondary: Icon(
-                    controlador.esOscuro ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+                    controlador.esOscuro
+                        ? Icons.dark_mode_outlined
+                        : Icons.light_mode_outlined,
                   ),
                   title: const Text('Tema oscuro'),
                   value: controlador.esOscuro,
@@ -207,7 +212,10 @@ class AppDrawer extends StatelessWidget {
             const Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: esquema.error),
-              title: Text('Cerrar sesión', style: TextStyle(color: esquema.error)),
+              title: Text(
+                'Cerrar sesión',
+                style: TextStyle(color: esquema.error),
+              ),
               onTap: cerrarSesion,
             ),
           ],

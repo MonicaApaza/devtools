@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../datos/categorias_controlador.dart';
+import '../presentacion/controladores/auth_controller.dart';
 import '../presentacion/controladores/busqueda_controller.dart';
 import '../presentacion/controladores/home_controller.dart';
 import '../theme/theme_controller.dart';
@@ -42,9 +43,16 @@ class HomeScreenState extends State<HomeScreen> {
 
   String _saludo() {
     final hora = DateTime.now().hour;
-    if (hora < 12) return 'Buenos días';
-    if (hora < 19) return 'Buenas tardes';
-    return 'Buenas noches';
+    final momento = hora < 12
+        ? 'Buenos días'
+        : hora < 19
+        ? 'Buenas tardes'
+        : 'Buenas noches';
+    // Sin sesión (o app abierta sin pasar por Login), el saludo queda
+    // genérico: solo el momento del día, sin nombre.
+    final usuario = AuthController.instance.sesion.value?.usuario;
+    if (usuario == null || usuario.isEmpty) return '$momento 😃';
+    return '$momento $usuario 😃';
   }
 
   @override
@@ -131,7 +139,7 @@ class HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${_saludo()} Monica 😃',
+                                    _saludo(),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
