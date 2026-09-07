@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../datos/cambios_datos.dart';
 import '../datos/categorias_controlador.dart';
@@ -65,6 +66,8 @@ class HomeScreenState extends State<HomeScreen> {
   String _busqueda = '';
   String _filtroCategoria = 'all';
   List<_ItemReciente> _todos = [];
+  late final Worker _workerCambios;
+  late final Worker _workerCategorias;
 
   @override
   void initState() {
@@ -73,14 +76,14 @@ class HomeScreenState extends State<HomeScreen> {
     // Shortcuts y Comandos avisan aquí cuando algo cambia (favorito, alta,
     // edición, borrado) para que Inicio se refresque sin que nadie más
     // tenga que acordarse de llamarlo a mano.
-    CambiosDatos.instance.addListener(cargar);
-    CategoriasController.instance.addListener(cargar);
+    _workerCambios = ever(CambiosDatos.instance.version, (_) => cargar());
+    _workerCategorias = ever(CategoriasController.instance.version, (_) => cargar());
   }
 
   @override
   void dispose() {
-    CambiosDatos.instance.removeListener(cargar);
-    CategoriasController.instance.removeListener(cargar);
+    _workerCambios.dispose();
+    _workerCategorias.dispose();
     _busquedaController.dispose();
     super.dispose();
   }

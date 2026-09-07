@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
 import '../datos/cambios_datos.dart';
 import '../datos/categorias_controlador.dart';
@@ -23,17 +24,18 @@ class ComandosScreenState extends State<ComandosScreen> {
   bool _cargando = true;
   String _busqueda = '';
   String _filtroCategoria = 'all';
+  late final Worker _workerCategorias;
 
   @override
   void initState() {
     super.initState();
     _cargar();
-    CategoriasController.instance.addListener(_cargar);
+    _workerCategorias = ever(CategoriasController.instance.version, (_) => _cargar());
   }
 
   @override
   void dispose() {
-    CategoriasController.instance.removeListener(_cargar);
+    _workerCategorias.dispose();
     _busquedaController.dispose();
     super.dispose();
   }

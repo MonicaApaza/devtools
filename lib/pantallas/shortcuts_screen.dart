@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../datos/cambios_datos.dart';
 import '../datos/categorias_controlador.dart';
@@ -23,6 +24,7 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
   String _busqueda = '';
   String _filtroCategoria = 'all';
   int? _expandidoPk;
+  late final Worker _workerCategorias;
 
   @override
   void initState() {
@@ -30,12 +32,12 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
     _cargar();
     // Si se crea, edita o elimina una categoría desde CategoriasScreen, esta
     // lista se refresca para mostrar los chips e íconos actualizados.
-    CategoriasController.instance.addListener(_cargar);
+    _workerCategorias = ever(CategoriasController.instance.version, (_) => _cargar());
   }
 
   @override
   void dispose() {
-    CategoriasController.instance.removeListener(_cargar);
+    _workerCategorias.dispose();
     _busquedaController.dispose();
     super.dispose();
   }

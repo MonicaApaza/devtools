@@ -1,34 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../data/datasources/db_helper.dart';
 import '../data/datos_estaticos/categorias.dart';
+import '../data/repositorios/categoria_repositorio_impl.dart';
+import '../dominio/repositorios/categoria_repositorio.dart';
 
 /// Caché en memoria de las categorías (de shortcuts y de comandos), cargada
-/// desde la base de datos. Mismo patrón que ThemeController/CambiosDatos:
-/// singleton + ChangeNotifier, para que cualquier pantalla se refresque
-/// cuando se crea, edita o elimina una categoría en CategoriasScreen.
-class CategoriasController extends ChangeNotifier {
-  CategoriasController._internal();
-  static final CategoriasController instance = CategoriasController._internal();
-  factory CategoriasController() => instance;
+/// desde la base de datos a través de CategoriaRepositorio. Se registra una
+/// sola vez con Get.put(permanent: true) en main(); sus listas son
+/// observables (.obs) para que cualquier pantalla reaccione a cambios con
+/// Obx, o con `ever()` mientras esa pantalla siga sin ser un GetxController.
+class CategoriasController extends GetxController {
+  final CategoriaRepositorio _repositorio;
 
-  final _dbHelper = DatabaseHelper();
+  CategoriasController({CategoriaRepositorio? repositorio})
+    : _repositorio = repositorio ?? CategoriaRepositorioImpl();
 
-  List<Categoria> _shortcuts = [];
-  List<Categoria> _comandos = [];
+  static CategoriasController get instance => Get.find<CategoriasController>();
 
-  List<Categoria> get categoriasShortcut => _shortcuts;
-  List<Categoria> get categoriasComando => _comandos;
+  final RxList<Categoria> categoriasShortcut = <Categoria>[].obs;
+  final RxList<Categoria> categoriasComando = <Categoria>[].obs;
+  final RxInt version = 0.obs;
 
   Future<void> cargar() async {
-    _shortcuts = await _dbHelper.getCategorias('shortcut');
-    _comandos = await _dbHelper.getCategorias('comando');
-    notifyListeners();
+    categoriasShortcut.assignAll(await _repositorio.listar('shortcut'));
+    categoriasComando.assignAll(await _repositorio.listar('comando'));
+    version.value++;
   }
 
-  Categoria buscarCategoriaShortcut(String id) => _buscar(_shortcuts, id);
+  Categoria buscarCategoriaShortcut(String id) => _buscar(categoriasShortcut, id);
 
-  Categoria buscarCategoriaComando(String id) => _buscar(_comandos, id);
+  Categoria buscarCategoriaComando(String id) => _buscar(categoriasComando, id);
 
   Categoria _buscar(List<Categoria> lista, String id) {
     return lista.firstWhere(

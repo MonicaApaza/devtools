@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../datos/cambios_datos.dart';
 import '../datos/categorias_controlador.dart';
@@ -20,19 +21,21 @@ class _EstadisticasScreenState extends State<EstadisticasScreen> {
   bool _cargando = true;
   List<ModeloShortcut> _shortcuts = [];
   List<ModeloComando> _comandos = [];
+  late final Worker _workerCambios;
+  late final Worker _workerCategorias;
 
   @override
   void initState() {
     super.initState();
     _cargar();
-    CambiosDatos.instance.addListener(_cargar);
-    CategoriasController.instance.addListener(_cargar);
+    _workerCambios = ever(CambiosDatos.instance.version, (_) => _cargar());
+    _workerCategorias = ever(CategoriasController.instance.version, (_) => _cargar());
   }
 
   @override
   void dispose() {
-    CambiosDatos.instance.removeListener(_cargar);
-    CategoriasController.instance.removeListener(_cargar);
+    _workerCambios.dispose();
+    _workerCategorias.dispose();
     super.dispose();
   }
 
