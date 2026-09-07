@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../datos/cambios_datos.dart';
 import '../datos/categorias_controlador.dart';
-import '../helpers/db_helper.dart';
-import '../modelos/modelo_comando.dart';
-import '../modelos/modelo_shortcut.dart';
+import '../data/datasources/db_helper.dart';
+import '../data/modelos/modelo_comando.dart';
+import '../data/modelos/modelo_shortcut.dart';
 import '../theme/theme_controller.dart';
 import '../widgets/barra_estadistica.dart';
 

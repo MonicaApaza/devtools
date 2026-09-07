@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../datos/categorias.dart';
+import '../data/datos_estaticos/categorias.dart';
 import '../datos/categorias_controlador.dart';
-import '../helpers/db_helper.dart';
-import '../modelos/modelo_categoria.dart';
+import '../data/datasources/db_helper.dart';
+import '../data/modelos/modelo_categoria.dart';
 
 /// Formulario de alta/edición de una Categoría (nombre + ícono + tipo). El
 /// tipo puede ser 'shortcut', 'comando' o 'ambos' (visible en las dos

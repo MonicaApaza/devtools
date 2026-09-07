@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../datos/cambios_datos.dart';
 import '../datos/categorias_controlador.dart';
-import '../helpers/db_helper.dart';
-import '../modelos/modelo_comando.dart';
+import '../data/datasources/db_helper.dart';
+import '../data/modelos/modelo_comando.dart';
 import '../widgets/comando_form_sheet.dart';
 
 class ComandosScreen extends StatefulWidget {

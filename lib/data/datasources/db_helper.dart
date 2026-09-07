@@ -1,7 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../datos/categorias.dart';
+import '../datos_estaticos/categorias.dart';
 import '../modelos/modelo_categoria.dart';
 import '../modelos/modelo_comando.dart';
 import '../modelos/modelo_shortcut.dart';

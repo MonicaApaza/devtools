@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../helpers/db_helper.dart';
-import 'categorias.dart';
+import '../data/datasources/db_helper.dart';
+import '../data/datos_estaticos/categorias.dart';
 
 /// Caché en memoria de las categorías (de shortcuts y de comandos), cargada
 /// desde la base de datos. Mismo patrón que ThemeController/CambiosDatos:
