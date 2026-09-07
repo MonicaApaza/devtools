@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../data/datos_estaticos/categorias.dart';
-import '../datos/categorias_controlador.dart';
-import '../data/datasources/db_helper.dart';
 import '../data/modelos/modelo_categoria.dart';
+import '../presentacion/controladores/categorias_screen_controller.dart';
 import '../widgets/categoria_form_sheet.dart';
 
 class CategoriasScreen extends StatefulWidget {
@@ -15,35 +15,21 @@ class CategoriasScreen extends StatefulWidget {
 
 class _CategoriasScreenState extends State<CategoriasScreen>
     with SingleTickerProviderStateMixin {
-  final _dbHelper = DatabaseHelper();
+  late final CategoriasScreenController controller;
   late final TabController _tabController;
-  List<ModeloCategoria> _shortcuts = [];
-  List<ModeloCategoria> _comandos = [];
-  bool _cargando = true;
 
   @override
   void initState() {
     super.initState();
+    controller = Get.put(CategoriasScreenController());
     _tabController = TabController(length: 2, vsync: this);
-    _cargar();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    Get.delete<CategoriasScreenController>();
     super.dispose();
-  }
-
-  Future<void> _cargar() async {
-    final shortcuts = await _dbHelper.getCategoriasModelo('shortcut');
-    final comandos = await _dbHelper.getCategoriasModelo('comando');
-    if (!mounted) return;
-    setState(() {
-      _shortcuts = shortcuts;
-      _comandos = comandos;
-      _cargando = false;
-    });
-    await CategoriasController.instance.cargar();
   }
 
   String get _tipoActual => _tabController.index == 0 ? 'shortcut' : 'comando';
@@ -57,7 +43,7 @@ class _CategoriasScreenState extends State<CategoriasScreen>
       ),
       builder: (_) => CategoriaFormSheet(tipo: _tipoActual),
     );
-    if (creado == true) _cargar();
+    if (creado == true) controller.cargar();
   }
 
   Future<void> _mostrarFormularioEditar(ModeloCategoria categoria) async {
@@ -69,11 +55,11 @@ class _CategoriasScreenState extends State<CategoriasScreen>
       ),
       builder: (_) => CategoriaFormSheet(tipo: categoria.tipoCategoria, existente: categoria),
     );
-    if (editado == true) _cargar();
+    if (editado == true) controller.cargar();
   }
 
   Future<void> _eliminar(ModeloCategoria categoria) async {
-    final enUso = await _dbHelper.contarUsoCategoria(
+    final enUso = await controller.contarUso(
       categoria.tipoCategoria,
       categoria.idCategoria,
     );
@@ -111,8 +97,7 @@ class _CategoriasScreenState extends State<CategoriasScreen>
     );
     if (confirmado != true) return;
 
-    await _dbHelper.eliminarCategoria(categoria.pkCategoria!);
-    await _cargar();
+    await controller.eliminar(categoria.pkCategoria!);
   }
 
   @override
@@ -129,23 +114,26 @@ class _CategoriasScreenState extends State<CategoriasScreen>
           ],
         ),
       ),
-      body: _cargando
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _ListaCategorias(
-                  categorias: _shortcuts,
-                  onEditar: _mostrarFormularioEditar,
-                  onEliminar: _eliminar,
-                ),
-                _ListaCategorias(
-                  categorias: _comandos,
-                  onEditar: _mostrarFormularioEditar,
-                  onEliminar: _eliminar,
-                ),
-              ],
+      body: Obx(() {
+        if (controller.cargando.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return TabBarView(
+          controller: _tabController,
+          children: [
+            _ListaCategorias(
+              categorias: controller.shortcuts,
+              onEditar: _mostrarFormularioEditar,
+              onEliminar: _eliminar,
             ),
+            _ListaCategorias(
+              categorias: controller.comandos,
+              onEditar: _mostrarFormularioEditar,
+              onEliminar: _eliminar,
+            ),
+          ],
+        );
+      }),
       floatingActionButton: FloatingActionButton(
         onPressed: _mostrarFormularioNuevo,
         child: const Icon(Icons.add),

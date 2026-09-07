@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 
 import '../../data/modelos/modelo_comando.dart';
 import '../../data/repositorios/comando_repositorio_impl.dart';
-import '../../datos/cambios_datos.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
+import 'notificador_cambios.dart';
 
 /// Estado y lógica de la pestaña Comandos: carga, búsqueda, filtro por
 /// categoría, favoritos, contador de usos y alta/baja. La UI (ComandosScreen)
@@ -38,7 +38,7 @@ class ComandosController extends GetxController {
     cargando.value = true;
     comandos.assignAll(await _repositorio.listar());
     cargando.value = false;
-    CambiosDatos.instance.avisar();
+    await avisarCambioDeDatos();
   }
 
   List<ModeloComando> get filtrados {

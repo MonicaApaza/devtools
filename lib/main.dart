@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'datos/cambios_datos.dart';
 import 'datos/categorias_controlador.dart';
 import 'rutas/app_paginas.dart';
 import 'rutas/app_rutas.dart';
@@ -9,7 +8,6 @@ import 'theme/theme_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Get.put(CambiosDatos(), permanent: true);
   final categorias = Get.put(CategoriasController(), permanent: true);
   await categorias.cargar();
   runApp(const MainApp());

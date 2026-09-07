@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 
 import '../../data/modelos/modelo_shortcut.dart';
 import '../../data/repositorios/shortcut_repositorio_impl.dart';
-import '../../datos/cambios_datos.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
+import 'notificador_cambios.dart';
 
 /// Estado y lógica de la pestaña Shortcuts: carga, búsqueda, filtro por
 /// categoría, favoritos y alta/baja. La UI (ShortcutsScreen) solo lee estos
@@ -38,7 +38,7 @@ class ShortcutsController extends GetxController {
     cargando.value = true;
     shortcuts.assignAll(await _repositorio.listar());
     cargando.value = false;
-    CambiosDatos.instance.avisar();
+    await avisarCambioDeDatos();
   }
 
   List<ModeloShortcut> get filtrados {
