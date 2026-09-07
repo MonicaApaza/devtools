@@ -35,12 +35,15 @@ class CategoriasController extends GetxController {
 
   Future<void> cargar() async {
     final usuario = AuthController.instance.usuarioActual;
-    categoriasShortcut.assignAll(await _repositorio.listar('shortcut', usuario));
+    categoriasShortcut.assignAll(
+      await _repositorio.listar('shortcut', usuario),
+    );
     categoriasComando.assignAll(await _repositorio.listar('comando', usuario));
     version.value++;
   }
 
-  Categoria buscarCategoriaShortcut(String id) => _buscar(categoriasShortcut, id);
+  Categoria buscarCategoriaShortcut(String id) =>
+      _buscar(categoriasShortcut, id);
 
   Categoria buscarCategoriaComando(String id) => _buscar(categoriasComando, id);
 
@@ -49,7 +52,11 @@ class CategoriasController extends GetxController {
       (c) => c.id == id,
       orElse: () => lista.isNotEmpty
           ? lista.first
-          : const Categoria(id: '', nombre: 'Sin categoría', icono: Icons.category_outlined),
+          : const Categoria(
+              id: '',
+              nombre: 'Sin categoría',
+              icono: Icons.category_outlined,
+            ),
     );
   }
 }

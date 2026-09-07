@@ -19,10 +19,14 @@ class ModeloShortcut {
     this.favoritoShortcut = 0,
     int? creadoEnShortcut,
     required this.usuarioShortcut,
-  }) : creadoEnShortcut = creadoEnShortcut ?? DateTime.now().millisecondsSinceEpoch;
+  }) : creadoEnShortcut =
+           creadoEnShortcut ?? DateTime.now().millisecondsSinceEpoch;
 
-  List<String> get teclas =>
-      teclasShortcut.split('+').map((k) => k.trim()).where((k) => k.isNotEmpty).toList();
+  List<String> get teclas => teclasShortcut
+      .split('+')
+      .map((k) => k.trim())
+      .where((k) => k.isNotEmpty)
+      .toList();
 
   List<String> get etiquetas => etiquetasShortcut
       .split(',')

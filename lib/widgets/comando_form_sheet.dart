@@ -38,7 +38,9 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
     final existente = widget.existente;
     _titulo = TextEditingController(text: existente?.tituloComando ?? '');
     _comando = TextEditingController(text: existente?.textoComando ?? '');
-    _descripcion = TextEditingController(text: existente?.descripcionComando ?? '');
+    _descripcion = TextEditingController(
+      text: existente?.descripcionComando ?? '',
+    );
     _etiquetas = TextEditingController(text: existente?.etiquetasComando ?? '');
     _categoriaSeleccionada = existente?.categoriaComando;
     _favorito = existente?.esFavorito ?? false;
@@ -63,7 +65,8 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
     // Al editar se conserva el dueño original; al crear, queda a nombre de
     // quien tiene la sesión iniciada.
     final usuario =
-        widget.existente?.usuarioComando ?? AuthController.instance.usuarioActual;
+        widget.existente?.usuarioComando ??
+        AuthController.instance.usuarioActual;
     final existeDuplicado = await _dbHelper.existeTituloComando(
       titulo,
       usuario,
@@ -74,8 +77,8 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
         ..showSnackBar(
-        const SnackBar(content: Text('Ya existe un comando con ese título')),
-      );
+          const SnackBar(content: Text('Ya existe un comando con ese título')),
+        );
       return;
     }
 
@@ -132,7 +135,9 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
               ),
               Text(
                 _esEdicion ? 'Editar comando' : 'Nuevo comando',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -166,7 +171,9 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: CategoriasController.instance.categoriasComando.map((cat) {
+                children: CategoriasController.instance.categoriasComando.map((
+                  cat,
+                ) {
                   final seleccionada = cat.id == _categoriaSeleccionada;
                   return ChoiceChip(
                     label: Text(cat.nombre),
@@ -191,7 +198,9 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
               TextFormField(
                 controller: _descripcion,
                 maxLines: 2,
-                decoration: const InputDecoration(labelText: 'Descripción (opcional)'),
+                decoration: const InputDecoration(
+                  labelText: 'Descripción (opcional)',
+                ),
               ),
               const SizedBox(height: 14),
               TextFormField(
@@ -204,7 +213,8 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
               const SizedBox(height: 8),
               CheckboxListTile(
                 value: _favorito,
-                onChanged: (valor) => setState(() => _favorito = valor ?? false),
+                onChanged: (valor) =>
+                    setState(() => _favorito = valor ?? false),
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
                 title: const Text('Marcar como favorito'),

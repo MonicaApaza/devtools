@@ -39,8 +39,12 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
     final existente = widget.existente;
     _titulo = TextEditingController(text: existente?.tituloShortcut ?? '');
     _teclas = TextEditingController(text: existente?.teclasShortcut ?? '');
-    _descripcion = TextEditingController(text: existente?.descripcionShortcut ?? '');
-    _etiquetas = TextEditingController(text: existente?.etiquetasShortcut ?? '');
+    _descripcion = TextEditingController(
+      text: existente?.descripcionShortcut ?? '',
+    );
+    _etiquetas = TextEditingController(
+      text: existente?.etiquetasShortcut ?? '',
+    );
     _categoriaSeleccionada = existente?.categoriaShortcut;
     _favorito = existente?.esFavorito ?? false;
   }
@@ -64,7 +68,8 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
     // Al editar se conserva el dueño original; al crear, queda a nombre de
     // quien tiene la sesión iniciada.
     final usuario =
-        widget.existente?.usuarioShortcut ?? AuthController.instance.usuarioActual;
+        widget.existente?.usuarioShortcut ??
+        AuthController.instance.usuarioActual;
     final existeDuplicado = await _dbHelper.existeTituloShortcut(
       titulo,
       usuario,
@@ -75,8 +80,8 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
         ..showSnackBar(
-        const SnackBar(content: Text('Ya existe un shortcut con ese título')),
-      );
+          const SnackBar(content: Text('Ya existe un shortcut con ese título')),
+        );
       return;
     }
 
@@ -133,7 +138,9 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
               ),
               Text(
                 _esEdicion ? 'Editar shortcut' : 'Nuevo shortcut',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -167,7 +174,9 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: CategoriasController.instance.categoriasShortcut.map((cat) {
+                children: CategoriasController.instance.categoriasShortcut.map((
+                  cat,
+                ) {
                   final seleccionada = cat.id == _categoriaSeleccionada;
                   return ChoiceChip(
                     label: Text(cat.nombre),
@@ -192,7 +201,9 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
               TextFormField(
                 controller: _descripcion,
                 maxLines: 2,
-                decoration: const InputDecoration(labelText: 'Descripción (opcional)'),
+                decoration: const InputDecoration(
+                  labelText: 'Descripción (opcional)',
+                ),
               ),
               const SizedBox(height: 14),
               TextFormField(
@@ -205,7 +216,8 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
               const SizedBox(height: 8),
               CheckboxListTile(
                 value: _favorito,
-                onChanged: (valor) => setState(() => _favorito = valor ?? false),
+                onChanged: (valor) =>
+                    setState(() => _favorito = valor ?? false),
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
                 title: const Text('Marcar como favorito'),

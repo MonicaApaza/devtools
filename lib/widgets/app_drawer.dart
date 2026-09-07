@@ -51,7 +51,9 @@ class AppDrawer extends StatelessWidget {
 
     Future<void> abrirDetalleShortcutDeMuestra() async {
       Navigator.pop(context);
-      final lista = await ShortcutRepositorioImpl().listar();
+      final lista = await ShortcutRepositorioImpl().listar(
+        AuthController.instance.usuarioActual,
+      );
       if (lista.isEmpty) {
         Get.snackbar('Sin datos', 'Todavía no hay shortcuts guardados.');
         return;
@@ -61,7 +63,9 @@ class AppDrawer extends StatelessWidget {
 
     Future<void> abrirDetalleComandoDeMuestra() async {
       Navigator.pop(context);
-      final lista = await ComandoRepositorioImpl().listar();
+      final lista = await ComandoRepositorioImpl().listar(
+        AuthController.instance.usuarioActual,
+      );
       if (lista.isEmpty) {
         Get.snackbar('Sin datos', 'Todavía no hay comandos guardados.');
         return;

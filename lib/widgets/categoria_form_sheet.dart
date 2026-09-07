@@ -42,8 +42,11 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
   @override
   void initState() {
     super.initState();
-    _nombre = TextEditingController(text: widget.existente?.nombreCategoria ?? '');
-    _iconoSeleccionado = widget.existente?.iconoCategoria ?? iconosCategoria.keys.first;
+    _nombre = TextEditingController(
+      text: widget.existente?.nombreCategoria ?? '',
+    );
+    _iconoSeleccionado =
+        widget.existente?.iconoCategoria ?? iconosCategoria.keys.first;
     _tipoSeleccionado = widget.existente?.tipoCategoria ?? widget.tipo;
   }
 
@@ -63,7 +66,8 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
     // Al editar se conserva el dueño original; al crear, queda a nombre de
     // quien tiene la sesión iniciada.
     final usuario =
-        widget.existente?.usuarioCategoria ?? AuthController.instance.usuarioActual;
+        widget.existente?.usuarioCategoria ??
+        AuthController.instance.usuarioActual;
 
     if (_esEdicion) {
       final ladosAntes = _ladosDe(widget.existente!.tipoCategoria).toSet();
@@ -81,12 +85,12 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
           ScaffoldMessenger.of(context)
             ..removeCurrentSnackBar()
             ..showSnackBar(
-            SnackBar(
-              content: Text(
-                'No se puede quitar "$lado": $enUso $ladoLabel todavía usan esta categoría',
+              SnackBar(
+                content: Text(
+                  'No se puede quitar "$lado": $enUso $ladoLabel todavía usan esta categoría',
+                ),
               ),
-            ),
-          );
+            );
           return;
         }
       }
@@ -103,8 +107,10 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
         ..showSnackBar(
-        const SnackBar(content: Text('Ya existe una categoría con ese nombre')),
-      );
+          const SnackBar(
+            content: Text('Ya existe una categoría con ese nombre'),
+          ),
+        );
       return;
     }
 
@@ -159,15 +165,23 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
               ),
               Text(
                 _esEdicion ? 'Editar categoría' : 'Nueva categoría',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              Text('Disponible para', style: Theme.of(context).textTheme.labelLarge),
+              Text(
+                'Disponible para',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
               const SizedBox(height: 8),
               SegmentedButton<String>(
                 segments: _opcionesTipo
                     .map(
-                      (o) => ButtonSegment(value: o.valor, label: Text(o.etiqueta)),
+                      (o) => ButtonSegment(
+                        value: o.valor,
+                        label: Text(o.etiqueta),
+                      ),
                     )
                     .toList(),
                 selected: {_tipoSeleccionado},
@@ -197,10 +211,13 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
                     label: Icon(
                       entrada.value,
                       size: 20,
-                      color: seleccionado ? esquema.onPrimary : esquema.onSurfaceVariant,
+                      color: seleccionado
+                          ? esquema.onPrimary
+                          : esquema.onSurfaceVariant,
                     ),
                     selected: seleccionado,
-                    onSelected: (_) => setState(() => _iconoSeleccionado = entrada.key),
+                    onSelected: (_) =>
+                        setState(() => _iconoSeleccionado = entrada.key),
                   );
                 }).toList(),
               ),

@@ -19,7 +19,9 @@ class MasScreen extends StatelessWidget {
   }
 
   Future<void> _abrirDetalleShortcutDeMuestra() async {
-    final lista = await ShortcutRepositorioImpl().listar();
+    final lista = await ShortcutRepositorioImpl().listar(
+      AuthController.instance.usuarioActual,
+    );
     if (lista.isEmpty) {
       Get.snackbar('Sin datos', 'Todavía no hay shortcuts guardados.');
       return;
@@ -28,7 +30,9 @@ class MasScreen extends StatelessWidget {
   }
 
   Future<void> _abrirDetalleComandoDeMuestra() async {
-    final lista = await ComandoRepositorioImpl().listar();
+    final lista = await ComandoRepositorioImpl().listar(
+      AuthController.instance.usuarioActual,
+    );
     if (lista.isEmpty) {
       Get.snackbar('Sin datos', 'Todavía no hay comandos guardados.');
       return;

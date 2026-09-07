@@ -15,7 +15,8 @@ class ModeloCategoria {
     required this.tipoCategoria,
     int? creadoEnCategoria,
     required this.usuarioCategoria,
-  }) : creadoEnCategoria = creadoEnCategoria ?? DateTime.now().millisecondsSinceEpoch;
+  }) : creadoEnCategoria =
+           creadoEnCategoria ?? DateTime.now().millisecondsSinceEpoch;
 
   Map<String, dynamic> toMap() {
     return {

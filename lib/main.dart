@@ -38,7 +38,7 @@ class MainApp extends StatelessWidget {
           darkTheme: ThemeController.instance.temaOscuro,
           themeMode: ThemeController.instance.modo,
           // Rutas nombradas vía GetPage (Sesión 7: Vistas y Componentes UI).
-          initialRoute: AppRutas.inicio,
+          initialRoute: AppRutas.login,
           getPages: AppPaginas.paginas,
         );
       },

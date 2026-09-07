@@ -21,7 +21,8 @@ class ModeloComando {
     int? creadoEnComando,
     this.usosComando = 0,
     required this.usuarioComando,
-  }) : creadoEnComando = creadoEnComando ?? DateTime.now().millisecondsSinceEpoch;
+  }) : creadoEnComando =
+           creadoEnComando ?? DateTime.now().millisecondsSinceEpoch;
 
   List<String> get etiquetas => etiquetasComando
       .split(',')
