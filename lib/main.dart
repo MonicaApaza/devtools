@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'datos/categorias_controlador.dart';
-import 'pantallas/ajustes_screen.dart';
-import 'pantallas/categorias_screen.dart';
-import 'pantallas/estadisticas_screen.dart';
-import 'pantallas/root_shell.dart';
+import 'rutas/app_paginas.dart';
+import 'rutas/app_rutas.dart';
 import 'theme/theme_controller.dart';
 
 void main() async {
@@ -21,20 +20,15 @@ class MainApp extends StatelessWidget {
     return AnimatedBuilder(
       animation: ThemeController.instance,
       builder: (context, _) {
-        return MaterialApp(
+        return GetMaterialApp(
           title: 'QuickDev',
           debugShowCheckedModeBanner: false,
           theme: ThemeController.instance.temaClaro,
           darkTheme: ThemeController.instance.temaOscuro,
           themeMode: ThemeController.instance.modo,
-          // Ruta inicial + tabla de rutas nombradas (Sesión 5: Rutas Nombradas).
-          initialRoute: '/',
-          routes: {
-            '/': (context) => const RootShell(),
-            '/ajustes': (context) => const AjustesScreen(),
-            '/estadisticas': (context) => const EstadisticasScreen(),
-            '/categorias': (context) => const CategoriasScreen(),
-          },
+          // Rutas nombradas vía GetPage (Sesión 7: Vistas y Componentes UI).
+          initialRoute: AppRutas.inicio,
+          getPages: AppPaginas.paginas,
         );
       },
     );
