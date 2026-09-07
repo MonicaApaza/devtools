@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../data/repositorios/comando_repositorio_impl.dart';
+import '../data/repositorios/shortcut_repositorio_impl.dart';
+import '../presentacion/controladores/auth_controller.dart';
+import '../presentacion/pantallas/comando_detalle_screen.dart';
+import '../presentacion/pantallas/shortcut_detalle_screen.dart';
+import '../rutas/app_rutas.dart';
 import '../theme/theme_controller.dart';
 
 /// Drawer lateral: navegación alternativa a la barra inferior.
@@ -40,6 +47,35 @@ class AppDrawer extends StatelessWidget {
           onSeleccionar(indice);
         },
       );
+    }
+
+    Future<void> abrirDetalleShortcutDeMuestra() async {
+      Navigator.pop(context);
+      final lista = await ShortcutRepositorioImpl().listar();
+      if (lista.isEmpty) {
+        Get.snackbar('Sin datos', 'Todavía no hay shortcuts guardados.');
+        return;
+      }
+      Get.to(() => ShortcutDetalleScreen(shortcut: lista.first));
+    }
+
+    Future<void> abrirDetalleComandoDeMuestra() async {
+      Navigator.pop(context);
+      final lista = await ComandoRepositorioImpl().listar();
+      if (lista.isEmpty) {
+        Get.snackbar('Sin datos', 'Todavía no hay comandos guardados.');
+        return;
+      }
+      Get.to(() => ComandoDetalleScreen(comando: lista.first));
+    }
+
+    Future<void> cerrarSesion() async {
+      Navigator.pop(context);
+      final auth = Get.isRegistered<AuthController>()
+          ? Get.find<AuthController>()
+          : Get.put(AuthController());
+      await auth.cerrarSesion();
+      Get.offAllNamed(AppRutas.login);
     }
 
     return Drawer(
@@ -127,6 +163,46 @@ class AppDrawer extends StatelessWidget {
                   onChanged: (_) => controlador.alternar(),
                 );
               },
+            ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: Text(
+                'VER TODAS LAS PANTALLAS',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: esquema.outline,
+                  letterSpacing: 1,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.login_outlined),
+              title: const Text('Login'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.pop(context);
+                Get.toNamed(AppRutas.login);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.keyboard_outlined),
+              title: const Text('Detalle de shortcut (muestra)'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: abrirDetalleShortcutDeMuestra,
+            ),
+            ListTile(
+              leading: const Icon(Icons.terminal),
+              title: const Text('Detalle de comando (muestra)'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: abrirDetalleComandoDeMuestra,
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.logout, color: esquema.error),
+              title: Text('Cerrar sesión', style: TextStyle(color: esquema.error)),
+              onTap: cerrarSesion,
             ),
           ],
         ),

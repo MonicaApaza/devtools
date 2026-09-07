@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../data/repositorios/comando_repositorio_impl.dart';
+import '../data/repositorios/shortcut_repositorio_impl.dart';
+import '../presentacion/controladores/auth_controller.dart';
+import '../presentacion/pantallas/comando_detalle_screen.dart';
+import '../presentacion/pantallas/shortcut_detalle_screen.dart';
+import '../rutas/app_rutas.dart';
 import '../theme/theme_controller.dart';
 
 class MasScreen extends StatelessWidget {
@@ -11,6 +18,32 @@ class MasScreen extends StatelessWidget {
       ..showSnackBar(
       SnackBar(content: Text('Próximamente: $seccion')),
     );
+  }
+
+  Future<void> _abrirDetalleShortcutDeMuestra() async {
+    final lista = await ShortcutRepositorioImpl().listar();
+    if (lista.isEmpty) {
+      Get.snackbar('Sin datos', 'Todavía no hay shortcuts guardados.');
+      return;
+    }
+    Get.to(() => ShortcutDetalleScreen(shortcut: lista.first));
+  }
+
+  Future<void> _abrirDetalleComandoDeMuestra() async {
+    final lista = await ComandoRepositorioImpl().listar();
+    if (lista.isEmpty) {
+      Get.snackbar('Sin datos', 'Todavía no hay comandos guardados.');
+      return;
+    }
+    Get.to(() => ComandoDetalleScreen(comando: lista.first));
+  }
+
+  Future<void> _cerrarSesion() async {
+    final auth = Get.isRegistered<AuthController>()
+        ? Get.find<AuthController>()
+        : Get.put(AuthController());
+    await auth.cerrarSesion();
+    Get.offAllNamed(AppRutas.login);
   }
 
   @override
@@ -92,6 +125,43 @@ class MasScreen extends StatelessWidget {
                 onTap: () => Navigator.pushNamed(context, '/ajustes'),
               ),
             ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text('VER TODAS LAS PANTALLAS', style: TextStyle(fontWeight: FontWeight.bold, color: esquema.outline, letterSpacing: 1)),
+        const SizedBox(height: 8),
+        Card(
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.login_outlined),
+                title: const Text('Login'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Get.toNamed(AppRutas.login),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.keyboard_outlined),
+                title: const Text('Detalle de shortcut (muestra)'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _abrirDetalleShortcutDeMuestra,
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.terminal),
+                title: const Text('Detalle de comando (muestra)'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _abrirDetalleComandoDeMuestra,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Card(
+          child: ListTile(
+            leading: Icon(Icons.logout, color: esquema.error),
+            title: Text('Cerrar sesión', style: TextStyle(color: esquema.error)),
+            onTap: _cerrarSesion,
           ),
         ),
       ],
