@@ -40,6 +40,18 @@ class ComandosScreenState extends State<ComandosScreen> {
   }
 
   Future<void> mostrarFormularioNuevo() async {
+    if (CategoriasController.instance.categoriasComando.isEmpty) {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Crea al menos una categoría antes de agregar un comando.',
+            ),
+          ),
+        );
+      return;
+    }
     final creado = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -79,8 +91,8 @@ class ComandosScreenState extends State<ComandosScreen> {
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(
-      const SnackBar(content: Text('Comando copiado al portapapeles')),
-    );
+        const SnackBar(content: Text('Comando copiado al portapapeles')),
+      );
   }
 
   Future<void> _eliminar(ModeloComando comando) async {
@@ -99,18 +111,18 @@ class ComandosScreenState extends State<ComandosScreen> {
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        // Ver shortcuts_screen.dart: un SnackBar con `action` es "persist"
-        // por defecto en Flutter e ignora `duration`. Lo forzamos a false.
-        persist: false,
-        content: const Text('Comando eliminado'),
-        action: SnackBarAction(
-          label: 'DESHACER',
-          onPressed: () => controller.restaurar(respaldo),
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          // Ver shortcuts_screen.dart: un SnackBar con `action` es "persist"
+          // por defecto en Flutter e ignora `duration`. Lo forzamos a false.
+          persist: false,
+          content: const Text('Comando eliminado'),
+          action: SnackBarAction(
+            label: 'DESHACER',
+            onPressed: () => controller.restaurar(respaldo),
+          ),
         ),
-      ),
-    );
+      );
   }
 
   Future<bool> _confirmarEliminar(ModeloComando comando) async {
@@ -291,13 +303,15 @@ class ComandosScreenState extends State<ComandosScreen> {
                   ChoiceChip(
                     label: const Text('Todos'),
                     selected: controller.filtroCategoria.value == 'all',
-                    onSelected: (_) => controller.actualizarFiltroCategoria('all'),
+                    onSelected: (_) =>
+                        controller.actualizarFiltroCategoria('all'),
                   ),
                   ...CategoriasController.instance.categoriasComando.map(
                     (cat) => ChoiceChip(
                       label: Text(cat.nombre),
                       selected: controller.filtroCategoria.value == cat.id,
-                      onSelected: (_) => controller.actualizarFiltroCategoria(cat.id),
+                      onSelected: (_) =>
+                          controller.actualizarFiltroCategoria(cat.id),
                     ),
                   ),
                 ],
@@ -328,7 +342,9 @@ class ComandosScreenState extends State<ComandosScreen> {
       itemCount: lista.length,
       itemBuilder: (context, index) {
         final c = lista[index];
-        final categoria = CategoriasController.instance.buscarCategoriaComando(c.categoriaComando);
+        final categoria = CategoriasController.instance.buscarCategoriaComando(
+          c.categoriaComando,
+        );
 
         return Dismissible(
           key: ValueKey(c.pkComando),
@@ -498,7 +514,9 @@ class ComandosScreenState extends State<ComandosScreen> {
       itemCount: lista.length,
       itemBuilder: (context, index) {
         final c = lista[index];
-        final categoria = CategoriasController.instance.buscarCategoriaComando(c.categoriaComando);
+        final categoria = CategoriasController.instance.buscarCategoriaComando(
+          c.categoriaComando,
+        );
         return Card(
           child: InkWell(
             borderRadius: BorderRadius.circular(18),
@@ -513,7 +531,9 @@ class ComandosScreenState extends State<ComandosScreen> {
                     children: [
                       Hero(
                         tag: 'comando-${c.pkComando}',
-                        child: CircleAvatar(child: Icon(categoria.icono, size: 18)),
+                        child: CircleAvatar(
+                          child: Icon(categoria.icono, size: 18),
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Text(

@@ -43,6 +43,18 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
   }
 
   Future<void> mostrarFormularioNuevo() async {
+    if (CategoriasController.instance.categoriasShortcut.isEmpty) {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Crea al menos una categoría antes de agregar un shortcut.',
+            ),
+          ),
+        );
+      return;
+    }
     final creado = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -81,19 +93,19 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        // Un SnackBar con `action` se marca "persist" por defecto en Flutter
-        // y entonces ignora `duration` (para que el usuario alcance a tocar
-        // DESHACER). Lo forzamos a false para que sí se cierre solo.
-        persist: false,
-        content: const Text('Shortcut eliminado'),
-        action: SnackBarAction(
-          label: 'DESHACER',
-          onPressed: () => controller.restaurar(respaldo),
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          // Un SnackBar con `action` se marca "persist" por defecto en Flutter
+          // y entonces ignora `duration` (para que el usuario alcance a tocar
+          // DESHACER). Lo forzamos a false para que sí se cierre solo.
+          persist: false,
+          content: const Text('Shortcut eliminado'),
+          action: SnackBarAction(
+            label: 'DESHACER',
+            onPressed: () => controller.restaurar(respaldo),
+          ),
         ),
-      ),
-    );
+      );
   }
 
   Future<bool> _confirmarEliminar(ModeloShortcut shortcut) async {
@@ -265,13 +277,15 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                   ChoiceChip(
                     label: const Text('Todos'),
                     selected: controller.filtroCategoria.value == 'all',
-                    onSelected: (_) => controller.actualizarFiltroCategoria('all'),
+                    onSelected: (_) =>
+                        controller.actualizarFiltroCategoria('all'),
                   ),
                   ...CategoriasController.instance.categoriasShortcut.map(
                     (cat) => ChoiceChip(
                       label: Text(cat.nombre),
                       selected: controller.filtroCategoria.value == cat.id,
-                      onSelected: (_) => controller.actualizarFiltroCategoria(cat.id),
+                      onSelected: (_) =>
+                          controller.actualizarFiltroCategoria(cat.id),
                     ),
                   ),
                 ],
@@ -302,7 +316,9 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       itemCount: lista.length,
       itemBuilder: (context, index) {
         final s = lista[index];
-        final categoria = CategoriasController.instance.buscarCategoriaShortcut(s.categoriaShortcut);
+        final categoria = CategoriasController.instance.buscarCategoriaShortcut(
+          s.categoriaShortcut,
+        );
         final expandido = _expandidoPk == s.pkShortcut;
 
         return Dismissible(
@@ -423,7 +439,9 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       itemCount: lista.length,
       itemBuilder: (context, index) {
         final s = lista[index];
-        final categoria = CategoriasController.instance.buscarCategoriaShortcut(s.categoriaShortcut);
+        final categoria = CategoriasController.instance.buscarCategoriaShortcut(
+          s.categoriaShortcut,
+        );
         return Card(
           child: InkWell(
             borderRadius: BorderRadius.circular(18),
@@ -438,7 +456,9 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
                     children: [
                       Hero(
                         tag: 'shortcut-${s.pkShortcut}',
-                        child: CircleAvatar(child: Icon(categoria.icono, size: 18)),
+                        child: CircleAvatar(
+                          child: Icon(categoria.icono, size: 18),
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Text(
