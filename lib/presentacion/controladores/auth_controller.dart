@@ -20,6 +20,11 @@ class AuthController extends GetxController {
   final tecPassword = TextEditingController();
 
   final Rxn<Sesion> sesion = Rxn<Sesion>();
+  final mostrarContrasena = false.obs;
+
+  void alternarVisibilidadContrasena() {
+    mostrarContrasena.toggle();
+  }
 
   @override
   void onInit() {
