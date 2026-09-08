@@ -1,5 +1,7 @@
 using System.Text;
+using DevTools.Api.Common;
 using DevTools.Api.Middlewares;
+using DevTools.Application.Interfaces;
 using DevTools.Infrastructure.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +15,8 @@ public static class ApiServiceExtensions
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddTransient<ExceptionHandlingMiddleware>();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         var jwtSettings = configuration.GetSection(JwtSettings.Section).Get<JwtSettings>()
             ?? throw new InvalidOperationException("Missing Jwt configuration section.");
