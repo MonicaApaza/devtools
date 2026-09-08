@@ -21,6 +21,28 @@ export const routes: Routes = [
         path: 'home',
         loadComponent: () => import('./features/home/home').then((m) => m.Home),
       },
+      {
+        path: 'shortcuts',
+        loadComponent: () =>
+          import('./features/shortcuts/shortcuts-list/shortcuts-list').then((m) => m.ShortcutsList),
+      },
+      {
+        path: 'commands',
+        loadComponent: () =>
+          import('./features/commands/commands-list/commands-list').then((m) => m.CommandsList),
+      },
+      {
+        path: 'categories',
+        loadComponent: () => import('./features/categories/categories').then((m) => m.Categories),
+      },
+      {
+        path: 'statistics',
+        loadComponent: () => import('./features/statistics/statistics').then((m) => m.Statistics),
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/settings/settings').then((m) => m.Settings),
+      },
     ],
   },
   { path: '**', redirectTo: 'home' },

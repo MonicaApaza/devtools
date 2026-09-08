@@ -1,0 +1,47 @@
+<header class="home-header">
+  <span class="greeting">{{ greeting() }}, {{ authService.username() }} 👋</span>
+</header>
+
+<app-search-box [(query)]="query" placeholder="Buscar shortcuts y comandos..." />
+
+<h2>Favoritos</h2>
+@if (favorites().length === 0) {
+  <app-empty-state icon="star_outline" message="Marca shortcuts o comandos como favoritos para verlos aquí." />
+} @else {
+  <div class="entry-list">
+    @for (entry of favorites(); track entry.item.id) {
+      <mat-card class="entry-card" (click)="openEntry(entry)">
+        <mat-card-content>
+          <mat-icon class="category-icon" aria-hidden="true">{{ categoryIcon(entry.item.categoryId) }}</mat-icon>
+          <div class="entry-title">
+            <strong>{{ entry.item.title }}</strong>
+            <span class="entry-kind">{{ entry.kind === 'shortcut' ? 'Shortcut' : 'Comando' }}</span>
+          </div>
+          <mat-icon class="favorite" aria-hidden="true">star</mat-icon>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}
+
+<h2>Recientes</h2>
+@if (recent().length === 0) {
+  <app-empty-state icon="history" message="Todavía no hay shortcuts ni comandos." />
+} @else {
+  <div class="entry-list">
+    @for (entry of recent(); track entry.item.id) {
+      <mat-card class="entry-card" (click)="openEntry(entry)">
+        <mat-card-content>
+          <mat-icon class="category-icon" aria-hidden="true">{{ categoryIcon(entry.item.categoryId) }}</mat-icon>
+          <div class="entry-title">
+            <strong>{{ entry.item.title }}</strong>
+            <span class="entry-kind">{{ entry.kind === 'shortcut' ? 'Shortcut' : 'Comando' }}</span>
+          </div>
+          @if (entry.item.isFavorite) {
+            <mat-icon class="favorite" aria-hidden="true">star</mat-icon>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

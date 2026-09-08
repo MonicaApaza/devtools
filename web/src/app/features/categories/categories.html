@@ -1,0 +1,73 @@
+<h1>Categorías</h1>
+
+<mat-tab-group>
+  <mat-tab label="Shortcuts">
+    <ng-template matTabContent>
+      @if (categoryService.shortcutCategories().length === 0) {
+        <app-empty-state icon="category" message="No hay categorías todavía." />
+      } @else {
+        <mat-nav-list>
+          @for (category of categoryService.shortcutCategories(); track category.id) {
+            <mat-list-item>
+              <mat-icon matListItemIcon aria-hidden="true">{{ iconFor(category.icon) }}</mat-icon>
+              <span matListItemTitle>{{ category.name }}</span>
+              @if (category.type === 'Both') {
+                <span matListItemLine>Shortcuts y comandos</span>
+              }
+              <button mat-icon-button [matMenuTriggerFor]="menu" matListItemMeta aria-label="Más opciones">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="openEdit(category)">
+                  <mat-icon>edit</mat-icon>
+                  Editar
+                </button>
+                <button mat-menu-item (click)="delete(category)">
+                  <mat-icon>delete</mat-icon>
+                  Eliminar
+                </button>
+              </mat-menu>
+            </mat-list-item>
+          }
+        </mat-nav-list>
+      }
+    </ng-template>
+  </mat-tab>
+
+  <mat-tab label="Comandos">
+    <ng-template matTabContent>
+      @if (categoryService.commandCategories().length === 0) {
+        <app-empty-state icon="category" message="No hay categorías todavía." />
+      } @else {
+        <mat-nav-list>
+          @for (category of categoryService.commandCategories(); track category.id) {
+            <mat-list-item>
+              <mat-icon matListItemIcon aria-hidden="true">{{ iconFor(category.icon) }}</mat-icon>
+              <span matListItemTitle>{{ category.name }}</span>
+              @if (category.type === 'Both') {
+                <span matListItemLine>Shortcuts y comandos</span>
+              }
+              <button mat-icon-button [matMenuTriggerFor]="menu" matListItemMeta aria-label="Más opciones">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="openEdit(category)">
+                  <mat-icon>edit</mat-icon>
+                  Editar
+                </button>
+                <button mat-menu-item (click)="delete(category)">
+                  <mat-icon>delete</mat-icon>
+                  Eliminar
+                </button>
+              </mat-menu>
+            </mat-list-item>
+          }
+        </mat-nav-list>
+      }
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>
+
+<button mat-fab color="primary" class="fab" (click)="openCreate()" aria-label="Nueva categoría">
+  <mat-icon>add</mat-icon>
+</button>

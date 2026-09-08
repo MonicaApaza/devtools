@@ -1,0 +1,49 @@
+.detail-sheet {
+  padding: 8px 24px 24px;
+  max-width: 480px;
+
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    mat-icon {
+      color: var(--mat-sys-primary);
+    }
+
+    h2 {
+      margin: 0;
+    }
+
+    .category-name {
+      font-size: 0.8rem;
+      color: var(--mat-sys-outline);
+    }
+  }
+
+  .command-box {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: monospace;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+
+  .description {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .usage {
+    color: var(--mat-sys-outline);
+    font-size: 0.85rem;
+  }
+
+  .detail-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
+}

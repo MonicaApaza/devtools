@@ -1,0 +1,56 @@
+<div class="form-sheet">
+  <h2>{{ isEdit ? 'Editar comando' : 'Nuevo comando' }}</h2>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Título</mat-label>
+    <input matInput [formField]="textForm.title" />
+    @if (textForm.title().touched() && textForm.title().errors().length) {
+      <mat-error>{{ textForm.title().errors()[0].message }}</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Comando (ej. git status)</mat-label>
+    <input matInput [formField]="textForm.commandText" class="monospace-input" />
+    @if (textForm.commandText().touched() && textForm.commandText().errors().length) {
+      <mat-error>{{ textForm.commandText().errors()[0].message }}</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Categoría</mat-label>
+    <mat-select [value]="categoryId()" (selectionChange)="categoryId.set($event.value)">
+      @for (category of categoryService.commandCategories(); track category.id) {
+        <mat-option [value]="category.id">{{ category.name }}</mat-option>
+      }
+    </mat-select>
+    @if (categoryError()) {
+      <mat-error>Selecciona una categoría</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Descripción (opcional)</mat-label>
+    <textarea matInput [formField]="textForm.description" rows="2"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Etiquetas separadas por coma (opcional)</mat-label>
+    <input matInput [formField]="textForm.tagsText" placeholder="git, cli" />
+  </mat-form-field>
+
+  @if (errorMessage()) {
+    <p class="form-error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="form-actions">
+    <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
+    <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="onSubmit()">
+      @if (saving()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Guardar
+      }
+    </button>
+  </div>
+</div>

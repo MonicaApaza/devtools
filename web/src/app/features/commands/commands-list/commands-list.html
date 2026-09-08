@@ -1,0 +1,71 @@
+<div class="toolbar-row">
+  <h1>Comandos</h1>
+  <button mat-icon-button (click)="toggleViewMode()" aria-label="Cambiar vista">
+    <mat-icon>{{ viewMode() === 'list' ? 'grid_view' : 'view_list' }}</mat-icon>
+  </button>
+</div>
+
+<app-search-box [(query)]="query" placeholder="Buscar comandos..." />
+<app-category-chip-filter
+  [categories]="categoryService.commandCategories()"
+  [(selectedId)]="selectedCategoryId"
+/>
+
+@if (filtered().length === 0) {
+  <app-empty-state icon="terminal" message="No hay comandos todavía." />
+} @else {
+  <div class="items" [class.grid]="viewMode() === 'grid'">
+    @for (command of filtered(); track command.id) {
+      <mat-card class="item-card" (click)="openDetail(command)">
+        <mat-card-content>
+          <div class="item-header">
+            <mat-icon class="category-icon" aria-hidden="true">{{ categoryIcon(command.categoryId) }}</mat-icon>
+            <div class="item-title">
+              <strong>{{ command.title }}</strong>
+              <span class="category-name">{{ categoryName(command.categoryId) }}</span>
+            </div>
+            <button
+              mat-icon-button
+              (click)="toggleFavorite(command, $event)"
+              [attr.aria-pressed]="command.isFavorite"
+              aria-label="Marcar como favorito"
+            >
+              <mat-icon [class.favorite]="command.isFavorite">
+                {{ command.isFavorite ? 'star' : 'star_outline' }}
+              </mat-icon>
+            </button>
+            <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()" aria-label="Más opciones">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="openEdit(command, $event)">
+                <mat-icon>edit</mat-icon>
+                Editar
+              </button>
+              <button mat-menu-item (click)="delete(command, $event)">
+                <mat-icon>delete</mat-icon>
+                Eliminar
+              </button>
+            </mat-menu>
+          </div>
+
+          <code class="command-preview">{{ command.commandText }}</code>
+
+          @if (command.tags.length) {
+            <mat-chip-set>
+              @for (tag of command.tags; track tag) {
+                <mat-chip>{{ tag }}</mat-chip>
+              }
+            </mat-chip-set>
+          }
+
+          <p class="usage">Usado {{ command.usageCount }} {{ command.usageCount === 1 ? 'vez' : 'veces' }}</p>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}
+
+<button mat-fab color="primary" class="fab" (click)="openCreate()" aria-label="Nuevo comando">
+  <mat-icon>add</mat-icon>
+</button>

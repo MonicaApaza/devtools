@@ -1,0 +1,27 @@
+<h1>Ajustes</h1>
+
+<mat-card class="brand-card">
+  <mat-card-content>
+    <mat-icon aria-hidden="true">bolt</mat-icon>
+    <div>
+      <strong>QuickDev</strong>
+      <p>Versión 1.0.0</p>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<h2>Apariencia</h2>
+<mat-card>
+  <mat-card-content class="toggle-row">
+    <span>Tema oscuro</span>
+    <mat-slide-toggle
+      [checked]="themeService.isDark()"
+      (change)="themeService.set($event.checked)"
+    />
+  </mat-card-content>
+</mat-card>
+
+<button mat-stroked-button color="warn" class="logout-button" (click)="logout()">
+  <mat-icon aria-hidden="true">logout</mat-icon>
+  Cerrar sesión
+</button>

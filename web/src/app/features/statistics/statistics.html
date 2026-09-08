@@ -1,0 +1,66 @@
+<h1>Estadísticas</h1>
+
+<div class="summary-grid">
+  <mat-card>
+    <mat-card-content>
+      <mat-icon aria-hidden="true">keyboard</mat-icon>
+      <span class="value">{{ totalShortcuts() }}</span>
+      <span class="label">Shortcuts</span>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-content>
+      <mat-icon aria-hidden="true">terminal</mat-icon>
+      <span class="value">{{ totalCommands() }}</span>
+      <span class="label">Comandos</span>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-content>
+      <mat-icon aria-hidden="true">star</mat-icon>
+      <span class="value">{{ favoritesCount() }}</span>
+      <span class="label">Favoritos</span>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-content>
+      <mat-icon aria-hidden="true">content_copy</mat-icon>
+      <span class="value">{{ totalUsage() }}</span>
+      <span class="label">Usos de comandos</span>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<h2>Shortcuts por categoría</h2>
+@if (shortcutsByCategory().length === 0) {
+  <p class="empty-hint">Todavía no hay datos.</p>
+} @else {
+  <div class="bar-list">
+    @for (entry of shortcutsByCategory(); track entry.name) {
+      <div class="bar-row">
+        <span class="bar-label">{{ entry.name }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" [style.width.%]="entry.percentage"></div>
+        </div>
+        <span class="bar-count">{{ entry.count }}</span>
+      </div>
+    }
+  </div>
+}
+
+<h2>Comandos por categoría</h2>
+@if (commandsByCategory().length === 0) {
+  <p class="empty-hint">Todavía no hay datos.</p>
+} @else {
+  <div class="bar-list">
+    @for (entry of commandsByCategory(); track entry.name) {
+      <div class="bar-row">
+        <span class="bar-label">{{ entry.name }}</span>
+        <div class="bar-track">
+          <div class="bar-fill" [style.width.%]="entry.percentage"></div>
+        </div>
+        <span class="bar-count">{{ entry.count }}</span>
+      </div>
+    }
+  </div>
+}

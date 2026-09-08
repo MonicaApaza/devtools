@@ -1,0 +1,27 @@
+.form-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 24px 24px;
+  max-width: 480px;
+
+  h2 {
+    margin: 0 0 8px;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .form-error {
+    color: var(--mat-sys-error);
+    margin: 0 0 8px;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
+}

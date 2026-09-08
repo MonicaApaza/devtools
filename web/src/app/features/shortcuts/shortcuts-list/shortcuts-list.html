@@ -1,0 +1,77 @@
+<div class="toolbar-row">
+  <h1>Shortcuts</h1>
+  <button mat-icon-button (click)="toggleViewMode()" aria-label="Cambiar vista">
+    <mat-icon>{{ viewMode() === 'list' ? 'grid_view' : 'view_list' }}</mat-icon>
+  </button>
+</div>
+
+<app-search-box [(query)]="query" placeholder="Buscar shortcuts..." />
+<app-category-chip-filter
+  [categories]="categoryService.shortcutCategories()"
+  [(selectedId)]="selectedCategoryId"
+/>
+
+@if (filtered().length === 0) {
+  <app-empty-state icon="keyboard" message="No hay shortcuts todavía." />
+} @else {
+  <div class="items" [class.grid]="viewMode() === 'grid'">
+    @for (shortcut of filtered(); track shortcut.id) {
+      <mat-card class="item-card">
+        <mat-card-content>
+          <div class="item-header">
+            <mat-icon class="category-icon" aria-hidden="true">{{ categoryIcon(shortcut.categoryId) }}</mat-icon>
+            <div class="item-title">
+              <strong>{{ shortcut.title }}</strong>
+              <span class="category-name">{{ categoryName(shortcut.categoryId) }}</span>
+            </div>
+            <button
+              mat-icon-button
+              (click)="toggleFavorite(shortcut)"
+              [attr.aria-pressed]="shortcut.isFavorite"
+              aria-label="Marcar como favorito"
+            >
+              <mat-icon [class.favorite]="shortcut.isFavorite">
+                {{ shortcut.isFavorite ? 'star' : 'star_outline' }}
+              </mat-icon>
+            </button>
+            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Más opciones">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="openEdit(shortcut)">
+                <mat-icon>edit</mat-icon>
+                Editar
+              </button>
+              <button mat-menu-item (click)="delete(shortcut)">
+                <mat-icon>delete</mat-icon>
+                Eliminar
+              </button>
+            </mat-menu>
+          </div>
+
+          <div class="keys">
+            @for (key of splitKeys(shortcut.keys); track key) {
+              <span class="key-chip">{{ key }}</span>
+            }
+          </div>
+
+          @if (shortcut.description) {
+            <p class="description">{{ shortcut.description }}</p>
+          }
+
+          @if (shortcut.tags.length) {
+            <mat-chip-set>
+              @for (tag of shortcut.tags; track tag) {
+                <mat-chip>{{ tag }}</mat-chip>
+              }
+            </mat-chip-set>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}
+
+<button mat-fab color="primary" class="fab" (click)="openCreate()" aria-label="Nuevo shortcut">
+  <mat-icon>add</mat-icon>
+</button>
