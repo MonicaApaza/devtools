@@ -180,40 +180,6 @@ class AppDrawer extends StatelessWidget {
               },
             ),
             const Divider(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-              child: Text(
-                'VER TODAS LAS PANTALLAS',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: esquema.outline,
-                  letterSpacing: 1,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.login_outlined),
-              title: const Text('Login'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                Navigator.pop(context);
-                Get.toNamed(AppRutas.login);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.keyboard_outlined),
-              title: const Text('Detalle de shortcut (muestra)'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: abrirDetalleShortcutDeMuestra,
-            ),
-            ListTile(
-              leading: const Icon(Icons.terminal),
-              title: const Text('Detalle de comando (muestra)'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: abrirDetalleComandoDeMuestra,
-            ),
-            const Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: esquema.error),
               title: Text(

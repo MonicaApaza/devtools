@@ -154,42 +154,6 @@ class MasScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Text(
-          'VER TODAS LAS PANTALLAS',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: esquema.outline,
-            letterSpacing: 1,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Card(
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.login_outlined),
-                title: const Text('Login'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Get.toNamed(AppRutas.login),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.keyboard_outlined),
-                title: const Text('Detalle de shortcut (muestra)'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _abrirDetalleShortcutDeMuestra,
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.terminal),
-                title: const Text('Detalle de comando (muestra)'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _abrirDetalleComandoDeMuestra,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
         Card(
           child: ListTile(
             leading: Icon(Icons.logout, color: esquema.error),

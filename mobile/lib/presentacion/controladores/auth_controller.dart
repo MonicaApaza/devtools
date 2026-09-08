@@ -60,13 +60,13 @@ class AuthController extends GetxController {
     tecUsuario.clear();
     tecPassword.clear();
 
-    Get.snackbar(
-      'Bienvenido',
-      'Sesión iniciada como ${sesion.value!.usuario}',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green.shade300,
-      duration: const Duration(milliseconds: 2000),
-    );
+    // Get.snackbar(
+    //   'Bienvenido',
+    //   'Sesión iniciada como ${sesion.value!.usuario}',
+    //   snackPosition: SnackPosition.BOTTOM,
+    //   backgroundColor: Colors.green.shade300,
+    //   duration: const Duration(milliseconds: 2000),
+    // );
     Get.offAllNamed(AppRutas.inicio);
   }
 
