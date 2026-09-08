@@ -1,0 +1,47 @@
+<div class="login-page">
+  <header class="login-header">
+    <span class="brand">QuickDev</span>
+    <h1>Iniciar sesión</h1>
+    <mat-icon class="brand-icon" aria-hidden="true">bolt</mat-icon>
+  </header>
+
+  <form class="login-form" (submit)="onSubmit(); $event.preventDefault()">
+    <mat-form-field appearance="outline">
+      <mat-label>Usuario</mat-label>
+      <mat-icon matPrefix aria-hidden="true">person</mat-icon>
+      <input matInput [formField]="loginForm.username" autocomplete="username" />
+      @if (loginForm.username().touched() && loginForm.username().errors().length) {
+        <mat-error>{{ loginForm.username().errors()[0].message }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Contraseña</mat-label>
+      <mat-icon matPrefix aria-hidden="true">lock</mat-icon>
+      <input matInput type="password" [formField]="loginForm.password" autocomplete="current-password" />
+      @if (loginForm.password().touched() && loginForm.password().errors().length) {
+        <mat-error>{{ loginForm.password().errors()[0].message }}</mat-error>
+      }
+    </mat-form-field>
+
+    @if (errorMessage()) {
+      <p class="form-error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      class="submit-button"
+      [disabled]="submitting()"
+    >
+      @if (submitting()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Ingresar
+      }
+    </button>
+
+    <a routerLink="/register" class="register-link">¿No tienes cuenta? Regístrate</a>
+  </form>
+</div>
