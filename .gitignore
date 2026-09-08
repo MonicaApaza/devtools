@@ -1,45 +1,23 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
+# macOS
 .DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
+# Claude Code local session settings (not the vendored skills, those are tracked)
+.claude/settings.local.json
+
+# backend (ASP.NET Core / EF Core)
+backend/**/bin/
+backend/**/obj/
+
+# IDE (Rider/ReSharper, Visual Studio) — repo-wide
 .idea/
+.vs/
+*.user
+*.suo
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# web (Angular)
+web/node_modules/
+web/dist/
+web/.angular/
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# shared local secrets
+.env
