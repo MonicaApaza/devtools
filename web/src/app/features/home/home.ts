@@ -23,7 +23,6 @@ interface HomeEntry {
   selector: 'app-home',
   imports: [MatIconModule, MatCardModule, SearchBox, EmptyState],
   templateUrl: './home.html',
-  styleUrl: './home.scss',
 })
 export class Home implements OnInit {
   protected readonly authService = inject(AuthService);

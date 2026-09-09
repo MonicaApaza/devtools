@@ -1,6 +1,6 @@
-<h1>Categorías</h1>
+<h1 class="mt-0 mb-2 text-2xl font-bold">Categorías</h1>
 
-<mat-tab-group>
+<mat-tab-group class="pb-[88px]">
   <mat-tab label="Shortcuts">
     <ng-template matTabContent>
       @if (categoryService.shortcutCategories().length === 0) {
@@ -68,6 +68,11 @@
   </mat-tab>
 </mat-tab-group>
 
-<button mat-fab color="primary" class="fab" (click)="openCreate()" aria-label="Nueva categoría">
+<button
+  mat-fab
+  class="fixed! right-6 bottom-6 bg-primary! text-on-primary!"
+  (click)="openCreate()"
+  aria-label="Nueva categoría"
+>
   <mat-icon>add</mat-icon>
 </button>

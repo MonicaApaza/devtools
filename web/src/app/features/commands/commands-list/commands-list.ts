@@ -33,7 +33,6 @@ import { CommandForm } from '../command-form/command-form';
     EmptyState,
   ],
   templateUrl: './commands-list.html',
-  styleUrl: './commands-list.scss',
 })
 export class CommandsList implements OnInit {
   private readonly commandService = inject(CommandService);
@@ -71,10 +70,6 @@ export class CommandsList implements OnInit {
   protected categoryIcon(id: string): string {
     const key = this.categoryService.findById(id)?.icon ?? DEFAULT_ICON_KEY;
     return ICON_CATALOG[key] ?? ICON_CATALOG[DEFAULT_ICON_KEY];
-  }
-
-  protected toggleViewMode(): void {
-    this.viewMode.set(this.viewMode() === 'list' ? 'grid' : 'list');
   }
 
   protected openDetail(command: Command): void {

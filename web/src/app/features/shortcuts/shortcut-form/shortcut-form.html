@@ -1,7 +1,7 @@
-<div class="form-sheet">
-  <h2>{{ isEdit ? 'Editar shortcut' : 'Nuevo shortcut' }}</h2>
+<div class="flex max-w-[480px] flex-col gap-1 px-6 pt-2 pb-6">
+  <h2 class="m-0 mb-2">{{ isEdit ? 'Editar shortcut' : 'Nuevo shortcut' }}</h2>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Título</mat-label>
     <input matInput [formField]="textForm.title" />
     @if (textForm.title().touched() && textForm.title().errors().length) {
@@ -9,7 +9,7 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Teclas (ej. Ctrl+Shift+P)</mat-label>
     <input matInput [formField]="textForm.keys" />
     @if (textForm.keys().touched() && textForm.keys().errors().length) {
@@ -17,7 +17,7 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Categoría</mat-label>
     <mat-select [value]="categoryId()" (selectionChange)="categoryId.set($event.value)">
       @for (category of categoryService.shortcutCategories(); track category.id) {
@@ -29,21 +29,21 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Descripción (opcional)</mat-label>
     <textarea matInput [formField]="textForm.description" rows="2"></textarea>
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Etiquetas separadas por coma (opcional)</mat-label>
     <input matInput [formField]="textForm.tagsText" placeholder="editor, busqueda" />
   </mat-form-field>
 
   @if (errorMessage()) {
-    <p class="form-error" role="alert">{{ errorMessage() }}</p>
+    <p class="m-0 mb-2 text-error" role="alert">{{ errorMessage() }}</p>
   }
 
-  <div class="form-actions">
+  <div class="mt-2 flex justify-end gap-2">
     <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
     <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="onSubmit()">
       @if (saving()) {

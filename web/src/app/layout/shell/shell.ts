@@ -39,7 +39,6 @@ const NAV_ITEMS: NavItem[] = [
     MatButtonModule,
   ],
   templateUrl: './shell.html',
-  styleUrl: './shell.scss',
 })
 export class Shell {
   private readonly authService = inject(AuthService);

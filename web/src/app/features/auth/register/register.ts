@@ -21,7 +21,6 @@ import { AuthService } from '../../../core/services/auth';
     MatProgressSpinnerModule,
   ],
   templateUrl: './register.html',
-  styleUrl: './register.scss',
 })
 export class Register {
   private readonly authService = inject(AuthService);
@@ -37,6 +36,7 @@ export class Register {
 
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal('');
+  protected readonly hidePassword = signal(true);
 
   protected onSubmit(): void {
     submit(this.registerForm, async () => {

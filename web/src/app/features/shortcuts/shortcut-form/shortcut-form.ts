@@ -28,7 +28,6 @@ export interface ShortcutFormData {
     MatProgressSpinnerModule,
   ],
   templateUrl: './shortcut-form.html',
-  styleUrl: './shortcut-form.scss',
 })
 export class ShortcutForm {
   private readonly bottomSheetRef = inject(MatBottomSheetRef<ShortcutForm, boolean>);

@@ -17,7 +17,6 @@ interface CategoryCount {
   selector: 'app-statistics',
   imports: [MatCardModule, MatIconModule],
   templateUrl: './statistics.html',
-  styleUrl: './statistics.scss',
 })
 export class Statistics implements OnInit {
   private readonly shortcutService = inject(ShortcutService);

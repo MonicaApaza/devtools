@@ -1,50 +1,58 @@
-<mat-sidenav-container class="shell-container">
-  <mat-sidenav
-    #sidenav
-    [mode]="isHandset() ? 'over' : 'side'"
-    [opened]="!isHandset()"
-    class="shell-sidenav"
-  >
-    <div class="brand">
-      <mat-icon aria-hidden="true">bolt</mat-icon>
-      <span>QuickDev</span>
-    </div>
+<mat-sidenav-container class="h-screen">
+  <mat-sidenav #sidenav [mode]="isHandset() ? 'over' : 'side'" [opened]="!isHandset()" class="w-64">
+    <div class="flex h-full flex-col py-2">
+      <div class="flex items-center gap-3 px-5 py-6">
+        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-on-primary">
+          <mat-icon aria-hidden="true">bolt</mat-icon>
+        </span>
+        <span class="text-lg font-bold tracking-tight text-on-surface">QuickDev</span>
+      </div>
 
-    <mat-nav-list>
-      @for (item of navItems; track item.path) {
-        <a
-          mat-list-item
-          [routerLink]="item.path"
-          routerLinkActive="active-link"
-          (click)="isHandset() && sidenav.close()"
-        >
-          <mat-icon matListItemIcon aria-hidden="true">{{ item.icon }}</mat-icon>
-          <span matListItemTitle>{{ item.label }}</span>
-        </a>
-      }
-    </mat-nav-list>
+      <mat-nav-list class="px-3">
+        @for (item of navItems; track item.path) {
+          <a
+            mat-list-item
+            [routerLink]="item.path"
+            routerLinkActive
+            #rla="routerLinkActive"
+            [class]="'mb-1 rounded-full ' + (rla.isActive ? 'bg-secondary-container!' : '')"
+            (click)="isHandset() && sidenav.close()"
+          >
+            <mat-icon
+              matListItemIcon
+              aria-hidden="true"
+              [class]="rla.isActive ? 'text-on-secondary-container!' : ''"
+              >{{ item.icon }}</mat-icon
+            >
+            <span matListItemTitle class="font-medium" [class]="rla.isActive ? 'text-on-secondary-container!' : ''">{{
+              item.label
+            }}</span>
+          </a>
+        }
+      </mat-nav-list>
 
-    <div class="sidenav-footer">
-      <button mat-stroked-button (click)="logout()">
-        <mat-icon aria-hidden="true">logout</mat-icon>
-        Cerrar sesión
-      </button>
+      <div class="mt-auto p-4">
+        <button mat-stroked-button class="w-full" (click)="logout()">
+          <mat-icon aria-hidden="true">logout</mat-icon>
+          Cerrar sesión
+        </button>
+      </div>
     </div>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar color="primary" class="shell-toolbar">
+    <mat-toolbar color="primary" class="flex items-center gap-3">
       @if (isHandset()) {
         <button mat-icon-button (click)="sidenav.toggle()" aria-label="Abrir menú">
           <mat-icon>menu</mat-icon>
         </button>
       }
-      <span>QuickDev</span>
-      <span class="spacer"></span>
-      <span class="username">{{ username() }}</span>
+      <span class="font-semibold">QuickDev</span>
+      <span class="flex-1"></span>
+      <span class="text-sm font-medium">{{ username() }}</span>
     </mat-toolbar>
 
-    <main class="shell-content">
+    <main class="mx-auto max-w-[960px] p-4 md:p-6">
       <router-outlet />
     </main>
   </mat-sidenav-content>

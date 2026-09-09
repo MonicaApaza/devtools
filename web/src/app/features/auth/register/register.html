@@ -1,47 +1,76 @@
-<div class="login-page">
-  <header class="login-header">
-    <span class="brand">QuickDev</span>
-    <h1>Crear cuenta</h1>
-    <mat-icon class="brand-icon" aria-hidden="true">bolt</mat-icon>
-  </header>
+<div class="flex min-h-screen flex-col items-center bg-surface-container-low px-4 py-10 md:justify-center md:py-16">
+  <div class="flex w-full max-w-[400px] flex-col items-center">
+    <div class="mb-6 flex flex-col items-center gap-3 text-center">
+      <span
+        class="flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-tertiary text-on-primary shadow-md"
+      >
+        <mat-icon aria-hidden="true" class="h-8! w-8! text-[32px]! leading-none!">bolt</mat-icon>
+      </span>
+      <div>
+        <h1 class="m-0 text-2xl font-extrabold text-on-surface">QuickDev</h1>
+        <p class="m-0 text-sm text-on-surface-variant">Tus shortcuts y comandos, a un clic</p>
+      </div>
+    </div>
 
-  <form class="login-form" (submit)="onSubmit(); $event.preventDefault()">
-    <mat-form-field appearance="outline">
-      <mat-label>Usuario</mat-label>
-      <mat-icon matPrefix aria-hidden="true">person</mat-icon>
-      <input matInput [formField]="registerForm.username" autocomplete="username" />
-      @if (registerForm.username().touched() && registerForm.username().errors().length) {
-        <mat-error>{{ registerForm.username().errors()[0].message }}</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Contraseña</mat-label>
-      <mat-icon matPrefix aria-hidden="true">lock</mat-icon>
-      <input matInput type="password" [formField]="registerForm.password" autocomplete="new-password" />
-      @if (registerForm.password().touched() && registerForm.password().errors().length) {
-        <mat-error>{{ registerForm.password().errors()[0].message }}</mat-error>
-      }
-    </mat-form-field>
-
-    @if (errorMessage()) {
-      <p class="form-error" role="alert">{{ errorMessage() }}</p>
-    }
-
-    <button
-      mat-flat-button
-      color="primary"
-      type="submit"
-      class="submit-button"
-      [disabled]="submitting()"
+    <form
+      class="box-border flex w-full flex-col gap-3 rounded-2xl border border-outline-variant/60 bg-surface p-6 shadow-md sm:p-8"
+      (submit)="onSubmit(); $event.preventDefault()"
     >
-      @if (submitting()) {
-        <mat-spinner diameter="20" />
-      } @else {
-        Crear cuenta
-      }
-    </button>
+      <h2 class="m-0 mb-1 text-lg font-semibold text-on-surface">Crear cuenta</h2>
 
-    <a routerLink="/login" class="register-link">¿Ya tienes cuenta? Inicia sesión</a>
-  </form>
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Usuario</mat-label>
+        <mat-icon matPrefix aria-hidden="true" class="text-primary!">person</mat-icon>
+        <input matInput [formField]="registerForm.username" autocomplete="username" />
+        @if (registerForm.username().touched() && registerForm.username().errors().length) {
+          <mat-error>{{ registerForm.username().errors()[0].message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Contraseña</mat-label>
+        <mat-icon matPrefix aria-hidden="true" class="text-primary!">lock</mat-icon>
+        <input
+          matInput
+          [type]="hidePassword() ? 'password' : 'text'"
+          [formField]="registerForm.password"
+          autocomplete="new-password"
+        />
+        <button
+          matSuffix
+          mat-icon-button
+          type="button"
+          (click)="hidePassword.set(!hidePassword())"
+          [attr.aria-label]="hidePassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+          [attr.aria-pressed]="!hidePassword()"
+        >
+          <mat-icon aria-hidden="true">{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        @if (registerForm.password().touched() && registerForm.password().errors().length) {
+          <mat-error>{{ registerForm.password().errors()[0].message }}</mat-error>
+        }
+      </mat-form-field>
+
+      @if (errorMessage()) {
+        <div class="flex items-center gap-2 rounded-lg bg-error-container px-3 py-2 text-sm text-on-error-container" role="alert">
+          <mat-icon aria-hidden="true" class="text-on-error-container! h-5! w-5! text-[20px]! leading-none!"
+            >error_outline</mat-icon
+          >
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <button mat-flat-button color="primary" type="submit" class="mt-2 h-12" [disabled]="submitting()">
+        @if (submitting()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Crear cuenta
+        }
+      </button>
+    </form>
+
+    <a routerLink="/login" class="mt-6 text-center text-sm text-on-surface-variant no-underline hover:underline">
+      ¿Ya tienes cuenta? <span class="font-semibold text-primary">Inicia sesión</span>
+    </a>
+  </div>
 </div>

@@ -28,7 +28,6 @@ export interface CategoryFormData {
     IconPicker,
   ],
   templateUrl: './category-form.html',
-  styleUrl: './category-form.scss',
 })
 export class CategoryForm {
   private readonly bottomSheetRef = inject(MatBottomSheetRef<CategoryForm, boolean>);

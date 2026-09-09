@@ -12,7 +12,6 @@ import { ThemeService } from '../../core/services/theme';
   selector: 'app-settings',
   imports: [MatSlideToggleModule, MatButtonModule, MatIconModule, MatCardModule],
   templateUrl: './settings.html',
-  styleUrl: './settings.scss',
 })
 export class Settings {
   protected readonly themeService = inject(ThemeService);

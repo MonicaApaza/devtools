@@ -1,77 +1,120 @@
-<div class="toolbar-row">
-  <h1>Shortcuts</h1>
-  <button mat-icon-button (click)="toggleViewMode()" aria-label="Cambiar vista">
-    <mat-icon>{{ viewMode() === 'list' ? 'grid_view' : 'view_list' }}</mat-icon>
-  </button>
+<div class="pb-[88px]">
+  <div class="mb-3 flex items-center justify-between">
+    <h1 class="m-0 text-2xl font-bold">Shortcuts</h1>
+    <div class="flex items-center gap-0.5 rounded-full bg-surface-container p-1">
+      <button
+        mat-icon-button
+        class="h-8! w-8!"
+        [class]="viewMode() === 'list' ? 'bg-surface!' : ''"
+        (click)="viewMode.set('list')"
+        aria-label="Vista de lista"
+        [attr.aria-pressed]="viewMode() === 'list'"
+      >
+        <mat-icon class="text-lg! h-[18px]! w-[18px]!" [class]="viewMode() === 'list' ? 'text-primary!' : ''"
+          >view_list</mat-icon
+        >
+      </button>
+      <button
+        mat-icon-button
+        class="h-8! w-8!"
+        [class]="viewMode() === 'grid' ? 'bg-surface!' : ''"
+        (click)="viewMode.set('grid')"
+        aria-label="Vista de cuadrícula"
+        [attr.aria-pressed]="viewMode() === 'grid'"
+      >
+        <mat-icon class="text-lg! h-[18px]! w-[18px]!" [class]="viewMode() === 'grid' ? 'text-primary!' : ''"
+          >grid_view</mat-icon
+        >
+      </button>
+    </div>
+  </div>
+
+  <app-search-box [(query)]="query" placeholder="Buscar shortcuts..." class="my-3 block" />
+  <app-category-chip-filter
+    [categories]="categoryService.shortcutCategories()"
+    [(selectedId)]="selectedCategoryId"
+    class="my-3 block"
+  />
+
+  @if (filtered().length === 0) {
+    <app-empty-state icon="keyboard" message="No hay shortcuts todavía." />
+  } @else {
+    <div
+      [class]="
+        viewMode() === 'grid'
+          ? 'grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]'
+          : 'flex flex-col gap-3'
+      "
+    >
+      @for (shortcut of filtered(); track shortcut.id) {
+        <mat-card>
+          <mat-card-content>
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-primary!" aria-hidden="true">{{ categoryIcon(shortcut.categoryId) }}</mat-icon>
+              <div class="flex min-w-0 flex-1 flex-col">
+                <strong class="truncate">{{ shortcut.title }}</strong>
+                <span class="text-xs text-outline">{{ categoryName(shortcut.categoryId) }}</span>
+              </div>
+              <button
+                mat-icon-button
+                (click)="toggleFavorite(shortcut)"
+                [attr.aria-pressed]="shortcut.isFavorite"
+                aria-label="Marcar como favorito"
+              >
+                <mat-icon [class]="shortcut.isFavorite ? 'text-[#f5a623]!' : ''">
+                  {{ shortcut.isFavorite ? 'star' : 'star_outline' }}
+                </mat-icon>
+              </button>
+              <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Más opciones">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="openEdit(shortcut)">
+                  <mat-icon>edit</mat-icon>
+                  Editar
+                </button>
+                <button mat-menu-item (click)="delete(shortcut)">
+                  <mat-icon>delete</mat-icon>
+                  Eliminar
+                </button>
+              </mat-menu>
+            </div>
+
+            <div class="mt-2 flex flex-wrap items-center gap-1">
+              @for (key of splitKeys(shortcut.keys); track key; let last = $last) {
+                <kbd
+                  class="rounded-md border border-outline-variant bg-surface px-2 py-1 font-mono text-xs font-semibold text-on-surface shadow-[0_1.5px_0_var(--color-outline-variant)]"
+                  >{{ key }}</kbd
+                >
+                @if (!last) {
+                  <span class="px-0.5 text-xs text-outline">+</span>
+                }
+              }
+            </div>
+
+            @if (shortcut.description) {
+              <p class="mt-2 mb-0 text-on-surface-variant">{{ shortcut.description }}</p>
+            }
+
+            @if (shortcut.tags.length) {
+              <mat-chip-set class="mt-2">
+                @for (tag of shortcut.tags; track tag) {
+                  <mat-chip>{{ tag }}</mat-chip>
+                }
+              </mat-chip-set>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
 </div>
 
-<app-search-box [(query)]="query" placeholder="Buscar shortcuts..." />
-<app-category-chip-filter
-  [categories]="categoryService.shortcutCategories()"
-  [(selectedId)]="selectedCategoryId"
-/>
-
-@if (filtered().length === 0) {
-  <app-empty-state icon="keyboard" message="No hay shortcuts todavía." />
-} @else {
-  <div class="items" [class.grid]="viewMode() === 'grid'">
-    @for (shortcut of filtered(); track shortcut.id) {
-      <mat-card class="item-card">
-        <mat-card-content>
-          <div class="item-header">
-            <mat-icon class="category-icon" aria-hidden="true">{{ categoryIcon(shortcut.categoryId) }}</mat-icon>
-            <div class="item-title">
-              <strong>{{ shortcut.title }}</strong>
-              <span class="category-name">{{ categoryName(shortcut.categoryId) }}</span>
-            </div>
-            <button
-              mat-icon-button
-              (click)="toggleFavorite(shortcut)"
-              [attr.aria-pressed]="shortcut.isFavorite"
-              aria-label="Marcar como favorito"
-            >
-              <mat-icon [class.favorite]="shortcut.isFavorite">
-                {{ shortcut.isFavorite ? 'star' : 'star_outline' }}
-              </mat-icon>
-            </button>
-            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Más opciones">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu">
-              <button mat-menu-item (click)="openEdit(shortcut)">
-                <mat-icon>edit</mat-icon>
-                Editar
-              </button>
-              <button mat-menu-item (click)="delete(shortcut)">
-                <mat-icon>delete</mat-icon>
-                Eliminar
-              </button>
-            </mat-menu>
-          </div>
-
-          <div class="keys">
-            @for (key of splitKeys(shortcut.keys); track key) {
-              <span class="key-chip">{{ key }}</span>
-            }
-          </div>
-
-          @if (shortcut.description) {
-            <p class="description">{{ shortcut.description }}</p>
-          }
-
-          @if (shortcut.tags.length) {
-            <mat-chip-set>
-              @for (tag of shortcut.tags; track tag) {
-                <mat-chip>{{ tag }}</mat-chip>
-              }
-            </mat-chip-set>
-          }
-        </mat-card-content>
-      </mat-card>
-    }
-  </div>
-}
-
-<button mat-fab color="primary" class="fab" (click)="openCreate()" aria-label="Nuevo shortcut">
+<button
+  mat-fab
+  class="fixed! right-6 bottom-6 bg-primary! text-on-primary!"
+  (click)="openCreate()"
+  aria-label="Nuevo shortcut"
+>
   <mat-icon>add</mat-icon>
 </button>

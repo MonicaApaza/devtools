@@ -1,7 +1,7 @@
-<div class="form-sheet">
-  <h2>{{ isEdit ? 'Editar comando' : 'Nuevo comando' }}</h2>
+<div class="flex max-w-[480px] flex-col gap-1 px-6 pt-2 pb-6">
+  <h2 class="m-0 mb-2">{{ isEdit ? 'Editar comando' : 'Nuevo comando' }}</h2>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Título</mat-label>
     <input matInput [formField]="textForm.title" />
     @if (textForm.title().touched() && textForm.title().errors().length) {
@@ -9,15 +9,15 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Comando (ej. git status)</mat-label>
-    <input matInput [formField]="textForm.commandText" class="monospace-input" />
+    <input matInput [formField]="textForm.commandText" class="font-mono!" />
     @if (textForm.commandText().touched() && textForm.commandText().errors().length) {
       <mat-error>{{ textForm.commandText().errors()[0].message }}</mat-error>
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Categoría</mat-label>
     <mat-select [value]="categoryId()" (selectionChange)="categoryId.set($event.value)">
       @for (category of categoryService.commandCategories(); track category.id) {
@@ -29,21 +29,21 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Descripción (opcional)</mat-label>
     <textarea matInput [formField]="textForm.description" rows="2"></textarea>
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Etiquetas separadas por coma (opcional)</mat-label>
     <input matInput [formField]="textForm.tagsText" placeholder="git, cli" />
   </mat-form-field>
 
   @if (errorMessage()) {
-    <p class="form-error" role="alert">{{ errorMessage() }}</p>
+    <p class="m-0 mb-2 text-error" role="alert">{{ errorMessage() }}</p>
   }
 
-  <div class="form-actions">
+  <div class="mt-2 flex justify-end gap-2">
     <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
     <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="onSubmit()">
       @if (saving()) {

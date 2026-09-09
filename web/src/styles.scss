@@ -6,49 +6,55 @@
 @use 'sass:map';
 @use '@angular/material' as mat;
 
-$devtools-color: (
-  primary: mat.$green-palette,
-  tertiary: mat.$cyan-palette,
-);
-
-html {
-  height: 100%;
-  color-scheme: light;
-  @include mat.theme(
-    (
-      color: map.merge($devtools-color, (theme-type: light)),
-      typography: Roboto,
-      density: 0,
-    )
+// Placed in Tailwind's `base` layer (order already fixed by tailwind.css's
+// `@import 'tailwindcss'`, which is loaded first per angular.json) so that
+// Tailwind utility classes — in the higher-priority `utilities` layer — can
+// override Material's theme output. Unlayered CSS always beats layered CSS
+// regardless of specificity, so without this, Material's defaults would win
+// over Tailwind classes on Material components (e.g. mat-icon colors).
+@layer base {
+  $devtools-color: (
+    primary: mat.$green-palette,
+    tertiary: mat.$cyan-palette,
   );
 
-  // ThemeService toggles this class on <html> for a manual (not just OS-level)
-  // dark mode switch; see core/services/theme.ts.
-  &.dark-theme {
-    color-scheme: dark;
+  html {
+    height: 100%;
+    color-scheme: light;
     @include mat.theme(
       (
-        color: map.merge($devtools-color, (theme-type: dark)),
+        color: map.merge($devtools-color, (theme-type: light)),
         typography: Roboto,
         density: 0,
       )
     );
+
+    // ThemeService toggles this class on <html> for a manual (not just OS-level)
+    // dark mode switch; see core/services/theme.ts.
+    &.dark-theme {
+      color-scheme: dark;
+      @include mat.theme(
+        (
+          color: map.merge($devtools-color, (theme-type: dark)),
+          typography: Roboto,
+          density: 0,
+        )
+      );
+    }
+  }
+
+  body {
+    // color-scheme is inherited from <html> (light by default, dark when
+    // ThemeService adds the .dark-theme class there).
+
+    // Set a default background, font and text colors for the application using
+    // Angular Material's system-level CSS variables. Learn more about these
+    // variables at https://material.angular.dev/guide/system-variables
+    background-color: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+    font: var(--mat-sys-body-medium);
+
+    // Margin reset is already handled by Tailwind's Preflight (`* { margin: 0 }`).
+    height: 100%;
   }
 }
-
-body {
-  // color-scheme is inherited from <html> (light by default, dark when
-  // ThemeService adds the .dark-theme class there).
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
-  height: 100%;
-}
-/* You can add global styles to this file, and also import other style files */

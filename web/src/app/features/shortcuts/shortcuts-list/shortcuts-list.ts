@@ -32,7 +32,6 @@ import { ShortcutForm } from '../shortcut-form/shortcut-form';
     EmptyState,
   ],
   templateUrl: './shortcuts-list.html',
-  styleUrl: './shortcuts-list.scss',
 })
 export class ShortcutsList implements OnInit {
   private readonly shortcutService = inject(ShortcutService);
@@ -77,10 +76,6 @@ export class ShortcutsList implements OnInit {
       .split('+')
       .map((k) => k.trim())
       .filter(Boolean);
-  }
-
-  protected toggleViewMode(): void {
-    this.viewMode.set(this.viewMode() === 'list' ? 'grid' : 'list');
   }
 
   protected openCreate(): void {

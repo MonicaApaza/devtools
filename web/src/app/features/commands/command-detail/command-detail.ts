@@ -18,7 +18,6 @@ export interface CommandDetailData {
   selector: 'app-command-detail',
   imports: [MatButtonModule, MatIconModule, MatChipsModule],
   templateUrl: './command-detail.html',
-  styleUrl: './command-detail.scss',
 })
 export class CommandDetail {
   private readonly bottomSheetRef = inject(MatBottomSheetRef<CommandDetail>);

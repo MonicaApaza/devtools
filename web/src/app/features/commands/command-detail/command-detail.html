@@ -1,16 +1,18 @@
-<div class="detail-sheet">
-  <div class="detail-header">
-    <mat-icon aria-hidden="true">{{ categoryIcon }}</mat-icon>
+<div class="max-w-[480px] px-6 pt-2 pb-6">
+  <div class="flex items-center gap-3">
+    <mat-icon class="text-primary!" aria-hidden="true">{{ categoryIcon }}</mat-icon>
     <div>
-      <h2>{{ data.command.title }}</h2>
-      <span class="category-name">{{ categoryName }}</span>
+      <h2 class="m-0">{{ data.command.title }}</h2>
+      <span class="text-[0.8rem] text-outline">{{ categoryName }}</span>
     </div>
   </div>
 
-  <pre class="command-box">{{ data.command.commandText }}</pre>
+  <pre class="my-4 overflow-x-auto rounded-lg bg-[#1e1e1e] p-4 font-mono text-[#d4d4d4]">{{
+    data.command.commandText
+  }}</pre>
 
   @if (data.command.description) {
-    <p class="description">{{ data.command.description }}</p>
+    <p class="text-on-surface-variant">{{ data.command.description }}</p>
   }
 
   @if (data.command.tags.length) {
@@ -21,9 +23,9 @@
     </mat-chip-set>
   }
 
-  <p class="usage">Usado {{ usageCount() }} {{ usageCount() === 1 ? 'vez' : 'veces' }}</p>
+  <p class="text-sm text-outline">Usado {{ usageCount() }} {{ usageCount() === 1 ? 'vez' : 'veces' }}</p>
 
-  <div class="detail-actions">
+  <div class="mt-2 flex justify-end gap-2">
     <button mat-stroked-button type="button" (click)="close()">Cerrar</button>
     <button mat-flat-button color="primary" type="button" [disabled]="copying()" (click)="copy()">
       <mat-icon>content_copy</mat-icon>

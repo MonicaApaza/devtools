@@ -1,14 +1,14 @@
-<div class="form-sheet">
-  <h2>{{ isEdit ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+<div class="flex max-w-[480px] flex-col gap-1 px-6 pt-2 pb-6">
+  <h2 class="m-0 mb-2">{{ isEdit ? 'Editar categoría' : 'Nueva categoría' }}</h2>
 
-  <p class="section-label">Disponible para</p>
-  <mat-radio-group [value]="type()" (change)="type.set($event.value)" class="type-group">
+  <p class="my-3 mb-1 text-[0.8rem] text-outline">Disponible para</p>
+  <mat-radio-group [value]="type()" (change)="type.set($event.value)" class="mb-2 flex gap-3">
     <mat-radio-button value="Shortcut">Shortcut</mat-radio-button>
     <mat-radio-button value="Command">Comando</mat-radio-button>
     <mat-radio-button value="Both">Ambos</mat-radio-button>
   </mat-radio-group>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="w-full">
     <mat-label>Nombre</mat-label>
     <input matInput [formField]="textForm.name" />
     @if (textForm.name().touched() && textForm.name().errors().length) {
@@ -16,14 +16,14 @@
     }
   </mat-form-field>
 
-  <p class="section-label">Ícono</p>
+  <p class="my-3 mb-1 text-[0.8rem] text-outline">Ícono</p>
   <app-icon-picker [(selectedKey)]="icon" />
 
   @if (errorMessage()) {
-    <p class="form-error" role="alert">{{ errorMessage() }}</p>
+    <p class="m-0 mb-2 text-error" role="alert">{{ errorMessage() }}</p>
   }
 
-  <div class="form-actions">
+  <div class="mt-2 flex justify-end gap-2">
     <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
     <button mat-flat-button color="primary" type="button" [disabled]="saving()" (click)="onSubmit()">
       @if (saving()) {

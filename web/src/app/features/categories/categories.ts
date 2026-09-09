@@ -21,7 +21,6 @@ import { CategoryForm } from './category-form/category-form';
   selector: 'app-categories',
   imports: [MatTabsModule, MatListModule, MatIconModule, MatButtonModule, MatMenuModule, EmptyState],
   templateUrl: './categories.html',
-  styleUrl: './categories.scss',
 })
 export class Categories implements OnInit {
   protected readonly categoryService = inject(CategoryService);

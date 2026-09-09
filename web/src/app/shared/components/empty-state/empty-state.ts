@@ -5,26 +5,10 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-empty-state',
   imports: [MatIconModule],
   template: `
-    <div class="empty-state">
-      <mat-icon aria-hidden="true">{{ icon() }}</mat-icon>
+    <div class="flex flex-col items-center gap-2 px-4 py-12 text-center text-outline">
+      <mat-icon aria-hidden="true" class="h-12! w-12! text-5xl! leading-none!">{{ icon() }}</mat-icon>
       <p>{{ message() }}</p>
     </div>
-  `,
-  styles: `
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 48px 16px;
-      color: var(--mat-sys-outline);
-      text-align: center;
-    }
-    mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-    }
   `,
 })
 export class EmptyState {

@@ -1,65 +1,65 @@
-<h1>Estadísticas</h1>
+<h1 class="mt-0 mb-4 text-2xl font-bold">Estadísticas</h1>
 
-<div class="summary-grid">
+<div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-3">
   <mat-card>
-    <mat-card-content>
-      <mat-icon aria-hidden="true">keyboard</mat-icon>
-      <span class="value">{{ totalShortcuts() }}</span>
-      <span class="label">Shortcuts</span>
+    <mat-card-content class="flex! flex-col items-center gap-1 py-4">
+      <mat-icon class="text-primary!" aria-hidden="true">keyboard</mat-icon>
+      <span class="text-2xl font-bold">{{ totalShortcuts() }}</span>
+      <span class="text-[0.8rem] text-outline">Shortcuts</span>
     </mat-card-content>
   </mat-card>
   <mat-card>
-    <mat-card-content>
-      <mat-icon aria-hidden="true">terminal</mat-icon>
-      <span class="value">{{ totalCommands() }}</span>
-      <span class="label">Comandos</span>
+    <mat-card-content class="flex! flex-col items-center gap-1 py-4">
+      <mat-icon class="text-primary!" aria-hidden="true">terminal</mat-icon>
+      <span class="text-2xl font-bold">{{ totalCommands() }}</span>
+      <span class="text-[0.8rem] text-outline">Comandos</span>
     </mat-card-content>
   </mat-card>
   <mat-card>
-    <mat-card-content>
-      <mat-icon aria-hidden="true">star</mat-icon>
-      <span class="value">{{ favoritesCount() }}</span>
-      <span class="label">Favoritos</span>
+    <mat-card-content class="flex! flex-col items-center gap-1 py-4">
+      <mat-icon class="text-primary!" aria-hidden="true">star</mat-icon>
+      <span class="text-2xl font-bold">{{ favoritesCount() }}</span>
+      <span class="text-[0.8rem] text-outline">Favoritos</span>
     </mat-card-content>
   </mat-card>
   <mat-card>
-    <mat-card-content>
-      <mat-icon aria-hidden="true">content_copy</mat-icon>
-      <span class="value">{{ totalUsage() }}</span>
-      <span class="label">Usos de comandos</span>
+    <mat-card-content class="flex! flex-col items-center gap-1 py-4">
+      <mat-icon class="text-primary!" aria-hidden="true">content_copy</mat-icon>
+      <span class="text-2xl font-bold">{{ totalUsage() }}</span>
+      <span class="text-[0.8rem] text-outline">Usos de comandos</span>
     </mat-card-content>
   </mat-card>
 </div>
 
-<h2>Shortcuts por categoría</h2>
+<h2 class="mt-6 mb-2 text-base">Shortcuts por categoría</h2>
 @if (shortcutsByCategory().length === 0) {
-  <p class="empty-hint">Todavía no hay datos.</p>
+  <p class="text-outline">Todavía no hay datos.</p>
 } @else {
-  <div class="bar-list">
+  <div class="flex flex-col gap-2">
     @for (entry of shortcutsByCategory(); track entry.name) {
-      <div class="bar-row">
-        <span class="bar-label">{{ entry.name }}</span>
-        <div class="bar-track">
-          <div class="bar-fill" [style.width.%]="entry.percentage"></div>
+      <div class="grid grid-cols-[120px_1fr_32px] items-center gap-2">
+        <span class="truncate text-[0.85rem]">{{ entry.name }}</span>
+        <div class="h-2 overflow-hidden rounded bg-surface-container-high">
+          <div class="h-full bg-primary" [style.width.%]="entry.percentage"></div>
         </div>
-        <span class="bar-count">{{ entry.count }}</span>
+        <span class="text-right text-[0.85rem] text-outline">{{ entry.count }}</span>
       </div>
     }
   </div>
 }
 
-<h2>Comandos por categoría</h2>
+<h2 class="mt-6 mb-2 text-base">Comandos por categoría</h2>
 @if (commandsByCategory().length === 0) {
-  <p class="empty-hint">Todavía no hay datos.</p>
+  <p class="text-outline">Todavía no hay datos.</p>
 } @else {
-  <div class="bar-list">
+  <div class="flex flex-col gap-2">
     @for (entry of commandsByCategory(); track entry.name) {
-      <div class="bar-row">
-        <span class="bar-label">{{ entry.name }}</span>
-        <div class="bar-track">
-          <div class="bar-fill" [style.width.%]="entry.percentage"></div>
+      <div class="grid grid-cols-[120px_1fr_32px] items-center gap-2">
+        <span class="truncate text-[0.85rem]">{{ entry.name }}</span>
+        <div class="h-2 overflow-hidden rounded bg-surface-container-high">
+          <div class="h-full bg-primary" [style.width.%]="entry.percentage"></div>
         </div>
-        <span class="bar-count">{{ entry.count }}</span>
+        <span class="text-right text-[0.85rem] text-outline">{{ entry.count }}</span>
       </div>
     }
   </div>

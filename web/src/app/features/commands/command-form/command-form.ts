@@ -28,7 +28,6 @@ export interface CommandFormData {
     MatProgressSpinnerModule,
   ],
   templateUrl: './command-form.html',
-  styleUrl: './command-form.scss',
 })
 export class CommandForm {
   private readonly bottomSheetRef = inject(MatBottomSheetRef<CommandForm, boolean>);

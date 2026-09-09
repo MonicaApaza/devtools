@@ -21,7 +21,6 @@ import { AuthService } from '../../../core/services/auth';
     MatProgressSpinnerModule,
   ],
   templateUrl: './login.html',
-  styleUrl: './login.scss',
 })
 export class Login {
   private readonly authService = inject(AuthService);
@@ -35,6 +34,7 @@ export class Login {
 
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal('');
+  protected readonly hidePassword = signal(true);
 
   protected onSubmit(): void {
     submit(this.loginForm, async () => {
