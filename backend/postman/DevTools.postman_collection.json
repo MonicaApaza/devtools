@@ -1,0 +1,412 @@
+{
+  "info": {
+    "name": "DevTools API",
+    "description": "Colección para probar la API de DevTools (backend ASP.NET Core + PostgreSQL). Incluye Auth, Categories, Shortcuts y Commands.\n\nFlujo recomendado:\n1. Ejecuta `Auth > Login` (usuario semilla: `monica` / `monica123`) — el token JWT se guarda automáticamente en la variable de colección `token`.\n2. Todas las demás requests usan `Bearer {{token}}` automáticamente (auth heredada a nivel de colección).\n3. Ejecuta `Categories > Create Category` para crear una categoría — su id se guarda en `categoryId`.\n4. Usa `categoryId` para crear shortcuts/comandos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5262/api", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" },
+    { "key": "categoryId", "value": "", "type": "string" },
+    { "key": "shortcutId", "value": "", "type": "string" },
+    { "key": "commandId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nuevo_usuario\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Crea un usuario nuevo. `username`: 3-50 caracteres. `password`: 6-100 caracteres. Responde 201 con el token JWT, o 409 si el usuario ya existe."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('token', body.token);",
+                  "  pm.collectionVariables.set('userId', body.userId);",
+                  "  console.log('Token guardado desde Register');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"monica\",\n  \"password\": \"monica123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Inicia sesión con el usuario semilla (`monica` / `monica123`) o cualquier usuario registrado. Responde 200 con el token JWT, o 401 si las credenciales son inválidas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('token', body.token);",
+                  "  pm.collectionVariables.set('userId', body.userId);",
+                  "  console.log('Token guardado desde Login');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories (Shortcut)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories?type=Shortcut",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"],
+              "query": [{ "key": "type", "value": "Shortcut", "description": "Shortcut | Command | Both" }]
+            },
+            "description": "Lista las categorías del usuario autenticado aplicables a Shortcuts (incluye tipo `Shortcut` y `Both`)."
+          },
+          "response": []
+        },
+        {
+          "name": "List Categories (Command)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories?type=Command",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"],
+              "query": [{ "key": "type", "value": "Command", "description": "Shortcut | Command | Both" }]
+            },
+            "description": "Lista las categorías del usuario autenticado aplicables a Comandos (incluye tipo `Command` y `Both`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Docker\",\n  \"icon\": \"terminal\",\n  \"type\": \"Both\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "description": "Crea una categoría. `type` es opcional (por defecto `Both`) y acepta `Shortcut` | `Command` | `Both`. `icon` es una clave del catálogo de íconos del frontend (ej: `terminal`, `git`, `flutter`, `code`, `category`, etc). Responde 201, o 409 si ya existe una categoría con ese nombre+tipo para el usuario."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('categoryId', body.id);",
+                  "  console.log('categoryId guardado: ' + body.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Docker CLI\",\n  \"icon\": \"terminal\",\n  \"type\": \"Both\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
+            },
+            "description": "Actualiza la categoría indicada (usa `categoryId` guardado por 'Create Category'). Responde 404 si no existe o no pertenece al usuario."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}"]
+            },
+            "description": "Elimina la categoría. Responde 204 si no está en uso, o 409 con `{ message, shortcutCount, commandCount }` si tiene shortcuts/comandos asociados."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shortcuts",
+      "item": [
+        {
+          "name": "List Shortcuts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shortcuts",
+              "host": ["{{baseUrl}}"],
+              "path": ["shortcuts"]
+            },
+            "description": "Lista todos los shortcuts del usuario autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Shortcut",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Buscar en archivos\",\n  \"keys\": \"Ctrl+Shift+F\",\n  \"description\": \"Búsqueda global en el proyecto\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"tags\": [\"busqueda\", \"editor\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shortcuts",
+              "host": ["{{baseUrl}}"],
+              "path": ["shortcuts"]
+            },
+            "description": "Crea un shortcut. `categoryId` debe ser una categoría de tipo `Shortcut` o `Both` propiedad del usuario. `tags` y `description` son opcionales. Responde 404 si la categoría no existe/no aplica."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('shortcutId', body.id);",
+                  "  console.log('shortcutId guardado: ' + body.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Update Shortcut",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Buscar en archivos (global)\",\n  \"keys\": \"Ctrl+Shift+F\",\n  \"description\": \"Búsqueda global en el proyecto\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"tags\": [\"busqueda\", \"editor\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shortcuts/{{shortcutId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["shortcuts", "{{shortcutId}}"]
+            },
+            "description": "Actualiza el shortcut indicado (usa `shortcutId` guardado por 'Create Shortcut')."
+          },
+          "response": []
+        },
+        {
+          "name": "Set Favorite",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isFavorite\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/shortcuts/{{shortcutId}}/favorite",
+              "host": ["{{baseUrl}}"],
+              "path": ["shortcuts", "{{shortcutId}}", "favorite"]
+            },
+            "description": "Marca/desmarca el shortcut como favorito."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Shortcut",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/shortcuts/{{shortcutId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["shortcuts", "{{shortcutId}}"]
+            },
+            "description": "Elimina el shortcut. Responde 204."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Commands",
+      "item": [
+        {
+          "name": "List Commands",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/commands",
+              "host": ["{{baseUrl}}"],
+              "path": ["commands"]
+            },
+            "description": "Lista todos los comandos del usuario autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Command",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Listar contenedores\",\n  \"commandText\": \"docker ps -a\",\n  \"description\": \"Muestra todos los contenedores, activos e inactivos\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"tags\": [\"docker\", \"contenedores\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/commands",
+              "host": ["{{baseUrl}}"],
+              "path": ["commands"]
+            },
+            "description": "Crea un comando. `categoryId` debe ser una categoría de tipo `Command` o `Both` propiedad del usuario. `tags` y `description` son opcionales. Responde 404 si la categoría no existe/no aplica."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('commandId', body.id);",
+                  "  console.log('commandId guardado: ' + body.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Update Command",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Listar contenedores activos\",\n  \"commandText\": \"docker ps\",\n  \"description\": \"Muestra solo los contenedores activos\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"tags\": [\"docker\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/commands/{{commandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["commands", "{{commandId}}"]
+            },
+            "description": "Actualiza el comando indicado (usa `commandId` guardado por 'Create Command')."
+          },
+          "response": []
+        },
+        {
+          "name": "Set Favorite",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isFavorite\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/commands/{{commandId}}/favorite",
+              "host": ["{{baseUrl}}"],
+              "path": ["commands", "{{commandId}}", "favorite"]
+            },
+            "description": "Marca/desmarca el comando como favorito."
+          },
+          "response": []
+        },
+        {
+          "name": "Increment Usage",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/commands/{{commandId}}/use",
+              "host": ["{{baseUrl}}"],
+              "path": ["commands", "{{commandId}}", "use"]
+            },
+            "description": "Incrementa en 1 el contador de uso del comando (se llama al 'copiar' el comando en la app). Responde `{ id, usageCount }`."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Command",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/commands/{{commandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["commands", "{{commandId}}"]
+            },
+            "description": "Elimina el comando. Responde 204."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
