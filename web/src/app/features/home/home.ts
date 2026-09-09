@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { SearchBox } from '../../shared/components/search-box/search-box';
 import { AuthService } from '../../core/services/auth';
 import { CategoryService } from '../../core/services/category';
 import { CommandService } from '../../core/services/command';
+import { SearchStateService } from '../../core/services/search-state';
 import { ShortcutService } from '../../core/services/shortcut';
 import { DEFAULT_ICON_KEY, ICON_CATALOG } from '../../core/models/category.model';
 import type { Command } from '../../core/models/command.model';
@@ -31,7 +32,7 @@ export class Home implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly bottomSheet = inject(MatBottomSheet);
 
-  protected readonly query = signal('');
+  protected readonly query = inject(SearchStateService).query;
 
   protected readonly greeting = computed(() => {
     const hour = new Date().getHours();

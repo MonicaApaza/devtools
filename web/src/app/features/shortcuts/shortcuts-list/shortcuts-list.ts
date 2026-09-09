@@ -14,6 +14,7 @@ import { CategoryChipFilter } from '../../../shared/components/category-chip-fil
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { SearchBox } from '../../../shared/components/search-box/search-box';
 import { CategoryService } from '../../../core/services/category';
+import { SearchStateService } from '../../../core/services/search-state';
 import { ShortcutService } from '../../../core/services/shortcut';
 import { DEFAULT_ICON_KEY, ICON_CATALOG } from '../../../core/models/category.model';
 import type { Shortcut } from '../../../core/models/shortcut.model';
@@ -40,7 +41,7 @@ export class ShortcutsList implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  protected readonly query = signal('');
+  protected readonly query = inject(SearchStateService).query;
   protected readonly selectedCategoryId = signal('');
   protected readonly viewMode = signal<'list' | 'grid'>('list');
 

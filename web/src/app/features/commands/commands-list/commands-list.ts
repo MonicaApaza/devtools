@@ -15,6 +15,7 @@ import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { SearchBox } from '../../../shared/components/search-box/search-box';
 import { CategoryService } from '../../../core/services/category';
 import { CommandService } from '../../../core/services/command';
+import { SearchStateService } from '../../../core/services/search-state';
 import { DEFAULT_ICON_KEY, ICON_CATALOG } from '../../../core/models/category.model';
 import type { Command } from '../../../core/models/command.model';
 import { CommandDetail } from '../command-detail/command-detail';
@@ -41,7 +42,7 @@ export class CommandsList implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  protected readonly query = signal('');
+  protected readonly query = inject(SearchStateService).query;
   protected readonly selectedCategoryId = signal('');
   protected readonly viewMode = signal<'list' | 'grid'>('list');
   protected readonly copiedId = signal('');
