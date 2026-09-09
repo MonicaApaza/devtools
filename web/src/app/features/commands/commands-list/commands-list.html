@@ -85,9 +85,21 @@
               </mat-menu>
             </div>
 
-            <code class="mt-2 block overflow-x-auto rounded-md bg-surface-container-high px-3 py-2 font-mono text-sm whitespace-nowrap">{{
-              command.commandText
-            }}</code>
+            <div class="mt-2 flex items-center gap-1">
+              <code
+                class="block flex-1 overflow-x-auto rounded-md bg-surface-container-high px-3 py-2 font-mono text-sm whitespace-nowrap"
+                >{{ command.commandText }}</code
+              >
+              <button
+                mat-icon-button
+                (click)="copyCommand(command, $event)"
+                aria-label="Copiar comando"
+              >
+                <mat-icon [class]="copiedId() === command.id ? 'text-primary!' : ''">
+                  {{ copiedId() === command.id ? 'check' : 'content_copy' }}
+                </mat-icon>
+              </button>
+            </div>
 
             @if (command.tags.length) {
               <mat-chip-set class="mt-2">

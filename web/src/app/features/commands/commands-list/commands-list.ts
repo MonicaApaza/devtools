@@ -44,6 +44,7 @@ export class CommandsList implements OnInit {
   protected readonly query = signal('');
   protected readonly selectedCategoryId = signal('');
   protected readonly viewMode = signal<'list' | 'grid'>('list');
+  protected readonly copiedId = signal('');
 
   protected readonly filtered = computed(() => {
     const q = this.query().trim().toLowerCase();
@@ -74,6 +75,20 @@ export class CommandsList implements OnInit {
 
   protected openDetail(command: Command): void {
     this.bottomSheet.open(CommandDetail, { data: { command } });
+  }
+
+  protected async copyCommand(command: Command, event: Event): Promise<void> {
+    event.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(command.commandText);
+    } catch {
+      this.snackBar.open('No se pudo copiar el comando.', 'Cerrar', { duration: 4000 });
+      return;
+    }
+    await this.commandService.incrementUsage(command.id);
+    this.copiedId.set(command.id);
+    setTimeout(() => this.copiedId.set(''), 1500);
+    this.snackBar.open('Comando copiado al portapapeles', undefined, { duration: 2000 });
   }
 
   protected openCreate(): void {
