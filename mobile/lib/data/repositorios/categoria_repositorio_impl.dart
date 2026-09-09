@@ -1,57 +1,68 @@
 import '../../dominio/repositorios/categoria_repositorio.dart';
-import '../datasources/db_helper.dart';
+import '../datasources/api_client.dart';
 import '../datos_estaticos/categorias.dart';
 import '../modelos/modelo_categoria.dart';
 
 class CategoriaRepositorioImpl implements CategoriaRepositorio {
-  final DatabaseHelper _dbHelper;
+  final ApiClient _api;
 
-  CategoriaRepositorioImpl({DatabaseHelper? dbHelper})
-    : _dbHelper = dbHelper ?? DatabaseHelper();
+  CategoriaRepositorioImpl({ApiClient? api}) : _api = api ?? ApiClient();
 
-  @override
-  Future<List<ModeloCategoria>> listarModelo(String tipo, String usuario) =>
-      _dbHelper.getCategoriasModelo(tipo, usuario);
-
-  @override
-  Future<List<Categoria>> listar(String tipo, String usuario) =>
-      _dbHelper.getCategorias(tipo, usuario);
-
-  @override
-  Future<bool> existeNombre(
-    String tipo,
-    String nombre,
-    String usuario, {
-    int? excluirPk,
-  }) => _dbHelper.existeNombreCategoria(
-    tipo,
-    nombre,
-    usuario,
-    excluirPk: excluirPk,
-  );
+  Future<List<ModeloCategoria>> _listarDesdeApi(String tipo) async {
+    final respuesta = await _api.get(
+      '/categories',
+      query: {'type': tipoCategoriaAApi(tipo)},
+    );
+    return (respuesta as List)
+        .map((json) => ModeloCategoria.fromApi(json as Map<String, dynamic>))
+        .toList();
+  }
 
   @override
-  Future<void> crear({
+  Future<List<ModeloCategoria>> listarModelo(String tipo) =>
+      _listarDesdeApi(tipo);
+
+  @override
+  Future<List<Categoria>> listar(String tipo) async {
+    final categorias = await _listarDesdeApi(tipo);
+    return categorias
+        .map(
+          (c) => Categoria(
+            id: c.pkCategoria!,
+            nombre: c.nombreCategoria,
+            icono: iconoPorClave(c.iconoCategoria),
+          ),
+        )
+        .toList();
+  }
+
+  @override
+  Future<ModeloCategoria> crear({
     required String tipo,
     required String nombre,
     required String iconoClave,
-    required String usuario,
-  }) => _dbHelper.insertarCategoria(
-    tipo: tipo,
-    nombre: nombre,
-    iconoClave: iconoClave,
-    usuario: usuario,
-  );
+  }) async {
+    final respuesta = await _api.post(
+      '/categories',
+      body: {
+        'name': nombre,
+        'icon': iconoClave,
+        'type': tipoCategoriaAApi(tipo),
+      },
+    );
+    return ModeloCategoria.fromApi(respuesta as Map<String, dynamic>);
+  }
 
   @override
-  Future<void> actualizar(ModeloCategoria categoria) =>
-      _dbHelper.actualizarCategoria(categoria);
+  Future<ModeloCategoria> actualizar(ModeloCategoria categoria) async {
+    final respuesta = await _api.put(
+      '/categories/${categoria.pkCategoria}',
+      body: categoria.toApiBody(),
+    );
+    return ModeloCategoria.fromApi(respuesta as Map<String, dynamic>);
+  }
 
   @override
-  Future<void> eliminar(int pkCategoria) =>
-      _dbHelper.eliminarCategoria(pkCategoria);
-
-  @override
-  Future<int> contarUso(String tipo, String idCategoria, String usuario) =>
-      _dbHelper.contarUsoCategoria(tipo, idCategoria, usuario);
+  Future<void> eliminar(String pkCategoria) =>
+      _api.delete('/categories/$pkCategoria');
 }

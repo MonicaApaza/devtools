@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../rutas/app_rutas.dart';
 import '../controladores/auth_controller.dart';
 import '../widgets/curva_login.dart';
 
@@ -154,23 +155,32 @@ class LoginScreen extends GetView<AuthController> {
                         ),
                       ),
                       const SizedBox(height: 22),
-                      FilledButton(
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(54),
-                          shape: const StadiumBorder(),
+                      Obx(
+                        () => FilledButton(
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(54),
+                            shape: const StadiumBorder(),
+                          ),
+                          onPressed: controller.cargando.value
+                              ? null
+                              : controller.iniciarSesion,
+                          child: controller.cargando.value
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.4,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text('INGRESAR'),
                         ),
-                        onPressed: controller.iniciarSesion,
-                        child: const Text('INGRESAR'),
                       ),
-                      const SizedBox(height: 26),
-                      Obx(() {
-                        final sesion = controller.sesion.value;
-                        if (sesion == null) return const SizedBox.shrink();
-                        return OutlinedButton(
-                          onPressed: controller.continuarConSesionGuardada,
-                          child: Text('Continuar como: ${sesion.usuario}'),
-                        );
-                      }),
+                      const SizedBox(height: 22),
+                      TextButton(
+                        onPressed: () => Get.toNamed(AppRutas.registro),
+                        child: const Text('¿No tienes cuenta? Regístrate'),
+                      ),
                     ],
                   ),
                 ),

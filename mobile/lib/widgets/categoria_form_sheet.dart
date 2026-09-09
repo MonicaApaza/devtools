@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 
+import '../data/datasources/api_client.dart';
 import '../data/datos_estaticos/categorias.dart';
-import '../datos/categorias_controlador.dart';
-import '../data/datasources/db_helper.dart';
 import '../data/modelos/modelo_categoria.dart';
-import '../presentacion/controladores/auth_controller.dart';
+import '../data/repositorios/categoria_repositorio_impl.dart';
+import '../datos/categorias_controlador.dart';
+import '../dominio/repositorios/categoria_repositorio.dart';
 
 /// Formulario de alta/edición de una Categoría (nombre + ícono + tipo). El
 /// tipo puede ser 'shortcut', 'comando' o 'ambos' (visible en las dos
-/// secciones). Al editar, si se quita cobertura de un lado (p.ej. de
-/// 'ambos' a 'shortcut') y ese lado todavía tiene shortcuts/comandos
-/// apuntando a esta categoría, se bloquea el guardado para no dejarlos
-/// huérfanos.
+/// secciones).
+///
+/// El backend no expone un endpoint para "verificar antes de intentar", así
+/// que duplicados se detectan intentando guardar y capturando el 409 que
+/// devuelve `crear`/`actualizar` (igual que en la app web). Tampoco valida
+/// que un tipo más angosto no deje shortcuts/comandos huérfanos — ese
+/// chequeo era solo local y no tiene equivalente en el backend compartido,
+/// así que se retira para no reinventar una regla que la app web tampoco
+/// aplica.
 class CategoriaFormSheet extends StatefulWidget {
   final String tipo;
   final ModeloCategoria? existente;
@@ -24,7 +30,7 @@ class CategoriaFormSheet extends StatefulWidget {
 
 class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
   final _formKey = GlobalKey<FormState>();
-  final _dbHelper = DatabaseHelper();
+  final CategoriaRepositorio _repositorio = CategoriaRepositorioImpl();
 
   late final TextEditingController _nombre;
   late String _iconoSeleccionado;
@@ -53,9 +59,6 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
     _tipoSeleccionado = widget.existente?.tipoCategoria ?? 'ambos';
   }
 
-  List<String> _ladosDe(String tipo) =>
-      tipo == 'ambos' ? const ['shortcut', 'comando'] : [tipo];
-
   @override
   void dispose() {
     _nombre.dispose();
@@ -66,77 +69,39 @@ class _CategoriaFormSheetState extends State<CategoriaFormSheet> {
     if (!_formKey.currentState!.validate()) return;
 
     final nombre = _nombre.text.trim();
-    // Al editar se conserva el dueño original; al crear, queda a nombre de
-    // quien tiene la sesión iniciada.
-    final usuario =
-        widget.existente?.usuarioCategoria ??
-        AuthController.instance.usuarioActual;
-
-    if (_esEdicion) {
-      final ladosAntes = _ladosDe(widget.existente!.tipoCategoria).toSet();
-      final ladosDespues = _ladosDe(_tipoSeleccionado).toSet();
-      final ladosPerdidos = ladosAntes.difference(ladosDespues);
-      for (final lado in ladosPerdidos) {
-        final enUso = await _dbHelper.contarUsoCategoria(
-          lado,
-          widget.existente!.idCategoria,
-          usuario,
-        );
-        if (enUso > 0) {
-          if (!mounted) return;
-          final ladoLabel = lado == 'shortcut' ? 'shortcut(s)' : 'comando(s)';
-          ScaffoldMessenger.of(context)
-            ..removeCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(
-                  'No se puede quitar "$lado": $enUso $ladoLabel todavía usan esta categoría',
-                ),
-              ),
-            );
-          return;
-        }
-      }
-    }
-
-    final existeDuplicado = await _dbHelper.existeNombreCategoria(
-      _tipoSeleccionado,
-      nombre,
-      usuario,
-      excluirPk: widget.existente?.pkCategoria,
-    );
-    if (existeDuplicado) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..removeCurrentSnackBar()
-        ..showSnackBar(
-          const SnackBar(
-            content: Text('Ya existe una categoría con ese nombre'),
-          ),
-        );
-      return;
-    }
-
     setState(() => _guardando = true);
 
-    if (_esEdicion) {
-      final actualizada = widget.existente!
-        ..nombreCategoria = nombre
-        ..iconoCategoria = _iconoSeleccionado
-        ..tipoCategoria = _tipoSeleccionado;
-      await _dbHelper.actualizarCategoria(actualizada);
-    } else {
-      await _dbHelper.insertarCategoria(
-        tipo: _tipoSeleccionado,
-        nombre: nombre,
-        iconoClave: _iconoSeleccionado,
-        usuario: usuario,
-      );
-    }
-    await CategoriasController.instance.cargar();
+    try {
+      if (_esEdicion) {
+        final actualizada = widget.existente!
+          ..nombreCategoria = nombre
+          ..iconoCategoria = _iconoSeleccionado
+          ..tipoCategoria = _tipoSeleccionado;
+        await _repositorio.actualizar(actualizada);
+      } else {
+        await _repositorio.crear(
+          tipo: _tipoSeleccionado,
+          nombre: nombre,
+          iconoClave: _iconoSeleccionado,
+        );
+      }
+      await CategoriasController.instance.cargar();
 
-    if (!mounted) return;
-    Navigator.pop(context, true);
+      if (!mounted) return;
+      Navigator.pop(context, true);
+    } on ApiConflictException catch (e) {
+      if (!mounted) return;
+      setState(() => _guardando = false);
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _guardando = false);
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
+    }
   }
 
   @override

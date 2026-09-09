@@ -5,6 +5,7 @@ import '../pantallas/categorias_screen.dart';
 import '../pantallas/estadisticas_screen.dart';
 import '../pantallas/root_shell.dart';
 import '../presentacion/pantallas/login_screen.dart';
+import '../presentacion/pantallas/register_screen.dart';
 import 'app_rutas.dart';
 
 /// Tabla de rutas nombradas (Sesión 7: GetPage). Reproduce las rutas que
@@ -17,6 +18,7 @@ class AppPaginas {
   static final paginas = [
     GetPage(name: AppRutas.inicio, page: () => const RootShell()),
     GetPage(name: AppRutas.login, page: () => const LoginScreen()),
+    GetPage(name: AppRutas.registro, page: () => const RegisterScreen()),
     GetPage(name: AppRutas.ajustes, page: () => const AjustesScreen()),
     GetPage(
       name: AppRutas.estadisticas,

@@ -17,14 +17,23 @@ void main() async {
   // la navegación: Get.offAllNamed al iniciar sesión elimina la ruta de
   // Login por completo, y con ella cualquier dependencia que solo viviera
   // ligada a esa ruta.
-  Get.put(AuthController(), permanent: true);
+  final auth = Get.put(AuthController(), permanent: true);
+  // Se espera explícitamente (no basta con onInit, que no se espera antes
+  // de construir GetMaterialApp) para poder saltar la pantalla de login
+  // cuando ya hay una sesión JWT válida guardada — igual que en la app web.
+  await auth.cargarSesionInicial();
+
   final categorias = Get.put(CategoriasController(), permanent: true);
-  await categorias.cargar();
-  runApp(const MainApp());
+  if (auth.estaAutenticado) {
+    await categorias.cargar();
+  }
+  runApp(MainApp(rutaInicial: auth.estaAutenticado ? AppRutas.inicio : AppRutas.login));
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final String rutaInicial;
+
+  const MainApp({super.key, required this.rutaInicial});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +47,9 @@ class MainApp extends StatelessWidget {
           darkTheme: ThemeController.instance.temaOscuro,
           themeMode: ThemeController.instance.modo,
           // Rutas nombradas vía GetPage (Sesión 7: Vistas y Componentes UI).
-          initialRoute: AppRutas.login,
+          // La ruta inicial depende de si ya hay una sesión JWT válida
+          // guardada (ver main()), igual que el guard de la app web.
+          initialRoute: rutaInicial,
           getPages: AppPaginas.paginas,
         );
       },

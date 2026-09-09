@@ -5,6 +5,7 @@ class AppRutas {
 
   static const inicio = '/';
   static const login = '/login';
+  static const registro = '/registro';
   static const ajustes = '/ajustes';
   static const estadisticas = '/estadisticas';
   static const categorias = '/categorias';

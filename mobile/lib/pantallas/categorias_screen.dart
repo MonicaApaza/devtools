@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../data/datasources/api_client.dart';
 import '../data/datos_estaticos/categorias.dart';
 import '../data/modelos/modelo_categoria.dart';
 import '../presentacion/controladores/categorias_screen_controller.dart';
@@ -62,25 +63,6 @@ class _CategoriasScreenState extends State<CategoriasScreen>
   }
 
   Future<void> _eliminar(ModeloCategoria categoria) async {
-    final enUso = await controller.contarUso(
-      categoria.tipoCategoria,
-      categoria.idCategoria,
-    );
-    if (enUso > 0) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..removeCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              'No se puede eliminar: $enUso elemento(s) usan "${categoria.nombreCategoria}"',
-            ),
-          ),
-        );
-      return;
-    }
-
-    if (!mounted) return;
     final confirmado = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -100,7 +82,21 @@ class _CategoriasScreenState extends State<CategoriasScreen>
     );
     if (confirmado != true) return;
 
-    await controller.eliminar(categoria.pkCategoria!);
+    try {
+      await controller.eliminar(categoria.pkCategoria!);
+    } on ApiConflictException catch (e) {
+      if (!mounted) return;
+      final total = (e.shortcutCount ?? 0) + (e.commandCount ?? 0);
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              'No se puede eliminar: $total elemento(s) usan "${categoria.nombreCategoria}"',
+            ),
+          ),
+        );
+    }
   }
 
   @override

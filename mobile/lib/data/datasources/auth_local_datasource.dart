@@ -1,30 +1,24 @@
 import 'package:get_storage/get_storage.dart';
 
-/// Envuelve GetStorage con las mismas claves que usa el ejemplo de clase
-/// `get_storage_login` ('username_activo' / 'password_activo'), sin ninguna
-/// verificación real de credenciales: solo persiste "quién quedó activo".
+/// Persiste la sesión JWT (userId/usuario/token/expiresAt) como un único
+/// mapa en GetStorage — el mismo mecanismo local de antes, pero ahora
+/// guardando una sesión real emitida por el backend en vez de datos
+/// inventados.
 class AuthLocalDatasource {
   final GetStorage _storage;
 
   AuthLocalDatasource({GetStorage? storage}) : _storage = storage ?? GetStorage();
 
-  static const _claveUsuario = 'username_activo';
-  static const _clavePassword = 'password_activo';
-  static const _claveIniciadaEn = 'sesion_iniciada_en';
+  static const _claveSesion = 'sesion';
 
-  String? leerUsuario() => _storage.read(_claveUsuario);
-
-  int? leerIniciadaEn() => _storage.read(_claveIniciadaEn);
-
-  Future<void> guardar(String usuario, String password, int iniciadaEn) async {
-    await _storage.write(_claveUsuario, usuario);
-    await _storage.write(_clavePassword, password);
-    await _storage.write(_claveIniciadaEn, iniciadaEn);
+  Map<String, dynamic>? leerSesion() {
+    final datos = _storage.read(_claveSesion);
+    if (datos == null) return null;
+    return Map<String, dynamic>.from(datos as Map);
   }
 
-  Future<void> borrar() async {
-    await _storage.remove(_claveUsuario);
-    await _storage.remove(_clavePassword);
-    await _storage.remove(_claveIniciadaEn);
-  }
+  Future<void> guardarSesion(Map<String, dynamic> sesionJson) =>
+      _storage.write(_claveSesion, sesionJson);
+
+  Future<void> borrar() => _storage.remove(_claveSesion);
 }

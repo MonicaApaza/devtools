@@ -1,44 +1,51 @@
+/// Convierte el tipo local ('shortcut'/'comando'/'ambos') al valor que
+/// espera el backend (`CategoryType`: Shortcut/Command/Both).
+String tipoCategoriaAApi(String tipoLocal) => switch (tipoLocal) {
+  'shortcut' => 'Shortcut',
+  'comando' => 'Command',
+  _ => 'Both',
+};
+
+/// Inverso de [tipoCategoriaAApi], para leer categorías que vienen del
+/// backend.
+String tipoCategoriaDesdeApi(String tipoApi) => switch (tipoApi) {
+  'Shortcut' => 'shortcut',
+  'Command' => 'comando',
+  _ => 'ambos',
+};
+
 class ModeloCategoria {
-  int? pkCategoria;
-  String idCategoria;
+  /// GUID asignado por el backend (`Category.Id`). `null` solo antes de
+  /// crearla.
+  String? pkCategoria;
   String nombreCategoria;
   String iconoCategoria;
-  String tipoCategoria; // 'shortcut' o 'comando'
+  String tipoCategoria; // 'shortcut' | 'comando' | 'ambos'
   int creadoEnCategoria;
-  String usuarioCategoria;
 
   ModeloCategoria({
     this.pkCategoria,
-    required this.idCategoria,
     required this.nombreCategoria,
     required this.iconoCategoria,
     required this.tipoCategoria,
     int? creadoEnCategoria,
-    required this.usuarioCategoria,
   }) : creadoEnCategoria =
            creadoEnCategoria ?? DateTime.now().millisecondsSinceEpoch;
 
-  Map<String, dynamic> toMap() {
-    return {
-      'pkCategoria': pkCategoria,
-      'idCategoria': idCategoria,
-      'nombreCategoria': nombreCategoria,
-      'iconoCategoria': iconoCategoria,
-      'tipoCategoria': tipoCategoria,
-      'creadoEnCategoria': creadoEnCategoria,
-      'usuarioCategoria': usuarioCategoria,
-    };
-  }
+  factory ModeloCategoria.fromApi(Map<String, dynamic> json) =>
+      ModeloCategoria(
+        pkCategoria: json['id'] as String,
+        nombreCategoria: json['name'] as String,
+        iconoCategoria: json['icon'] as String,
+        tipoCategoria: tipoCategoriaDesdeApi(json['type'] as String),
+        creadoEnCategoria: DateTime.parse(
+          json['createdAt'] as String,
+        ).millisecondsSinceEpoch,
+      );
 
-  static ModeloCategoria fromMap(Map<String, dynamic> map) {
-    return ModeloCategoria(
-      pkCategoria: map['pkCategoria'],
-      idCategoria: map['idCategoria'],
-      nombreCategoria: map['nombreCategoria'],
-      iconoCategoria: map['iconoCategoria'],
-      tipoCategoria: map['tipoCategoria'],
-      creadoEnCategoria: map['creadoEnCategoria'],
-      usuarioCategoria: map['usuarioCategoria'],
-    );
-  }
+  Map<String, dynamic> toApiBody() => {
+    'name': nombreCategoria,
+    'icon': iconoCategoria,
+    'type': tipoCategoriaAApi(tipoCategoria),
+  };
 }

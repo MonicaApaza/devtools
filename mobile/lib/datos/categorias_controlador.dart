@@ -34,11 +34,14 @@ class CategoriasController extends GetxController {
   }
 
   Future<void> cargar() async {
-    final usuario = AuthController.instance.usuarioActual;
-    categoriasShortcut.assignAll(
-      await _repositorio.listar('shortcut', usuario),
-    );
-    categoriasComando.assignAll(await _repositorio.listar('comando', usuario));
+    if (!AuthController.instance.estaAutenticado) {
+      categoriasShortcut.clear();
+      categoriasComando.clear();
+      version.value++;
+      return;
+    }
+    categoriasShortcut.assignAll(await _repositorio.listar('shortcut'));
+    categoriasComando.assignAll(await _repositorio.listar('comando'));
     version.value++;
   }
 
