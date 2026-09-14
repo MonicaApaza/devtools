@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../datos/categorias_controlador.dart';
 import '../data/datasources/db_helper.dart';
@@ -20,6 +21,7 @@ class ShortcutFormSheet extends StatefulWidget {
 class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
   final _formKey = GlobalKey<FormState>();
   final _dbHelper = DatabaseHelper();
+  final _focusCaptura = FocusNode(debugLabel: 'captura-teclas');
 
   late final TextEditingController _titulo;
   late final TextEditingController _teclas;
@@ -30,6 +32,36 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
   bool _categoriaConError = false;
   bool _favorito = false;
   bool _guardando = false;
+  bool _capturandoTeclas = false;
+  final Set<LogicalKeyboardKey> _teclasPresionadas = {};
+
+  static final Set<LogicalKeyboardKey> _modificadores = {
+    LogicalKeyboardKey.control,
+    LogicalKeyboardKey.controlLeft,
+    LogicalKeyboardKey.controlRight,
+    LogicalKeyboardKey.shift,
+    LogicalKeyboardKey.shiftLeft,
+    LogicalKeyboardKey.shiftRight,
+    LogicalKeyboardKey.alt,
+    LogicalKeyboardKey.altLeft,
+    LogicalKeyboardKey.altRight,
+    LogicalKeyboardKey.meta,
+    LogicalKeyboardKey.metaLeft,
+    LogicalKeyboardKey.metaRight,
+  };
+
+  static final Map<LogicalKeyboardKey, String> _etiquetasEspeciales = {
+    LogicalKeyboardKey.arrowUp: 'Arriba',
+    LogicalKeyboardKey.arrowDown: 'Abajo',
+    LogicalKeyboardKey.arrowLeft: 'Izquierda',
+    LogicalKeyboardKey.arrowRight: 'Derecha',
+    LogicalKeyboardKey.space: 'Space',
+    LogicalKeyboardKey.enter: 'Enter',
+    LogicalKeyboardKey.escape: 'Esc',
+    LogicalKeyboardKey.tab: 'Tab',
+    LogicalKeyboardKey.backspace: 'Backspace',
+    LogicalKeyboardKey.delete: 'Delete',
+  };
 
   bool get _esEdicion => widget.existente != null;
 
@@ -55,7 +87,70 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
     _teclas.dispose();
     _descripcion.dispose();
     _etiquetas.dispose();
+    _focusCaptura.dispose();
     super.dispose();
+  }
+
+  void _alternarCaptura() {
+    setState(() {
+      _capturandoTeclas = !_capturandoTeclas;
+      _teclasPresionadas.clear();
+    });
+    if (_capturandoTeclas) {
+      _focusCaptura.requestFocus();
+    } else {
+      _focusCaptura.unfocus();
+    }
+  }
+
+  void _detenerCaptura() {
+    setState(() => _capturandoTeclas = false);
+    _teclasPresionadas.clear();
+    _focusCaptura.unfocus();
+  }
+
+  String _etiquetaTecla(LogicalKeyboardKey tecla) {
+    final especial = _etiquetasEspeciales[tecla];
+    if (especial != null) return especial;
+    final etiqueta = tecla.keyLabel;
+    if (etiqueta.isEmpty) return '?';
+    return etiqueta.length == 1 ? etiqueta.toUpperCase() : etiqueta;
+  }
+
+  String _construirCombinacion() {
+    final partes = <String>[];
+    if (HardwareKeyboard.instance.isControlPressed) partes.add('Ctrl');
+    if (HardwareKeyboard.instance.isAltPressed) partes.add('Alt');
+    if (HardwareKeyboard.instance.isShiftPressed) partes.add('Shift');
+    if (HardwareKeyboard.instance.isMetaPressed) partes.add('Cmd');
+    for (final tecla in _teclasPresionadas) {
+      if (_modificadores.contains(tecla)) continue;
+      final etiqueta = _etiquetaTecla(tecla);
+      if (!partes.contains(etiqueta)) partes.add(etiqueta);
+    }
+    return partes.join('+');
+  }
+
+  void _onKeyEvent(KeyEvent evento) {
+    if (!_capturandoTeclas) return;
+
+    if (evento is KeyDownEvent) {
+      if (evento.logicalKey == LogicalKeyboardKey.escape) {
+        _detenerCaptura();
+        return;
+      }
+      _teclasPresionadas.add(evento.logicalKey);
+      setState(() => _teclas.text = _construirCombinacion());
+
+      final tieneTeclaPrincipal = _teclasPresionadas.any(
+        (t) => !_modificadores.contains(t),
+      );
+      if (tieneTeclaPrincipal) {
+        _detenerCaptura();
+      }
+    } else if (evento is KeyUpEvent) {
+      _teclasPresionadas.remove(evento.logicalKey);
+    }
   }
 
   Future<void> _guardar() async {
@@ -154,20 +249,50 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
                 },
               ),
               const SizedBox(height: 14),
-              TextFormField(
-                controller: _teclas,
-                style: const TextStyle(fontFamily: 'monospace'),
-                decoration: const InputDecoration(
-                  labelText: 'Combinación de teclas',
-                  hintText: 'Ej. Ctrl+Shift+P',
+              KeyboardListener(
+                focusNode: _focusCaptura,
+                onKeyEvent: _onKeyEvent,
+                child: AbsorbPointer(
+                  absorbing: _capturandoTeclas,
+                  child: TextFormField(
+                    controller: _teclas,
+                    readOnly: _capturandoTeclas,
+                    style: const TextStyle(fontFamily: 'monospace'),
+                    decoration: InputDecoration(
+                      labelText: 'Combinación de teclas',
+                      hintText: _capturandoTeclas
+                          ? 'Presiona la combinación...'
+                          : 'Ej. Ctrl+Shift+P',
+                      suffixIcon: IconButton(
+                        tooltip: _capturandoTeclas
+                            ? 'Detener captura'
+                            : 'Capturar desde el teclado',
+                        icon: Icon(
+                          _capturandoTeclas
+                              ? Icons.fiber_manual_record
+                              : Icons.keyboard,
+                          color: _capturandoTeclas ? esquema.error : null,
+                        ),
+                        onPressed: _alternarCaptura,
+                      ),
+                    ),
+                    validator: (valor) {
+                      if (valor == null || valor.trim().isEmpty) {
+                        return 'Ingresa la combinación de teclas';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-                validator: (valor) {
-                  if (valor == null || valor.trim().isEmpty) {
-                    return 'Ingresa la combinación de teclas';
-                  }
-                  return null;
-                },
               ),
+              if (_capturandoTeclas)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, left: 4),
+                  child: Text(
+                    'Presiona las teclas deseadas (Esc para cancelar)',
+                    style: TextStyle(color: esquema.primary, fontSize: 12),
+                  ),
+                ),
               const SizedBox(height: 14),
               Text('Categoría', style: Theme.of(context).textTheme.labelLarge),
               const SizedBox(height: 8),
