@@ -39,8 +39,11 @@ public static class ApiServiceExtensions
             });
         services.AddAuthorization();
 
+        var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? ["http://localhost:4200"];
+
         services.AddCors(options => options.AddPolicy(FrontendCorsPolicy, policy =>
-            policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod()));
+            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
 
         return services;
     }
