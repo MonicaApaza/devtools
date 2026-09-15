@@ -25,7 +25,15 @@ void main() async {
 
   final categorias = Get.put(CategoriasController(), permanent: true);
   if (auth.estaAutenticado) {
-    await categorias.cargar();
+    try {
+      await categorias.cargar();
+    } catch (_) {
+      // La sesión guardada no sirve contra el backend actual (token
+      // vencido, o de otro entorno) o no hay red: no debe impedir que la
+      // app arranque — se descarta la sesión y se cae a la pantalla de
+      // login en vez de dejar la excepción sin atrapar antes de runApp().
+      await auth.cerrarSesion();
+    }
   }
   runApp(MainApp(rutaInicial: auth.estaAutenticado ? AppRutas.inicio : AppRutas.login));
 }
