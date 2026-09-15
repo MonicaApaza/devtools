@@ -3,11 +3,16 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-/// URL base de la API (mismo backend que usa la app web). El emulador de
-/// Android no puede resolver `localhost` como el host de la máquina, así
-/// que usa la IP especial `10.0.2.2`; iOS Simulator sí resuelve `localhost`
-/// directamente. Esta app solo corre en iOS/Android, no hay build web.
+/// URL base de la API (mismo backend que usa la app web). Se puede
+/// sobreescribir en build/run time con `--dart-define=API_BASE_URL=...`
+/// (ej. para apuntar al backend desplegado en vez del local). Sin eso,
+/// usa el backend local: el emulador de Android no puede resolver
+/// `localhost` como el host de la máquina, así que usa la IP especial
+/// `10.0.2.2`; iOS Simulator y macOS sí resuelven `localhost` directamente.
 String get _baseUrl {
+  const urlPersonalizada = String.fromEnvironment('API_BASE_URL');
+  if (urlPersonalizada.isNotEmpty) return urlPersonalizada;
+
   if (Platform.isAndroid) {
     return 'http://10.0.2.2:5262/api';
   }
