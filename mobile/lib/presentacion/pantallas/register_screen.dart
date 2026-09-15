@@ -17,6 +17,10 @@ class RegisterScreen extends GetView<AuthController> {
     final verdeMedio = Color.lerp(esquema.primary, esquema.surface, 0.42)!;
     final verdeProfundo = Color.lerp(esquema.primary, esquema.onSurface, 0.12)!;
     final margenSuperiorSistema = MediaQuery.viewPaddingOf(context).top;
+    final esEscritorio = MediaQuery.sizeOf(context).width >= 600;
+    final alturaCurvaInferior = esEscritorio ? 110.0 : 220.0;
+    final rellenoSuperior = margenSuperiorSistema + (esEscritorio ? 110.0 : 178.0);
+    final rellenoInferior = esEscritorio ? 140.0 : 48.0;
 
     return Scaffold(
       body: LayoutBuilder(
@@ -39,7 +43,7 @@ class RegisterScreen extends GetView<AuthController> {
               left: 0,
               right: 0,
               bottom: 0,
-              height: 220,
+              height: alturaCurvaInferior,
               child: IgnorePointer(
                 child: CustomPaint(
                   painter: CurvasLoginInferioresPainter(
@@ -61,14 +65,14 @@ class RegisterScreen extends GetView<AuthController> {
             SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(
                 30,
-                margenSuperiorSistema + 178,
+                rellenoSuperior,
                 30,
-                48,
+                rellenoInferior,
               ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight:
-                      (restricciones.maxHeight - margenSuperiorSistema - 178 - 48)
+                      (restricciones.maxHeight - rellenoSuperior - rellenoInferior)
                           .clamp(0, double.infinity)
                           .toDouble(),
                 ),
@@ -151,6 +155,14 @@ class RegisterScreen extends GetView<AuthController> {
                     ),
                     const SizedBox(height: 22),
                     TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: esquema.primary,
+                        backgroundColor: esquema.surface.withValues(alpha: 0.94),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                      ),
                       onPressed: () => Get.back(),
                       child: const Text('¿Ya tienes cuenta? Inicia sesión'),
                     ),

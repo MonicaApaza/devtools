@@ -17,6 +17,10 @@ class LoginScreen extends GetView<AuthController> {
     final verdeMedio = Color.lerp(esquema.primary, esquema.surface, 0.42)!;
     final verdeProfundo = Color.lerp(esquema.primary, esquema.onSurface, 0.12)!;
     final margenSuperiorSistema = MediaQuery.viewPaddingOf(context).top;
+    final esEscritorio = MediaQuery.sizeOf(context).width >= 600;
+    final alturaCurvaInferior = esEscritorio ? 110.0 : 220.0;
+    final rellenoSuperior = margenSuperiorSistema + (esEscritorio ? 110.0 : 178.0);
+    final rellenoInferior = esEscritorio ? 140.0 : 244.0;
 
     return Scaffold(
       // El fondo se dibuja fuera de SafeArea para continuar detrás del reloj
@@ -41,7 +45,7 @@ class LoginScreen extends GetView<AuthController> {
               left: 0,
               right: 0,
               bottom: 0,
-              height: 220,
+              height: alturaCurvaInferior,
               child: IgnorePointer(
                 child: CustomPaint(
                   painter: CurvasLoginInferioresPainter(
@@ -66,17 +70,16 @@ class LoginScreen extends GetView<AuthController> {
             SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(
                 30,
-                margenSuperiorSistema + 178,
+                rellenoSuperior,
                 30,
-                244,
+                rellenoInferior,
               ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight:
                       (restricciones.maxHeight -
-                              margenSuperiorSistema -
-                              178 -
-                              244)
+                              rellenoSuperior -
+                              rellenoInferior)
                           .clamp(0, double.infinity)
                           .toDouble(),
                 ),
@@ -132,16 +135,18 @@ class LoginScreen extends GetView<AuthController> {
                             contexto: context,
                             etiqueta: 'Contraseña',
                             icono: Icons.lock_outline_rounded,
-                            sufijo: IconButton(
-                              tooltip: controller.mostrarContrasena.value
-                                  ? 'Ocultar contraseña'
-                                  : 'Mostrar contraseña',
-                              onPressed:
-                                  controller.alternarVisibilidadContrasena,
-                              icon: Icon(
-                                controller.mostrarContrasena.value
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
+                            sufijo: ExcludeFocusTraversal(
+                              child: IconButton(
+                                tooltip: controller.mostrarContrasena.value
+                                    ? 'Ocultar contraseña'
+                                    : 'Mostrar contraseña',
+                                onPressed:
+                                    controller.alternarVisibilidadContrasena,
+                                icon: Icon(
+                                  controller.mostrarContrasena.value
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                ),
                               ),
                             ),
                           ),
@@ -149,9 +154,11 @@ class LoginScreen extends GetView<AuthController> {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {},
-                          child: const Text('¿Olvidaste tu contraseña?'),
+                        child: ExcludeFocusTraversal(
+                          child: TextButton(
+                            onPressed: () {},
+                            child: const Text('¿Olvidaste tu contraseña?'),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 22),
@@ -178,6 +185,14 @@ class LoginScreen extends GetView<AuthController> {
                       ),
                       const SizedBox(height: 22),
                       TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: esquema.primary,
+                          backgroundColor: esquema.surface.withValues(alpha: 0.94),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                        ),
                         onPressed: () => Get.toNamed(AppRutas.registro),
                         child: const Text('¿No tienes cuenta? Regístrate'),
                       ),
