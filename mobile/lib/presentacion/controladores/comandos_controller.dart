@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../data/modelos/modelo_comando.dart';
 import '../../data/repositorios/comando_repositorio_impl.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
-import 'auth_controller.dart';
 import 'busqueda_controller.dart';
 import 'notificador_cambios.dart';
 
@@ -28,9 +27,7 @@ class ComandosController extends GetxController {
 
   Future<void> cargar() async {
     cargando.value = true;
-    comandos.assignAll(
-      await _repositorio.listar(AuthController.instance.usuarioActual),
-    );
+    comandos.assignAll(await _repositorio.listar());
     cargando.value = false;
     await avisarCambioDeDatos();
   }
@@ -52,14 +49,17 @@ class ComandosController extends GetxController {
   void actualizarFiltroCategoria(String id) => filtroCategoria.value = id;
 
   Future<void> alternarFavorito(ModeloComando comando) async {
-    comando.favoritoComando = comando.esFavorito ? 0 : 1;
-    await _repositorio.actualizar(comando);
+    await _repositorio.alternarFavorito(
+      comando.pkComando!,
+      !comando.esFavorito,
+    );
     await cargar();
   }
 
   Future<void> incrementarUso(ModeloComando comando) async {
-    await _repositorio.incrementarUso(comando.pkComando!);
-    comando.usosComando++;
+    comando.usosComando = await _repositorio.incrementarUso(
+      comando.pkComando!,
+    );
     comandos.refresh();
   }
 

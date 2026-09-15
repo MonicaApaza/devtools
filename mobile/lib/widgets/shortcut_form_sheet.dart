@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../datos/categorias_controlador.dart';
-import '../data/datasources/db_helper.dart';
+import '../data/datasources/api_client.dart';
 import '../data/modelos/modelo_shortcut.dart';
-import '../presentacion/controladores/auth_controller.dart';
+import '../data/repositorios/shortcut_repositorio_impl.dart';
 
 /// Formulario de alta/edición de un Shortcut.
 /// Usa `Form` + `TextFormField` + `GlobalKey<FormState>` (validación estándar
@@ -20,7 +20,7 @@ class ShortcutFormSheet extends StatefulWidget {
 
 class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
   final _formKey = GlobalKey<FormState>();
-  final _dbHelper = DatabaseHelper();
+  final _repositorio = ShortcutRepositorioImpl();
   final _focusCaptura = FocusNode(debugLabel: 'captura-teclas');
 
   late final TextEditingController _titulo;
@@ -159,49 +159,48 @@ class _ShortcutFormSheetState extends State<ShortcutFormSheet> {
     setState(() => _categoriaConError = !categoriaValida);
     if (!formValido || !categoriaValida) return;
 
-    final titulo = _titulo.text.trim();
-    // Al editar se conserva el dueño original; al crear, queda a nombre de
-    // quien tiene la sesión iniciada.
-    final usuario =
-        widget.existente?.usuarioShortcut ??
-        AuthController.instance.usuarioActual;
-    final existeDuplicado = await _dbHelper.existeTituloShortcut(
-      titulo,
-      usuario,
-      excluirPk: widget.existente?.pkShortcut,
+    setState(() => _guardando = true);
+
+    final modelo = ModeloShortcut(
+      pkShortcut: widget.existente?.pkShortcut,
+      tituloShortcut: _titulo.text.trim(),
+      teclasShortcut: _teclas.text.trim(),
+      descripcionShortcut: _descripcion.text.trim(),
+      categoriaShortcut: _categoriaSeleccionada!,
+      etiquetasShortcut: _etiquetas.text.trim(),
+      creadoEnShortcut: widget.existente?.creadoEnShortcut,
     );
-    if (existeDuplicado) {
+
+    try {
+      final guardado = _esEdicion
+          ? await _repositorio.actualizar(modelo)
+          : await _repositorio.crear(modelo);
+
+      // El backend no acepta isFavorite en crear/actualizar (ver
+      // ShortcutRequest) — es un endpoint aparte, así que solo se llama si
+      // el valor realmente cambió.
+      final favoritoOriginal = widget.existente?.esFavorito ?? false;
+      if (_favorito != favoritoOriginal) {
+        await _repositorio.alternarFavorito(guardado.pkShortcut!, _favorito);
+      }
+
       if (!mounted) return;
+      Navigator.pop(context, true);
+    } on ApiConflictException {
+      if (!mounted) return;
+      setState(() => _guardando = false);
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
         ..showSnackBar(
           const SnackBar(content: Text('Ya existe un shortcut con ese título')),
         );
-      return;
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _guardando = false);
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
     }
-
-    setState(() => _guardando = true);
-
-    final modelo = ModeloShortcut(
-      pkShortcut: widget.existente?.pkShortcut,
-      tituloShortcut: titulo,
-      teclasShortcut: _teclas.text.trim(),
-      descripcionShortcut: _descripcion.text.trim(),
-      categoriaShortcut: _categoriaSeleccionada!,
-      etiquetasShortcut: _etiquetas.text.trim(),
-      favoritoShortcut: _favorito ? 1 : 0,
-      creadoEnShortcut: widget.existente?.creadoEnShortcut,
-      usuarioShortcut: usuario,
-    );
-
-    if (_esEdicion) {
-      await _dbHelper.actualizarShortcut(modelo);
-    } else {
-      await _dbHelper.insertarShortcut(modelo);
-    }
-
-    if (!mounted) return;
-    Navigator.pop(context, true);
   }
 
   @override

@@ -1,30 +1,48 @@
 import '../../dominio/repositorios/shortcut_repositorio.dart';
-import '../datasources/db_helper.dart';
+import '../datasources/api_client.dart';
 import '../modelos/modelo_shortcut.dart';
 
 class ShortcutRepositorioImpl implements ShortcutRepositorio {
-  final DatabaseHelper _dbHelper;
+  final ApiClient _api;
 
-  ShortcutRepositorioImpl({DatabaseHelper? dbHelper})
-    : _dbHelper = dbHelper ?? DatabaseHelper();
-
-  @override
-  Future<List<ModeloShortcut>> listar(String usuario) =>
-      _dbHelper.getShortcuts(usuario);
+  ShortcutRepositorioImpl({ApiClient? api}) : _api = api ?? ApiClient();
 
   @override
-  Future<int> crear(ModeloShortcut shortcut) =>
-      _dbHelper.insertarShortcut(shortcut);
+  Future<List<ModeloShortcut>> listar() async {
+    final respuesta = await _api.get('/shortcuts');
+    return (respuesta as List)
+        .map((json) => ModeloShortcut.fromApi(json as Map<String, dynamic>))
+        .toList();
+  }
 
   @override
-  Future<void> actualizar(ModeloShortcut shortcut) =>
-      _dbHelper.actualizarShortcut(shortcut);
+  Future<ModeloShortcut> crear(ModeloShortcut shortcut) async {
+    final respuesta = await _api.post('/shortcuts', body: shortcut.toApiBody());
+    return ModeloShortcut.fromApi(respuesta as Map<String, dynamic>);
+  }
 
   @override
-  Future<void> eliminar(int pkShortcut) =>
-      _dbHelper.eliminarShortcut(pkShortcut);
+  Future<ModeloShortcut> actualizar(ModeloShortcut shortcut) async {
+    final respuesta = await _api.put(
+      '/shortcuts/${shortcut.pkShortcut}',
+      body: shortcut.toApiBody(),
+    );
+    return ModeloShortcut.fromApi(respuesta as Map<String, dynamic>);
+  }
 
   @override
-  Future<bool> existeTitulo(String titulo, String usuario, {int? excluirPk}) =>
-      _dbHelper.existeTituloShortcut(titulo, usuario, excluirPk: excluirPk);
+  Future<ModeloShortcut> alternarFavorito(
+    String pkShortcut,
+    bool favorito,
+  ) async {
+    final respuesta = await _api.patch(
+      '/shortcuts/$pkShortcut/favorite',
+      body: {'isFavorite': favorito},
+    );
+    return ModeloShortcut.fromApi(respuesta as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> eliminar(String pkShortcut) =>
+      _api.delete('/shortcuts/$pkShortcut');
 }

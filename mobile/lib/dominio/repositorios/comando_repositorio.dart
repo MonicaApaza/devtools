@@ -1,13 +1,13 @@
 import '../../data/modelos/modelo_comando.dart';
 
 /// Contrato de acceso a datos para comandos. Ver ShortcutRepositorio para
-/// el razonamiento de por qué la presentación no habla con `DatabaseHelper`
-/// directamente.
+/// el razonamiento de por qué la presentación no habla con la API
+/// directamente ni valida duplicados en el cliente.
 abstract class ComandoRepositorio {
-  Future<List<ModeloComando>> listar(String usuario);
-  Future<int> crear(ModeloComando comando);
-  Future<void> actualizar(ModeloComando comando);
-  Future<void> eliminar(int pkComando);
-  Future<void> incrementarUso(int pkComando);
-  Future<bool> existeTitulo(String titulo, String usuario, {int? excluirPk});
+  Future<List<ModeloComando>> listar();
+  Future<ModeloComando> crear(ModeloComando comando);
+  Future<ModeloComando> actualizar(ModeloComando comando);
+  Future<ModeloComando> alternarFavorito(String pkComando, bool favorito);
+  Future<int> incrementarUso(String pkComando);
+  Future<void> eliminar(String pkComando);
 }

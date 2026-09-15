@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../datos/categorias_controlador.dart';
-import '../data/datasources/db_helper.dart';
+import '../data/datasources/api_client.dart';
 import '../data/modelos/modelo_comando.dart';
-import '../presentacion/controladores/auth_controller.dart';
+import '../data/repositorios/comando_repositorio_impl.dart';
 
 /// Formulario de alta/edición de un Comando. Misma estructura `Form` +
 /// `TextFormField` + `GlobalKey<FormState>` que ShortcutFormSheet.
@@ -18,7 +18,7 @@ class ComandoFormSheet extends StatefulWidget {
 
 class _ComandoFormSheetState extends State<ComandoFormSheet> {
   final _formKey = GlobalKey<FormState>();
-  final _dbHelper = DatabaseHelper();
+  final _repositorio = ComandoRepositorioImpl();
 
   late final TextEditingController _titulo;
   late final TextEditingController _comando;
@@ -61,49 +61,49 @@ class _ComandoFormSheetState extends State<ComandoFormSheet> {
     setState(() => _categoriaConError = !categoriaValida);
     if (!formValido || !categoriaValida) return;
 
-    final titulo = _titulo.text.trim();
-    // Al editar se conserva el dueño original; al crear, queda a nombre de
-    // quien tiene la sesión iniciada.
-    final usuario =
-        widget.existente?.usuarioComando ??
-        AuthController.instance.usuarioActual;
-    final existeDuplicado = await _dbHelper.existeTituloComando(
-      titulo,
-      usuario,
-      excluirPk: widget.existente?.pkComando,
+    setState(() => _guardando = true);
+
+    final modelo = ModeloComando(
+      pkComando: widget.existente?.pkComando,
+      tituloComando: _titulo.text.trim(),
+      textoComando: _comando.text.trim(),
+      descripcionComando: _descripcion.text.trim(),
+      categoriaComando: _categoriaSeleccionada!,
+      etiquetasComando: _etiquetas.text.trim(),
+      creadoEnComando: widget.existente?.creadoEnComando,
+      usosComando: widget.existente?.usosComando ?? 0,
     );
-    if (existeDuplicado) {
+
+    try {
+      final guardado = _esEdicion
+          ? await _repositorio.actualizar(modelo)
+          : await _repositorio.crear(modelo);
+
+      // El backend no acepta isFavorite en crear/actualizar (ver
+      // CommandRequest) — es un endpoint aparte, así que solo se llama si
+      // el valor realmente cambió.
+      final favoritoOriginal = widget.existente?.esFavorito ?? false;
+      if (_favorito != favoritoOriginal) {
+        await _repositorio.alternarFavorito(guardado.pkComando!, _favorito);
+      }
+
       if (!mounted) return;
+      Navigator.pop(context, true);
+    } on ApiConflictException {
+      if (!mounted) return;
+      setState(() => _guardando = false);
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
         ..showSnackBar(
           const SnackBar(content: Text('Ya existe un comando con ese título')),
         );
-      return;
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _guardando = false);
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e.message)));
     }
-
-    setState(() => _guardando = true);
-
-    final modelo = ModeloComando(
-      pkComando: widget.existente?.pkComando,
-      tituloComando: titulo,
-      textoComando: _comando.text.trim(),
-      descripcionComando: _descripcion.text.trim(),
-      categoriaComando: _categoriaSeleccionada!,
-      etiquetasComando: _etiquetas.text.trim(),
-      favoritoComando: _favorito ? 1 : 0,
-      creadoEnComando: widget.existente?.creadoEnComando,
-      usuarioComando: usuario,
-    );
-
-    if (_esEdicion) {
-      await _dbHelper.actualizarComando(modelo);
-    } else {
-      await _dbHelper.insertarComando(modelo);
-    }
-
-    if (!mounted) return;
-    Navigator.pop(context, true);
   }
 
   @override

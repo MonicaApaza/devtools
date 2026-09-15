@@ -1,14 +1,16 @@
 class ModeloComando {
-  int? pkComando;
+  /// GUID asignado por el backend (`Command.Id`). `null` solo antes de
+  /// crearlo.
+  String? pkComando;
   String tituloComando;
   String textoComando;
   String descripcionComando;
+  /// GUID de la categoría (backend), no una clave estática.
   String categoriaComando;
   String etiquetasComando;
   int favoritoComando;
   int creadoEnComando;
   int usosComando;
-  String usuarioComando;
 
   ModeloComando({
     this.pkComando,
@@ -20,7 +22,6 @@ class ModeloComando {
     this.favoritoComando = 0,
     int? creadoEnComando,
     this.usosComando = 0,
-    required this.usuarioComando,
   }) : creadoEnComando =
            creadoEnComando ?? DateTime.now().millisecondsSinceEpoch;
 
@@ -32,33 +33,25 @@ class ModeloComando {
 
   bool get esFavorito => favoritoComando == 1;
 
-  Map<String, dynamic> toMap() {
-    return {
-      'pkComando': pkComando,
-      'tituloComando': tituloComando,
-      'textoComando': textoComando,
-      'descripcionComando': descripcionComando,
-      'categoriaComando': categoriaComando,
-      'etiquetasComando': etiquetasComando,
-      'favoritoComando': favoritoComando,
-      'creadoEnComando': creadoEnComando,
-      'usosComando': usosComando,
-      'usuarioComando': usuarioComando,
-    };
-  }
+  factory ModeloComando.fromApi(Map<String, dynamic> json) => ModeloComando(
+    pkComando: json['id'] as String,
+    tituloComando: json['title'] as String,
+    textoComando: json['commandText'] as String,
+    descripcionComando: json['description'] as String? ?? '',
+    categoriaComando: json['categoryId'] as String,
+    etiquetasComando: (json['tags'] as List).cast<String>().join(','),
+    favoritoComando: (json['isFavorite'] as bool) ? 1 : 0,
+    usosComando: json['usageCount'] as int? ?? 0,
+    creadoEnComando: DateTime.parse(
+      json['createdAt'] as String,
+    ).millisecondsSinceEpoch,
+  );
 
-  static ModeloComando fromMap(Map<String, dynamic> map) {
-    return ModeloComando(
-      pkComando: map['pkComando'],
-      tituloComando: map['tituloComando'],
-      textoComando: map['textoComando'],
-      descripcionComando: map['descripcionComando'] ?? '',
-      categoriaComando: map['categoriaComando'],
-      etiquetasComando: map['etiquetasComando'] ?? '',
-      favoritoComando: map['favoritoComando'] ?? 0,
-      creadoEnComando: map['creadoEnComando'],
-      usosComando: map['usosComando'] ?? 0,
-      usuarioComando: map['usuarioComando'],
-    );
-  }
+  Map<String, dynamic> toApiBody() => {
+    'title': tituloComando,
+    'commandText': textoComando,
+    'description': descripcionComando.isEmpty ? null : descripcionComando,
+    'categoryId': categoriaComando,
+    'tags': etiquetas,
+  };
 }

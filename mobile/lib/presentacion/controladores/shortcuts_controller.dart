@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../data/modelos/modelo_shortcut.dart';
 import '../../data/repositorios/shortcut_repositorio_impl.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
-import 'auth_controller.dart';
 import 'busqueda_controller.dart';
 import 'notificador_cambios.dart';
 
@@ -28,9 +27,7 @@ class ShortcutsController extends GetxController {
 
   Future<void> cargar() async {
     cargando.value = true;
-    shortcuts.assignAll(
-      await _repositorio.listar(AuthController.instance.usuarioActual),
-    );
+    shortcuts.assignAll(await _repositorio.listar());
     cargando.value = false;
     await avisarCambioDeDatos();
   }
@@ -52,8 +49,10 @@ class ShortcutsController extends GetxController {
   void actualizarFiltroCategoria(String id) => filtroCategoria.value = id;
 
   Future<void> alternarFavorito(ModeloShortcut shortcut) async {
-    shortcut.favoritoShortcut = shortcut.esFavorito ? 0 : 1;
-    await _repositorio.actualizar(shortcut);
+    await _repositorio.alternarFavorito(
+      shortcut.pkShortcut!,
+      !shortcut.esFavorito,
+    );
     await cargar();
   }
 

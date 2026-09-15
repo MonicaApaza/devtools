@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../data/repositorios/comando_repositorio_impl.dart';
-import '../data/repositorios/shortcut_repositorio_impl.dart';
 import '../presentacion/controladores/auth_controller.dart';
-import '../presentacion/pantallas/comando_detalle_screen.dart';
-import '../presentacion/pantallas/shortcut_detalle_screen.dart';
 import '../rutas/app_rutas.dart';
 import '../theme/theme_controller.dart';
 
@@ -47,30 +43,6 @@ class AppDrawer extends StatelessWidget {
           onSeleccionar(indice);
         },
       );
-    }
-
-    Future<void> abrirDetalleShortcutDeMuestra() async {
-      Navigator.pop(context);
-      final lista = await ShortcutRepositorioImpl().listar(
-        AuthController.instance.usuarioActual,
-      );
-      if (lista.isEmpty) {
-        Get.snackbar('Sin datos', 'Todavía no hay shortcuts guardados.');
-        return;
-      }
-      Get.to(() => ShortcutDetalleScreen(shortcut: lista.first));
-    }
-
-    Future<void> abrirDetalleComandoDeMuestra() async {
-      Navigator.pop(context);
-      final lista = await ComandoRepositorioImpl().listar(
-        AuthController.instance.usuarioActual,
-      );
-      if (lista.isEmpty) {
-        Get.snackbar('Sin datos', 'Todavía no hay comandos guardados.');
-        return;
-      }
-      Get.to(() => ComandoDetalleScreen(comando: lista.first));
     }
 
     Future<void> cerrarSesion() async {

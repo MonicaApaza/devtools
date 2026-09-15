@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../data/repositorios/comando_repositorio_impl.dart';
-import '../data/repositorios/shortcut_repositorio_impl.dart';
 import '../presentacion/controladores/auth_controller.dart';
-import '../presentacion/pantallas/comando_detalle_screen.dart';
-import '../presentacion/pantallas/shortcut_detalle_screen.dart';
 import '../rutas/app_rutas.dart';
 import '../theme/theme_controller.dart';
 
@@ -16,28 +12,6 @@ class MasScreen extends StatelessWidget {
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text('Próximamente: $seccion')));
-  }
-
-  Future<void> _abrirDetalleShortcutDeMuestra() async {
-    final lista = await ShortcutRepositorioImpl().listar(
-      AuthController.instance.usuarioActual,
-    );
-    if (lista.isEmpty) {
-      Get.snackbar('Sin datos', 'Todavía no hay shortcuts guardados.');
-      return;
-    }
-    Get.to(() => ShortcutDetalleScreen(shortcut: lista.first));
-  }
-
-  Future<void> _abrirDetalleComandoDeMuestra() async {
-    final lista = await ComandoRepositorioImpl().listar(
-      AuthController.instance.usuarioActual,
-    );
-    if (lista.isEmpty) {
-      Get.snackbar('Sin datos', 'Todavía no hay comandos guardados.');
-      return;
-    }
-    Get.to(() => ComandoDetalleScreen(comando: lista.first));
   }
 
   Future<void> _cerrarSesion() async {

@@ -1,13 +1,15 @@
 class ModeloShortcut {
-  int? pkShortcut;
+  /// GUID asignado por el backend (`Shortcut.Id`). `null` solo antes de
+  /// crearlo.
+  String? pkShortcut;
   String tituloShortcut;
   String teclasShortcut;
   String descripcionShortcut;
+  /// GUID de la categoría (backend), no una clave estática.
   String categoriaShortcut;
   String etiquetasShortcut;
   int favoritoShortcut;
   int creadoEnShortcut;
-  String usuarioShortcut;
 
   ModeloShortcut({
     this.pkShortcut,
@@ -18,7 +20,6 @@ class ModeloShortcut {
     this.etiquetasShortcut = '',
     this.favoritoShortcut = 0,
     int? creadoEnShortcut,
-    required this.usuarioShortcut,
   }) : creadoEnShortcut =
            creadoEnShortcut ?? DateTime.now().millisecondsSinceEpoch;
 
@@ -36,31 +37,24 @@ class ModeloShortcut {
 
   bool get esFavorito => favoritoShortcut == 1;
 
-  Map<String, dynamic> toMap() {
-    return {
-      'pkShortcut': pkShortcut,
-      'tituloShortcut': tituloShortcut,
-      'teclasShortcut': teclasShortcut,
-      'descripcionShortcut': descripcionShortcut,
-      'categoriaShortcut': categoriaShortcut,
-      'etiquetasShortcut': etiquetasShortcut,
-      'favoritoShortcut': favoritoShortcut,
-      'creadoEnShortcut': creadoEnShortcut,
-      'usuarioShortcut': usuarioShortcut,
-    };
-  }
+  factory ModeloShortcut.fromApi(Map<String, dynamic> json) => ModeloShortcut(
+    pkShortcut: json['id'] as String,
+    tituloShortcut: json['title'] as String,
+    teclasShortcut: json['keys'] as String,
+    descripcionShortcut: json['description'] as String? ?? '',
+    categoriaShortcut: json['categoryId'] as String,
+    etiquetasShortcut: (json['tags'] as List).cast<String>().join(','),
+    favoritoShortcut: (json['isFavorite'] as bool) ? 1 : 0,
+    creadoEnShortcut: DateTime.parse(
+      json['createdAt'] as String,
+    ).millisecondsSinceEpoch,
+  );
 
-  static ModeloShortcut fromMap(Map<String, dynamic> map) {
-    return ModeloShortcut(
-      pkShortcut: map['pkShortcut'],
-      tituloShortcut: map['tituloShortcut'],
-      teclasShortcut: map['teclasShortcut'],
-      descripcionShortcut: map['descripcionShortcut'] ?? '',
-      categoriaShortcut: map['categoriaShortcut'],
-      etiquetasShortcut: map['etiquetasShortcut'] ?? '',
-      favoritoShortcut: map['favoritoShortcut'] ?? 0,
-      creadoEnShortcut: map['creadoEnShortcut'],
-      usuarioShortcut: map['usuarioShortcut'],
-    );
-  }
+  Map<String, dynamic> toApiBody() => {
+    'title': tituloShortcut,
+    'keys': teclasShortcut,
+    'description': descripcionShortcut.isEmpty ? null : descripcionShortcut,
+    'categoryId': categoriaShortcut,
+    'tags': etiquetas,
+  };
 }

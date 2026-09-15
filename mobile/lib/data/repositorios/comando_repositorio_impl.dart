@@ -1,33 +1,53 @@
 import '../../dominio/repositorios/comando_repositorio.dart';
-import '../datasources/db_helper.dart';
+import '../datasources/api_client.dart';
 import '../modelos/modelo_comando.dart';
 
 class ComandoRepositorioImpl implements ComandoRepositorio {
-  final DatabaseHelper _dbHelper;
+  final ApiClient _api;
 
-  ComandoRepositorioImpl({DatabaseHelper? dbHelper})
-    : _dbHelper = dbHelper ?? DatabaseHelper();
-
-  @override
-  Future<List<ModeloComando>> listar(String usuario) =>
-      _dbHelper.getComandos(usuario);
+  ComandoRepositorioImpl({ApiClient? api}) : _api = api ?? ApiClient();
 
   @override
-  Future<int> crear(ModeloComando comando) =>
-      _dbHelper.insertarComando(comando);
+  Future<List<ModeloComando>> listar() async {
+    final respuesta = await _api.get('/commands');
+    return (respuesta as List)
+        .map((json) => ModeloComando.fromApi(json as Map<String, dynamic>))
+        .toList();
+  }
 
   @override
-  Future<void> actualizar(ModeloComando comando) =>
-      _dbHelper.actualizarComando(comando);
+  Future<ModeloComando> crear(ModeloComando comando) async {
+    final respuesta = await _api.post('/commands', body: comando.toApiBody());
+    return ModeloComando.fromApi(respuesta as Map<String, dynamic>);
+  }
 
   @override
-  Future<void> eliminar(int pkComando) => _dbHelper.eliminarComando(pkComando);
+  Future<ModeloComando> actualizar(ModeloComando comando) async {
+    final respuesta = await _api.put(
+      '/commands/${comando.pkComando}',
+      body: comando.toApiBody(),
+    );
+    return ModeloComando.fromApi(respuesta as Map<String, dynamic>);
+  }
 
   @override
-  Future<void> incrementarUso(int pkComando) =>
-      _dbHelper.incrementarUsoComando(pkComando);
+  Future<ModeloComando> alternarFavorito(
+    String pkComando,
+    bool favorito,
+  ) async {
+    final respuesta = await _api.patch(
+      '/commands/$pkComando/favorite',
+      body: {'isFavorite': favorito},
+    );
+    return ModeloComando.fromApi(respuesta as Map<String, dynamic>);
+  }
 
   @override
-  Future<bool> existeTitulo(String titulo, String usuario, {int? excluirPk}) =>
-      _dbHelper.existeTituloComando(titulo, usuario, excluirPk: excluirPk);
+  Future<int> incrementarUso(String pkComando) async {
+    final respuesta = await _api.post('/commands/$pkComando/use');
+    return (respuesta as Map<String, dynamic>)['usageCount'] as int;
+  }
+
+  @override
+  Future<void> eliminar(String pkComando) => _api.delete('/commands/$pkComando');
 }

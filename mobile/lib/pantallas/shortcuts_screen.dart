@@ -20,7 +20,7 @@ class ShortcutsScreen extends StatefulWidget {
 
 class ShortcutsScreenState extends State<ShortcutsScreen> {
   late final ShortcutsController controller;
-  int? _expandidoPk;
+  String? _expandidoPk;
   late final Worker _workerCategorias;
 
   @override
@@ -86,7 +86,6 @@ class ShortcutsScreenState extends State<ShortcutsScreen> {
       categoriaShortcut: shortcut.categoriaShortcut,
       etiquetasShortcut: shortcut.etiquetasShortcut,
       favoritoShortcut: shortcut.favoritoShortcut,
-      usuarioShortcut: shortcut.usuarioShortcut,
     );
     await controller.eliminar(shortcut);
     if (!mounted) return;
