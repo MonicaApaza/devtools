@@ -40,8 +40,13 @@ class CategoriasController extends GetxController {
       version.value++;
       return;
     }
-    categoriasShortcut.assignAll(await _repositorio.listar('shortcut'));
-    categoriasComando.assignAll(await _repositorio.listar('comando'));
+    // Ambas peticiones se lanzan antes de esperar cualquiera, para que
+    // corran en paralelo en vez de una tras otra — esto corre en el
+    // arranque de la app (ver main.dart), así que cuenta el doble.
+    final futureShortcut = _repositorio.listar('shortcut');
+    final futureComando = _repositorio.listar('comando');
+    categoriasShortcut.assignAll(await futureShortcut);
+    categoriasComando.assignAll(await futureComando);
     version.value++;
   }
 

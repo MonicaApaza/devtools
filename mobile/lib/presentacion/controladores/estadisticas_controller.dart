@@ -30,8 +30,12 @@ class EstadisticasController extends GetxController {
   }
 
   Future<void> cargar() async {
-    shortcuts.assignAll(await _shortcutRepositorio.listar());
-    comandos.assignAll(await _comandoRepositorio.listar());
+    // Ambas peticiones se lanzan antes de esperar cualquiera, para que
+    // corran en paralelo en vez de una tras otra.
+    final futureShortcuts = _shortcutRepositorio.listar();
+    final futureComandos = _comandoRepositorio.listar();
+    shortcuts.assignAll(await futureShortcuts);
+    comandos.assignAll(await futureComandos);
     cargando.value = false;
   }
 

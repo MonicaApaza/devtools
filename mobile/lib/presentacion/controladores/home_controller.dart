@@ -56,8 +56,12 @@ class HomeController extends GetxController {
   }
 
   Future<void> cargar() async {
-    final shortcuts = await _shortcutRepositorio.listar();
-    final comandos = await _comandoRepositorio.listar();
+    // Se lanzan ambas peticiones antes de esperar cualquiera, para que
+    // corran en paralelo en vez de una tras otra.
+    final futureShortcuts = _shortcutRepositorio.listar();
+    final futureComandos = _comandoRepositorio.listar();
+    final shortcuts = await futureShortcuts;
+    final comandos = await futureComandos;
 
     final items = <ItemReciente>[
       ...shortcuts.map(
