@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../data/datos_estaticos/categorias.dart';
-import '../data/repositorios/categoria_repositorio_impl.dart';
-import '../dominio/repositorios/categoria_repositorio.dart';
-import '../presentacion/controladores/auth_controller.dart';
+import '../../data/datos_estaticos/categorias.dart';
+import '../../data/repositorios/categoria_repositorio_impl.dart';
+import '../../dominio/repositorios/categoria_repositorio.dart';
+import 'auth_controller.dart';
 
 /// Caché en memoria de las categorías (de shortcuts y de comandos), cargada
 /// desde la base de datos a través de CategoriaRepositorio. Se registra una

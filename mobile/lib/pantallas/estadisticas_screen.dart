@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../datos/categorias_controlador.dart';
+import '../presentacion/controladores/categorias_controller.dart';
 import '../presentacion/controladores/estadisticas_controller.dart';
 import '../theme/theme_controller.dart';
 import '../widgets/barra_estadistica.dart';

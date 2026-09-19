@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../datos/categorias_controlador.dart';
+import '../presentacion/controladores/categorias_controller.dart';
 import '../data/datasources/api_client.dart';
 import '../data/modelos/modelo_shortcut.dart';
 import '../data/repositorios/shortcut_repositorio_impl.dart';

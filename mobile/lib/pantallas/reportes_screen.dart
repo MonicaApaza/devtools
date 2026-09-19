@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../datos/categorias_controlador.dart';
+import '../presentacion/controladores/categorias_controller.dart';
 import '../data/modelos/modelo_comando.dart';
 import '../presentacion/controladores/reportes_controller.dart';
 

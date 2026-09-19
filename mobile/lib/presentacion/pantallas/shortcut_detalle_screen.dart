@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/modelos/modelo_shortcut.dart';
-import '../../datos/categorias_controlador.dart';
+import '../controladores/categorias_controller.dart';
 import '../widgets/fila_teclas.dart';
 
 /// Pantalla de detalle a pantalla completa, con Hero desde la card del

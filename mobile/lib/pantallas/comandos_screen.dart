@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../datos/categorias_controlador.dart';
+import '../presentacion/controladores/categorias_controller.dart';
 import '../data/modelos/modelo_comando.dart';
 import '../presentacion/controladores/busqueda_controller.dart';
 import '../presentacion/controladores/comandos_controller.dart';

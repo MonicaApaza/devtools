@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
-import 'datos/categorias_controlador.dart';
+import 'presentacion/controladores/categorias_controller.dart';
 import 'presentacion/controladores/auth_controller.dart';
 import 'presentacion/controladores/busqueda_controller.dart';
 import 'rutas/app_paginas.dart';

@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 
 import '../../data/modelos/modelo_categoria.dart';
 import '../../data/repositorios/categoria_repositorio_impl.dart';
-import '../../datos/categorias_controlador.dart';
+import 'categorias_controller.dart';
 import '../../dominio/repositorios/categoria_repositorio.dart';
 
 /// Estado de CategoriasScreen: las dos listas (shortcut/comando) que se

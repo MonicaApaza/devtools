@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../../data/repositorios/comando_repositorio_impl.dart';
 import '../../data/repositorios/shortcut_repositorio_impl.dart';
-import '../../datos/categorias_controlador.dart';
+import 'categorias_controller.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
 import 'auth_controller.dart';

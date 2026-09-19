@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../data/modelos/modelo_comando.dart';
-import '../../datos/categorias_controlador.dart';
+import '../controladores/categorias_controller.dart';
 import '../controladores/comandos_controller.dart';
 
 /// Pantalla de detalle a pantalla completa, con Hero desde la card del
