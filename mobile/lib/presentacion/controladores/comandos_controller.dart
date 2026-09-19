@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../../data/modelos/modelo_comando.dart';
+import '../../dominio/entidades/modelo_comando.dart';
 import '../../data/repositorios/comando_repositorio_impl.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
 import 'auth_controller.dart';

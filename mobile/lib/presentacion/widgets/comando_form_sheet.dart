@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../presentacion/controladores/categorias_controller.dart';
-import '../data/datasources/api_client.dart';
-import '../data/modelos/modelo_comando.dart';
-import '../data/repositorios/comando_repositorio_impl.dart';
+import '../controladores/categorias_controller.dart';
+import '../../data/datasources/api_client.dart';
+import '../../dominio/entidades/modelo_comando.dart';
+import '../../data/repositorios/comando_repositorio_impl.dart';
 
 /// Formulario de alta/edición de un Comando. Misma estructura `Form` +
 /// `TextFormField` + `GlobalKey<FormState>` que ShortcutFormSheet.

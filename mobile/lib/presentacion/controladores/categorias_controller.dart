@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../data/datos_estaticos/categorias.dart';
+import '../../dominio/entidades/categorias.dart';
 import '../../data/repositorios/categoria_repositorio_impl.dart';
 import '../../dominio/repositorios/categoria_repositorio.dart';
 import 'auth_controller.dart';

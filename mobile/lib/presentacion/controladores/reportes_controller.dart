@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
-import '../../data/modelos/modelo_comando.dart';
-import '../../data/modelos/modelo_shortcut.dart';
+import '../../dominio/entidades/modelo_comando.dart';
+import '../../dominio/entidades/modelo_shortcut.dart';
 import '../../data/repositorios/comando_repositorio_impl.dart';
 import '../../data/repositorios/shortcut_repositorio_impl.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';

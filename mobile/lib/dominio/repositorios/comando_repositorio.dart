@@ -1,4 +1,4 @@
-import '../../data/modelos/modelo_comando.dart';
+import '../entidades/modelo_comando.dart';
 
 /// Contrato de acceso a datos para comandos. Ver ShortcutRepositorio para
 /// el razonamiento de por qué la presentación no habla con la API

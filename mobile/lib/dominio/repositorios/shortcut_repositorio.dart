@@ -1,4 +1,4 @@
-import '../../data/modelos/modelo_shortcut.dart';
+import '../entidades/modelo_shortcut.dart';
 
 /// Contrato de acceso a datos para shortcuts (backend real vía API; ver
 /// CategoriaRepositorio para el razonamiento del diseño). El usuario no es

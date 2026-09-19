@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../data/modelos/modelo_shortcut.dart';
+import '../../dominio/entidades/modelo_shortcut.dart';
 import '../controladores/categorias_controller.dart';
 import '../widgets/fila_teclas.dart';
 

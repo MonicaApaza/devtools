@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../presentacion/controladores/categorias_controller.dart';
-import '../data/modelos/modelo_shortcut.dart';
-import '../presentacion/controladores/busqueda_controller.dart';
-import '../presentacion/controladores/shortcuts_controller.dart';
-import '../presentacion/pantallas/shortcut_detalle_screen.dart';
-import '../presentacion/widgets/fila_teclas.dart';
+import '../controladores/categorias_controller.dart';
+import '../../dominio/entidades/modelo_shortcut.dart';
+import '../controladores/busqueda_controller.dart';
+import '../controladores/shortcuts_controller.dart';
+import 'shortcut_detalle_screen.dart';
+import '../widgets/fila_teclas.dart';
 import '../widgets/shortcut_form_sheet.dart';
 
 class ShortcutsScreen extends StatefulWidget {

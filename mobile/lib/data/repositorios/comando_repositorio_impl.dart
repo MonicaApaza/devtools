@@ -1,6 +1,6 @@
 import '../../dominio/repositorios/comando_repositorio.dart';
 import '../datasources/api_client.dart';
-import '../modelos/modelo_comando.dart';
+import '../../dominio/entidades/modelo_comando.dart';
 
 class ComandoRepositorioImpl implements ComandoRepositorio {
   final ApiClient _api;

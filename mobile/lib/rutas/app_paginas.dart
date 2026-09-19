@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 
-import '../pantallas/ajustes_screen.dart';
-import '../pantallas/categorias_screen.dart';
-import '../pantallas/estadisticas_screen.dart';
-import '../pantallas/reportes_screen.dart';
-import '../pantallas/root_shell.dart';
+import '../presentacion/pantallas/ajustes_screen.dart';
+import '../presentacion/pantallas/categorias_screen.dart';
+import '../presentacion/pantallas/estadisticas_screen.dart';
+import '../presentacion/pantallas/reportes_screen.dart';
+import '../presentacion/pantallas/root_shell.dart';
 import '../presentacion/pantallas/login_screen.dart';
 import '../presentacion/pantallas/register_screen.dart';
 import 'app_rutas.dart';

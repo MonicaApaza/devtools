@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../data/datasources/api_client.dart';
-import '../data/datos_estaticos/categorias.dart';
-import '../data/modelos/modelo_categoria.dart';
-import '../data/repositorios/categoria_repositorio_impl.dart';
-import '../presentacion/controladores/categorias_controller.dart';
-import '../dominio/repositorios/categoria_repositorio.dart';
+import '../../data/datasources/api_client.dart';
+import '../../dominio/entidades/categorias.dart';
+import '../../dominio/entidades/modelo_categoria.dart';
+import '../../data/repositorios/categoria_repositorio_impl.dart';
+import '../controladores/categorias_controller.dart';
+import '../../dominio/repositorios/categoria_repositorio.dart';
 
 /// Formulario de alta/edición de una Categoría (nombre + ícono + tipo). El
 /// tipo puede ser 'shortcut', 'comando' o 'ambos' (visible en las dos

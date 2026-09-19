@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../presentacion/controladores/categorias_controller.dart';
-import '../presentacion/controladores/estadisticas_controller.dart';
-import '../theme/theme_controller.dart';
+import '../controladores/categorias_controller.dart';
+import '../controladores/estadisticas_controller.dart';
+import '../../theme/theme_controller.dart';
 import '../widgets/barra_estadistica.dart';
 
 class EstadisticasScreen extends StatefulWidget {

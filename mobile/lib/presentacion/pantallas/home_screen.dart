@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../presentacion/controladores/categorias_controller.dart';
-import '../presentacion/controladores/auth_controller.dart';
-import '../presentacion/controladores/busqueda_controller.dart';
-import '../presentacion/controladores/home_controller.dart';
-import '../theme/theme_controller.dart';
-import '../utilidades/tiempo.dart';
+import '../controladores/categorias_controller.dart';
+import '../controladores/auth_controller.dart';
+import '../controladores/busqueda_controller.dart';
+import '../controladores/home_controller.dart';
+import '../../theme/theme_controller.dart';
+import '../../utilidades/tiempo.dart';
 import '../widgets/fondo_saludo.dart';
 
 class HomeScreen extends StatefulWidget {

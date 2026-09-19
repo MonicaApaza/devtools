@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../presentacion/controladores/categorias_controller.dart';
-import '../data/modelos/modelo_comando.dart';
-import '../presentacion/controladores/busqueda_controller.dart';
-import '../presentacion/controladores/comandos_controller.dart';
-import '../presentacion/pantallas/comando_detalle_screen.dart';
+import '../controladores/categorias_controller.dart';
+import '../../dominio/entidades/modelo_comando.dart';
+import '../controladores/busqueda_controller.dart';
+import '../controladores/comandos_controller.dart';
+import 'comando_detalle_screen.dart';
 import '../widgets/comando_form_sheet.dart';
 
 class ComandosScreen extends StatefulWidget {

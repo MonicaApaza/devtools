@@ -1,6 +1,6 @@
 import '../../dominio/repositorios/shortcut_repositorio.dart';
 import '../datasources/api_client.dart';
-import '../modelos/modelo_shortcut.dart';
+import '../../dominio/entidades/modelo_shortcut.dart';
 
 class ShortcutRepositorioImpl implements ShortcutRepositorio {
   final ApiClient _api;

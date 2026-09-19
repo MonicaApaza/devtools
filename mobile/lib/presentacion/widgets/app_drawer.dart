@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../presentacion/controladores/auth_controller.dart';
-import '../rutas/app_rutas.dart';
-import '../theme/theme_controller.dart';
+import '../controladores/auth_controller.dart';
+import '../../rutas/app_rutas.dart';
+import '../../theme/theme_controller.dart';
 
 /// Drawer lateral: navegación alternativa a la barra inferior.
 class AppDrawer extends StatelessWidget {

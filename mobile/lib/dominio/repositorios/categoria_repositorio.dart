@@ -1,5 +1,5 @@
-import '../../data/datos_estaticos/categorias.dart';
-import '../../data/modelos/modelo_categoria.dart';
+import '../entidades/categorias.dart';
+import '../entidades/modelo_categoria.dart';
 
 /// Contrato de acceso a datos para categorías (compartidas entre shortcuts
 /// y comandos, incluyendo el tipo especial 'ambos'). El usuario ya no es un

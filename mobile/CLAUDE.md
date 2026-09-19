@@ -22,16 +22,18 @@ Lints come from `package:flutter_lints/flutter.yaml` (see `analysis_options.yaml
 
 ## Architecture
 
-Layers follow a Clean-Architecture-ish split: `lib/dominio` (contracts/entities) → `lib/data` (implementations talking to the API) → `lib/presentacion` + `lib/pantallas` (GetX controllers and screens).
+Strict three-layer Clean Architecture split, each with a single top-level folder: `lib/dominio` (entities + abstract contracts, no outward dependencies) → `lib/data` (implementations talking to the API, depends on `dominio`) → `lib/presentacion` (GetX controllers, screens and widgets, depends on `dominio` — and on `data`'s concrete `*Impl` classes only as the default constructor argument, see below). There is no `lib/pantallas` or `lib/widgets` at the top level — all UI lives under `lib/presentacion/`.
+
+### Domain layer
+
+- `lib/dominio/repositorios/*.dart` — abstract contracts (`ShortcutRepositorio`, `ComandoRepositorio`, `CategoriaRepositorio`, `AuthRepositorio`). No `existeTitulo`-style client-side pre-checks: the backend rejects duplicates with 409 (see `ApiConflictException`), the client just surfaces that.
+- `lib/dominio/entidades/` — the entities returned/consumed by those contracts: `Sesion`, `ModeloShortcut`, `ModeloComando`, `ModeloCategoria` (each with `toApiBody()`/`fromApi()` for (de)serializing against the backend's JSON shape, fields prefixed by entity e.g. `tituloShortcut`, `creadoEnComando`, `usosComando`), and `categorias.dart` (the lightweight `Categoria` read-model used for icon/name lookups, plus the fixed client-side icon catalog `iconosCategoria` keyed by string so Flutter's icon tree-shaker keeps working in release builds). These used to live under `lib/data/modelos/` and `lib/data/datos_estaticos/` — keep new shared entities in `dominio/entidades/` instead, so `dominio` never imports from `data` (the dependency rule only allows the reverse).
 
 ### Data layer
 
-- `lib/dominio/repositorios/*.dart` — abstract contracts (`ShortcutRepositorio`, `ComandoRepositorio`, `CategoriaRepositorio`, `AuthRepositorio`). No `existeTitulo`-style client-side pre-checks: the backend rejects duplicates with 409 (see `ApiConflictException`), the client just surfaces that.
-- `lib/data/repositorios/*_repositorio_impl.dart` — implementations of the above, each backed by `ApiClient` (never talk to `http` directly from a screen or controller).
+- `lib/data/repositorios/*_repositorio_impl.dart` — implementations of the `dominio` contracts, each backed by `ApiClient` (never talk to `http` directly from a screen or controller).
 - `lib/data/datasources/api_client.dart` — thin `http` wrapper: resolves the base URL (`API_BASE_URL` dart-define, else `10.0.2.2:5262` on Android emulator / `localhost:5262` elsewhere), attaches the JWT bearer token, and maps HTTP failures to typed exceptions (`ApiUnauthorizedException`, `ApiNotFoundException`, `ApiConflictException`, ...).
 - `lib/data/datasources/auth_local_datasource.dart` — the *only* local persistence in the app: caches the JWT session (`userId`/`usuario`/`token`/`expiresAt`) as one `get_storage` entry, so login survives app restarts.
-- `lib/data/modelos/` — `ModeloShortcut`/`ModeloComando` with `toApiBody()`/`fromApi()` for (de)serializing against the backend's JSON shape (fields prefixed by entity, e.g. `tituloShortcut`, `creadoEnComando`, `usosComando`).
-- `lib/data/datos_estaticos/categorias.dart` — just the `Categoria` model and the fixed, client-side catalog of selectable icons (`iconosCategoria`, keyed by string so Flutter's icon tree-shaker keeps working in release builds). Actual category *data* (names, which icon each one uses) comes from the backend via `CategoriaRepositorio` — see `lib/datos/categorias_controlador.dart`.
 
 ### State management (GetX)
 
@@ -48,16 +50,16 @@ The app uses `package:get` throughout — no `Provider`/`Bloc`/`ChangeNotifier`-
 ### Navigation
 
 Two tiers:
-- `lib/pantallas/root_shell.dart` (`RootShell`) is the initial route (`AppRutas.inicio`) and the primary shell: an `IndexedStack` of the four main tabs (Inicio/Shortcuts/Comandos/Más) with a notched `BottomAppBar` + centered `FloatingActionButton`, plus an `AppDrawer`. It holds per-tab UI state (grid vs. list toggles) and uses `GlobalKey`s into the tab screens' `State` (`HomeScreenState`, `ShortcutsScreenState`, `ComandosScreenState`) so the shared FAB can call into whichever tab is active (e.g. `mostrarFormularioNuevo()`).
+- `lib/presentacion/pantallas/root_shell.dart` (`RootShell`) is the initial route (`AppRutas.inicio`) and the primary shell: an `IndexedStack` of the four main tabs (Inicio/Shortcuts/Comandos/Más) with a notched `BottomAppBar` + centered `FloatingActionButton`, plus an `AppDrawer`. It holds per-tab UI state (grid vs. list toggles) and uses `GlobalKey`s into the tab screens' `State` (`HomeScreenState`, `ShortcutsScreenState`, `ComandosScreenState`) so the shared FAB can call into whichever tab is active (e.g. `mostrarFormularioNuevo()`).
 - Everything else (`Login`, `Registro`, `Ajustes`, `Estadísticas`, `Reportes`, `Categorías`) is a named `GetPage` route — see `lib/rutas/app_rutas.dart` (route name constants) and `lib/rutas/app_paginas.dart` (the `GetPage` table passed to `GetMaterialApp.getPages`). `MasScreen` and `AppDrawer` both link to these via `Navigator.pushNamed`.
 - When adding a new secondary screen reachable from "Más" or the drawer, follow the `Estadísticas`/`Reportes` pattern: add a route constant, a `GetPage` entry, and a `ListTile` in both `mas_screen.dart` and `app_drawer.dart`.
 
 ### Screens and reports
 
 - Each main entity screen (`ShortcutsScreen`, `ComandosScreen`) supports list/grid view (controlled by the parent `RootShell`), search, and category filtering, and exposes a public `mostrarFormularioNuevo()` (and similarly named edit entry points) on its `State` class for `RootShell`'s FAB to call.
-- `lib/widgets/shortcut_form_sheet.dart` / `comando_form_sheet.dart` are bottom-sheet forms for create/edit, shown via `showModalBottomSheet`, validated server-side (409 on conflict) rather than pre-checked client-side.
-- `lib/pantallas/estadisticas_screen.dart` (totals, favorites, per-category breakdown via `BarraEstadistica`) and `lib/pantallas/reportes_screen.dart` (top-5 most-used commands, recently-added shortcuts/commands, favorites list) both load their own snapshot of shortcuts/commands through their screen-scoped controller rather than sharing one with the tab screens — reload with pull-to-refresh (`RefreshIndicator`) or by reacting to `CategoriasController.instance.version`.
+- `lib/presentacion/widgets/shortcut_form_sheet.dart` / `comando_form_sheet.dart` are bottom-sheet forms for create/edit, shown via `showModalBottomSheet`, validated server-side (409 on conflict) rather than pre-checked client-side. Note they instantiate their own `*RepositorioImpl()` directly (same "no DI container" pattern as the controllers, see below) rather than going through a controller — after a successful save they call the relevant screen's controller `cargar()`, which is what triggers `avisarCambioDeDatos()`.
+- `lib/presentacion/pantallas/estadisticas_screen.dart` (totals, favorites, per-category breakdown via `BarraEstadistica`) and `lib/presentacion/pantallas/reportes_screen.dart` (top-5 most-used commands, recently-added shortcuts/commands, favorites list) both load their own snapshot of shortcuts/commands through their screen-scoped controller rather than sharing one with the tab screens — reload with pull-to-refresh (`RefreshIndicator`), by reacting to `CategoriasController.instance.version`, or via `avisarCambioDeDatos()` (`lib/presentacion/controladores/notificador_cambios.dart`) after a mutation elsewhere.
 
 ## Platform targets
 
-The project scaffolding includes Android, iOS, macOS, Linux, Windows, and web (`flutter create` defaults), but active development has focused on mobile (Android/iOS) layouts. Check screen layouts in `lib/pantallas/` for fixed mobile assumptions before assuming desktop/web layouts work well.
+The project scaffolding includes Android, iOS, macOS, Linux, Windows, and web (`flutter create` defaults), but active development has focused on mobile (Android/iOS) layouts. Check screen layouts in `lib/presentacion/pantallas/` for fixed mobile assumptions before assuming desktop/web layouts work well.

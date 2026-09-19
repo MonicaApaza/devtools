@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../data/datasources/api_client.dart';
-import '../data/datos_estaticos/categorias.dart';
-import '../data/modelos/modelo_categoria.dart';
-import '../presentacion/controladores/categorias_screen_controller.dart';
+import '../../data/datasources/api_client.dart';
+import '../../dominio/entidades/categorias.dart';
+import '../../dominio/entidades/modelo_categoria.dart';
+import '../controladores/categorias_screen_controller.dart';
 import '../widgets/categoria_form_sheet.dart';
 
 class CategoriasScreen extends StatefulWidget {

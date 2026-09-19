@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../theme/theme_controller.dart';
+import '../../theme/theme_controller.dart';
 
 /// Pantalla de detalle a la que se llega mediante una ruta nombrada
 /// (Navigator.pushNamed(context, '/ajustes')), tal como se explicó en la

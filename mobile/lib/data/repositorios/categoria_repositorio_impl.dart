@@ -1,7 +1,7 @@
 import '../../dominio/repositorios/categoria_repositorio.dart';
 import '../datasources/api_client.dart';
-import '../datos_estaticos/categorias.dart';
-import '../modelos/modelo_categoria.dart';
+import '../../dominio/entidades/categorias.dart';
+import '../../dominio/entidades/modelo_categoria.dart';
 
 class CategoriaRepositorioImpl implements CategoriaRepositorio {
   final ApiClient _api;

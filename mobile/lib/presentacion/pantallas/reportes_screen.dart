@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../presentacion/controladores/categorias_controller.dart';
-import '../data/modelos/modelo_comando.dart';
-import '../presentacion/controladores/reportes_controller.dart';
+import '../controladores/categorias_controller.dart';
+import '../../dominio/entidades/modelo_comando.dart';
+import '../controladores/reportes_controller.dart';
 
 class ReportesScreen extends StatefulWidget {
   const ReportesScreen({super.key});

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../presentacion/controladores/categorias_controller.dart';
-import '../data/datasources/api_client.dart';
-import '../data/modelos/modelo_shortcut.dart';
-import '../data/repositorios/shortcut_repositorio_impl.dart';
+import '../controladores/categorias_controller.dart';
+import '../../data/datasources/api_client.dart';
+import '../../dominio/entidades/modelo_shortcut.dart';
+import '../../data/repositorios/shortcut_repositorio_impl.dart';
 
 /// Formulario de alta/edición de un Shortcut.
 /// Usa `Form` + `TextFormField` + `GlobalKey<FormState>` (validación estándar
