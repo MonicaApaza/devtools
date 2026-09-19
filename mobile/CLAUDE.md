@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-"QuickDev" (package name `devtools_app`) — a Flutter app that stores keyboard shortcuts and CLI commands for developer tools (VS Code, Android Studio, IntelliJ, Git, Terminal, Browser, Flutter), organized by category, with favorites and search. Local persistence only, via SQLite.
+"QuickDev" (package name `devtools_app`) — a Flutter app that stores keyboard shortcuts and CLI commands for developer tools (VS Code, Android Studio, IntelliJ, Git, Terminal, Browser, Flutter), organized by category, with favorites, usage counts, search, statistics and reports. Persistence is **remote**: the app is a GetX client for the .NET backend in `../backend` (`DevTools.Api`, backed by PostgreSQL) — there is no local database (no sqflite/Drift/Hive). Auth is JWT-based; only the session token is cached locally (via `get_storage`).
 
-**All code, identifiers, and UI strings are in Spanish.** Keep new code consistent with this (e.g. `ModeloComando`, `insertarShortcut`, screen/widget names like `ComandosScreen`, `FormularioNuevo`).
+**All code, identifiers, and UI strings are in Spanish.** Keep new code consistent with this (e.g. `ModeloComando`, `ShortcutRepositorio`, screen/widget names like `ComandosScreen`, `ReportesScreen`).
 
 ## Commands
 
 - Install dependencies: `flutter pub get`
-- Run the app: `flutter run`
+- Run the app: `flutter run` (point at a specific backend with `--dart-define=API_BASE_URL=...`; see `lib/data/datasources/api_client.dart`)
 - Static analysis / lint: `flutter analyze`
 - Run all tests: `flutter test` (there is no `test/` directory yet — add one under `test/` following standard Flutter `flutter_test` conventions when writing tests)
 - Run a single test file: `flutter test test/path_to_test.dart`
@@ -22,31 +22,41 @@ Lints come from `package:flutter_lints/flutter.yaml` (see `analysis_options.yaml
 
 ## Architecture
 
+Layers follow a Clean-Architecture-ish split: `lib/dominio` (contracts/entities) → `lib/data` (implementations talking to the API) → `lib/presentacion` + `lib/pantallas` (GetX controllers and screens).
+
 ### Data layer
 
-- `lib/helpers/db_helper.dart` — `DatabaseHelper` is a singleton wrapping `sqflite`. It owns the single `Database` instance (`quickdev.db`), creates the `shortcut` and `comando` tables on first run, and seeds demo data via `_sembrarDatos`. All persistence (CRUD for shortcuts and commands, plus `existeTitulo*` uniqueness checks) goes through this class — there is no repository/DAO split per entity.
-- `lib/modelos/` — plain model classes (`ModeloShortcut`, `ModeloComando`) with `toMap()`/`fromMap()` for SQLite (de)serialization. Fields are prefixed by entity (e.g. `tituloShortcut`, `tituloComando`) to match the DB column names directly — there is no separate mapping layer.
-- `lib/datos/categorias.dart` — static category definitions (id, display name, icon) for shortcuts and commands, plus `buscarCategoriaShortcut`/`buscarCategoriaComando` lookup helpers. Add new categories here, not inline in screens.
-- `lib/datos/cambios_datos.dart` — `CambiosDatos` is a `ChangeNotifier` singleton used purely as a cross-screen event bus: any screen that mutates shortcuts/comandos calls `.avisar()`, and `HomeScreen` (and others) listen to refresh derived data (e.g. stats) without the screens knowing about each other directly.
+- `lib/dominio/repositorios/*.dart` — abstract contracts (`ShortcutRepositorio`, `ComandoRepositorio`, `CategoriaRepositorio`, `AuthRepositorio`). No `existeTitulo`-style client-side pre-checks: the backend rejects duplicates with 409 (see `ApiConflictException`), the client just surfaces that.
+- `lib/data/repositorios/*_repositorio_impl.dart` — implementations of the above, each backed by `ApiClient` (never talk to `http` directly from a screen or controller).
+- `lib/data/datasources/api_client.dart` — thin `http` wrapper: resolves the base URL (`API_BASE_URL` dart-define, else `10.0.2.2:5262` on Android emulator / `localhost:5262` elsewhere), attaches the JWT bearer token, and maps HTTP failures to typed exceptions (`ApiUnauthorizedException`, `ApiNotFoundException`, `ApiConflictException`, ...).
+- `lib/data/datasources/auth_local_datasource.dart` — the *only* local persistence in the app: caches the JWT session (`userId`/`usuario`/`token`/`expiresAt`) as one `get_storage` entry, so login survives app restarts.
+- `lib/data/modelos/` — `ModeloShortcut`/`ModeloComando` with `toApiBody()`/`fromApi()` for (de)serializing against the backend's JSON shape (fields prefixed by entity, e.g. `tituloShortcut`, `creadoEnComando`, `usosComando`).
+- `lib/data/datos_estaticos/categorias.dart` — just the `Categoria` model and the fixed, client-side catalog of selectable icons (`iconosCategoria`, keyed by string so Flutter's icon tree-shaker keeps working in release builds). Actual category *data* (names, which icon each one uses) comes from the backend via `CategoriaRepositorio` — see `lib/datos/categorias_controlador.dart`.
 
-### App-wide singletons (ChangeNotifier pattern)
+### State management (GetX)
 
-Both `ThemeController` (`lib/theme/theme_controller.dart`) and `CambiosDatos` follow the same pattern: private constructor + static `instance`, extends `ChangeNotifier`, and widgets rebuild via `AnimatedBuilder` (see `MainApp` in `lib/main.dart`) or `listenable`/manual `addListener`. When adding new global, cross-screen state, follow this same singleton-ChangeNotifier shape rather than introducing a new state management dependency.
+The app uses `package:get` throughout — no `Provider`/`Bloc`/`ChangeNotifier`-as-state-management (the one exception is `ThemeController`, see below).
 
-### Navigation / shell
-
-- `lib/main.dart` defines named routes (`/`, `/ajustes`, `/estadisticas`) but the primary navigation is tab-based, not route-based.
-- `lib/pantallas/root_shell.dart` (`RootShell`) is the real app shell: an `IndexedStack` of the four main tabs (Inicio/Home, Shortcuts, Comandos, Más) with a notched `BottomAppBar` + centered `FloatingActionButton`, plus an `AppDrawer`. It holds per-tab UI state (e.g. grid vs. list view toggles) and uses `GlobalKey`s into the tab screens' `State` (`HomeScreenState`, `ShortcutsScreenState`, `ComandosScreenState`) so the shared FAB can call into whichever tab is active (e.g. `mostrarFormularioNuevo()`). When adding a new tab-level action triggered from the shell (FAB, app bar action), wire it the same way: expose a public method on the screen's `State` and call it via its `GlobalKey` from `RootShell`.
-- `lib/pantallas/ajustes_screen.dart` and `estadisticas_screen.dart` are reached via named routes instead, since they're not part of the bottom-tab set.
-
-### Screens and forms
-
-- Each main entity screen (`ShortcutsScreen`, `ComandosScreen`) supports list/grid view (controlled by the parent `RootShell`), search, and category filtering, and exposes a public `mostrarFormularioNuevo()` (and similarly named edit entry points) on its `State` class for `RootShell`'s FAB to call.
-- `lib/widgets/shortcut_form_sheet.dart` / `comando_form_sheet.dart` are bottom-sheet forms for create/edit, shown via `showModalBottomSheet`. They validate against `existeTitulo*` in `DatabaseHelper` and call `CambiosDatos.instance.avisar()` after a successful mutation.
+- **App-wide singletons**, registered once with `Get.put(..., permanent: true)` in `main()`: `AuthController` (session, login/logout), `CategoriasController` (in-memory cache of shortcut/command categories, reloads on login/logout via `ever(AuthController.instance.sesion, ...)`), `BusquedaController` (search text shared across Inicio/Shortcuts/Comandos tabs).
+- **Screen-scoped controllers**, `Get.put()` in `initState()` and `Get.delete<T>()` in `dispose()`: `EstadisticasController`, `ReportesController`, and the per-tab controllers under `lib/presentacion/controladores/`. When a screen needs to react to category changes it listens with `ever(CategoriasController.instance.version, ...)` rather than depending on `CategoriasController` being a screen-scoped controller itself.
+- `main()` awaits `AuthController.cargarSesionInicial()` **before** `runApp()` (not left to `onInit()`, which isn't awaited) so the app can pick the initial route (`/` vs `/login`) based on a valid saved JWT — mirroring the web app's guard.
 
 ### Theming
 
-- `lib/theme/theme_controller.dart` builds Material 3 `ThemeData` from a single seed color (`colorSemilla`) via `ColorScheme.fromSeed`, for both light and dark. Prefer deriving new visual styles from the existing `ColorScheme` (e.g. `Theme.of(context).colorScheme`) rather than hardcoding colors, to keep light/dark parity.
+- `lib/theme/theme_controller.dart` — the one place still using the older private-constructor + static `instance` + `ChangeNotifier` singleton pattern (predates the GetX migration). Builds Material 3 `ThemeData` from a single seed color (`colorSemilla`) via `ColorScheme.fromSeed`, for both light and dark. `MainApp` (in `main.dart`) rebuilds via `AnimatedBuilder(animation: ThemeController.instance, ...)`. Prefer deriving new visual styles from `Theme.of(context).colorScheme` rather than hardcoding colors, to keep light/dark parity.
+
+### Navigation
+
+Two tiers:
+- `lib/pantallas/root_shell.dart` (`RootShell`) is the initial route (`AppRutas.inicio`) and the primary shell: an `IndexedStack` of the four main tabs (Inicio/Shortcuts/Comandos/Más) with a notched `BottomAppBar` + centered `FloatingActionButton`, plus an `AppDrawer`. It holds per-tab UI state (grid vs. list toggles) and uses `GlobalKey`s into the tab screens' `State` (`HomeScreenState`, `ShortcutsScreenState`, `ComandosScreenState`) so the shared FAB can call into whichever tab is active (e.g. `mostrarFormularioNuevo()`).
+- Everything else (`Login`, `Registro`, `Ajustes`, `Estadísticas`, `Reportes`, `Categorías`) is a named `GetPage` route — see `lib/rutas/app_rutas.dart` (route name constants) and `lib/rutas/app_paginas.dart` (the `GetPage` table passed to `GetMaterialApp.getPages`). `MasScreen` and `AppDrawer` both link to these via `Navigator.pushNamed`.
+- When adding a new secondary screen reachable from "Más" or the drawer, follow the `Estadísticas`/`Reportes` pattern: add a route constant, a `GetPage` entry, and a `ListTile` in both `mas_screen.dart` and `app_drawer.dart`.
+
+### Screens and reports
+
+- Each main entity screen (`ShortcutsScreen`, `ComandosScreen`) supports list/grid view (controlled by the parent `RootShell`), search, and category filtering, and exposes a public `mostrarFormularioNuevo()` (and similarly named edit entry points) on its `State` class for `RootShell`'s FAB to call.
+- `lib/widgets/shortcut_form_sheet.dart` / `comando_form_sheet.dart` are bottom-sheet forms for create/edit, shown via `showModalBottomSheet`, validated server-side (409 on conflict) rather than pre-checked client-side.
+- `lib/pantallas/estadisticas_screen.dart` (totals, favorites, per-category breakdown via `BarraEstadistica`) and `lib/pantallas/reportes_screen.dart` (top-5 most-used commands, recently-added shortcuts/commands, favorites list) both load their own snapshot of shortcuts/commands through their screen-scoped controller rather than sharing one with the tab screens — reload with pull-to-refresh (`RefreshIndicator`) or by reacting to `CategoriasController.instance.version`.
 
 ## Platform targets
 
