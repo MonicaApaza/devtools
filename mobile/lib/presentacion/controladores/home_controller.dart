@@ -6,6 +6,7 @@ import '../../data/repositorios/shortcut_repositorio_impl.dart';
 import '../../datos/categorias_controlador.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
+import 'auth_controller.dart';
 import 'busqueda_controller.dart';
 
 class ItemReciente {
@@ -56,6 +57,10 @@ class HomeController extends GetxController {
   }
 
   Future<void> cargar() async {
+    // Evita disparar peticiones autenticadas cuando este cargar() se activa
+    // por el bump de versión que CategoriasController emite al cerrar
+    // sesión: para ese momento ya no hay token y el backend respondería 401.
+    if (!AuthController.instance.estaAutenticado) return;
     // Se lanzan ambas peticiones antes de esperar cualquiera, para que
     // corran en paralelo en vez de una tras otra.
     final futureShortcuts = _shortcutRepositorio.listar();

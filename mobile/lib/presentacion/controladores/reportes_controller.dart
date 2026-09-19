@@ -6,6 +6,7 @@ import '../../data/repositorios/comando_repositorio_impl.dart';
 import '../../data/repositorios/shortcut_repositorio_impl.dart';
 import '../../dominio/repositorios/comando_repositorio.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
+import 'auth_controller.dart';
 
 /// Fila unificada de shortcut o comando, para las listas de "recientes" y
 /// "favoritos" que mezclan ambos tipos ordenados por fecha.
@@ -48,6 +49,10 @@ class ReportesController extends GetxController {
   }
 
   Future<void> cargar() async {
+    // Evita disparar peticiones autenticadas cuando este cargar() se activa
+    // por el bump de versión que CategoriasController emite al cerrar
+    // sesión: para ese momento ya no hay token y el backend respondería 401.
+    if (!AuthController.instance.estaAutenticado) return;
     // Ambas peticiones se lanzan antes de esperar cualquiera, para que
     // corran en paralelo en vez de una tras otra.
     final futureShortcuts = _shortcutRepositorio.listar();

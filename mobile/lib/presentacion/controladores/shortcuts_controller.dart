@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../data/modelos/modelo_shortcut.dart';
 import '../../data/repositorios/shortcut_repositorio_impl.dart';
 import '../../dominio/repositorios/shortcut_repositorio.dart';
+import 'auth_controller.dart';
 import 'busqueda_controller.dart';
 import 'notificador_cambios.dart';
 
@@ -26,6 +27,10 @@ class ShortcutsController extends GetxController {
   }
 
   Future<void> cargar() async {
+    // Evita disparar peticiones autenticadas cuando este cargar() se activa
+    // por el bump de versión que CategoriasController emite al cerrar
+    // sesión: para ese momento ya no hay token y el backend respondería 401.
+    if (!AuthController.instance.estaAutenticado) return;
     cargando.value = true;
     shortcuts.assignAll(await _repositorio.listar());
     cargando.value = false;
