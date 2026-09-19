@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using DevTools.Api.Extensions;
 using DevTools.Application.Extensions;
-using DevTools.Application.Interfaces;
 using DevTools.Infrastructure.Extensions;
 using DevTools.Infrastructure.Persistence;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -27,8 +26,7 @@ using (var scope = app.Services.CreateScope())
 
     if (app.Environment.IsDevelopment())
     {
-        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
-        await DbSeeder.SeedAsync(db, passwordHasher);
+        await DbSeeder.SeedAsync(db);
     }
 }
 
