@@ -8,5 +8,6 @@ class AppRutas {
   static const registro = '/registro';
   static const ajustes = '/ajustes';
   static const estadisticas = '/estadisticas';
+  static const reportes = '/reportes';
   static const categorias = '/categorias';
 }

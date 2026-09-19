@@ -116,6 +116,18 @@ class AppDrawer extends StatelessWidget {
             ),
             ListTile(
               leading: const Hero(
+                tag: 'icon-reportes',
+                child: Icon(Icons.summarize_outlined),
+              ),
+              title: const Text('Reportes'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/reportes');
+              },
+            ),
+            ListTile(
+              leading: const Hero(
                 tag: 'icon-categorias',
                 child: Icon(Icons.category_outlined),
               ),

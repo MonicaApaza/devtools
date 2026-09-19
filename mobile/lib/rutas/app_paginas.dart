@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../pantallas/ajustes_screen.dart';
 import '../pantallas/categorias_screen.dart';
 import '../pantallas/estadisticas_screen.dart';
+import '../pantallas/reportes_screen.dart';
 import '../pantallas/root_shell.dart';
 import '../presentacion/pantallas/login_screen.dart';
 import '../presentacion/pantallas/register_screen.dart';
@@ -24,6 +25,7 @@ class AppPaginas {
       name: AppRutas.estadisticas,
       page: () => const EstadisticasScreen(),
     ),
+    GetPage(name: AppRutas.reportes, page: () => const ReportesScreen()),
     GetPage(name: AppRutas.categorias, page: () => const CategoriasScreen()),
   ];
 }

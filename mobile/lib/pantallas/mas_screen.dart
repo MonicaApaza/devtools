@@ -112,6 +112,13 @@ class MasScreen extends StatelessWidget {
               ),
               const Divider(height: 1),
               ListTile(
+                leading: const Icon(Icons.summarize_outlined),
+                title: const Text('Reportes'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.pushNamed(context, '/reportes'),
+              ),
+              const Divider(height: 1),
+              ListTile(
                 leading: const Icon(Icons.category_outlined),
                 title: const Text('Categorías'),
                 trailing: const Icon(Icons.chevron_right),
