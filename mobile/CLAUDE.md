@@ -8,6 +8,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **All code, identifiers, and UI strings are in Spanish.** Keep new code consistent with this (e.g. `ModeloComando`, `ShortcutRepositorio`, screen/widget names like `ComandosScreen`, `ReportesScreen`).
 
+## Deployment
+
+The monorepo (`../backend`, `../web`, this Flutter app) has three deployed pieces sharing one backend:
+
+- **Backend (`DevTools.Api`)** — deployed on **Render** from `backend/Dockerfile`, publicly reachable at `https://devtools-api-4nu2.onrender.com` (all endpoints under `/api/...`, health check at `/health`). Render's own management dashboard is private to the account and is never linked from docs, slides, or code — only the public API base URL is. `.github/workflows/keep-alive.yml` pings `/health` every 10 minutes so Render's free tier doesn't spin the container down.
+- **Database** — PostgreSQL. In production the connection string points at a **Supabase**-managed Postgres instance (configured as an env var on Render, not committed anywhere in this repo). Local development instead uses the `postgres:16-alpine` container from `../docker-compose.yml` (`docker compose up` from the repo root), matching `appsettings.json`'s default `DefaultConnection`.
+- **Web (`../web`, Angular)** — deployed on **Vercel**, publicly reachable at `https://devtools-map.vercel.app`. Its production API base URL is `web/src/app/core/config/api-config.prod.ts` (points at the same Render URL above); `api-config.ts` is the local-dev default (`http://localhost:5262/api`).
+- **This Flutter app** — not deployed to a store; run locally with `flutter run`, pointed at either backend via `--dart-define=API_BASE_URL=...` (see `lib/data/datasources/api_client.dart`).
+
+### API surface
+
+All four backend controllers live under `/api`, JWT-protected except register/login:
+
+| Controller | Routes |
+|---|---|
+| `AuthController` (`/api/auth`) | `POST /register`, `POST /login` |
+| `CategoriesController` (`/api/categories`) | `GET`, `POST`, `PUT /{id}`, `DELETE /{id}` |
+| `CommandsController` (`/api/commands`) | `GET`, `POST`, `PUT /{id}`, `PATCH /{id}/favorite`, `POST /{id}/use`, `DELETE /{id}` |
+| `ShortcutsController` (`/api/shortcuts`) | `GET`, `POST`, `PUT /{id}`, `PATCH /{id}/favorite`, `DELETE /{id}` |
+
 ## Commands
 
 - Install dependencies: `flutter pub get`
