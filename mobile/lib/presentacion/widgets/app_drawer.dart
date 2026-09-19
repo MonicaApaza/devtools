@@ -147,9 +147,8 @@ class AppDrawer extends StatelessWidget {
                 Navigator.pushNamed(context, '/ajustes');
               },
             ),
-            AnimatedBuilder(
-              animation: ThemeController.instance,
-              builder: (context, _) {
+            Obx(
+              () {
                 final controlador = ThemeController.instance;
                 return SwitchListTile(
                   secondary: Icon(

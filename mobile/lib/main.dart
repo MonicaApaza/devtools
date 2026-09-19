@@ -12,6 +12,7 @@ import 'theme/theme_controller.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+  Get.put(ThemeController(), permanent: true);
   Get.put(BusquedaController(), permanent: true);
   // Permanente (no ligado a la ruta /login) para que la sesión sobreviva a
   // la navegación: Get.offAllNamed al iniciar sesión elimina la ruta de
@@ -45,22 +46,19 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: ThemeController.instance,
-      builder: (context, _) {
-        return GetMaterialApp(
-          title: 'QuickDev',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeController.instance.temaClaro,
-          darkTheme: ThemeController.instance.temaOscuro,
-          themeMode: ThemeController.instance.modo,
-          // Rutas nombradas vía GetPage (Sesión 7: Vistas y Componentes UI).
-          // La ruta inicial depende de si ya hay una sesión JWT válida
-          // guardada (ver main()), igual que el guard de la app web.
-          initialRoute: rutaInicial,
-          getPages: AppPaginas.paginas,
-        );
-      },
+    return Obx(
+      () => GetMaterialApp(
+        title: 'QuickDev',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeController.instance.temaClaro,
+        darkTheme: ThemeController.instance.temaOscuro,
+        themeMode: ThemeController.instance.modo,
+        // Rutas nombradas vía GetPage (Sesión 7: Vistas y Componentes UI).
+        // La ruta inicial depende de si ya hay una sesión JWT válida
+        // guardada (ver main()), igual que el guard de la app web.
+        initialRoute: rutaInicial,
+        getPages: AppPaginas.paginas,
+      ),
     );
   }
 }

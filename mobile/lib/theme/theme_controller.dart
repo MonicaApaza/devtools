@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 /// Color semilla del tema (equivalente al "accentHue" del prototipo de diseño).
 const Color colorSemilla = Color(0xFF0F9D77);
 
-/// Controla el ThemeMode de toda la app (claro/oscuro) mediante ChangeNotifier,
-/// el equivalente en tiempo de ejecución al patrón Theme + InheritedWidget:
-/// cualquier widget que escuche este controlador se reconstruye cuando cambia.
-class ThemeController extends ChangeNotifier {
-  ThemeController._internal();
-  static final ThemeController instance = ThemeController._internal();
-  factory ThemeController() => instance;
+/// Controla el ThemeMode de toda la app (claro/oscuro) mediante GetX, el
+/// equivalente en tiempo de ejecución al patrón Theme + InheritedWidget:
+/// cualquier widget que lo lea dentro de un Obx se reconstruye cuando cambia.
+/// Registrado con Get.put(permanent: true) en main() (igual que
+/// AuthController/CategoriasController), y accedido en cualquier parte con
+/// ThemeController.instance.
+class ThemeController extends GetxController {
+  static ThemeController get instance => Get.find<ThemeController>();
 
-  ThemeMode _modo = ThemeMode.light;
-  ThemeMode get modo => _modo;
-  bool get esOscuro => _modo == ThemeMode.dark;
+  final Rx<ThemeMode> _modo = ThemeMode.light.obs;
+  ThemeMode get modo => _modo.value;
+  bool get esOscuro => _modo.value == ThemeMode.dark;
 
   void alternar() {
-    _modo = esOscuro ? ThemeMode.light : ThemeMode.dark;
-    notifyListeners();
+    _modo.value = esOscuro ? ThemeMode.light : ThemeMode.dark;
   }
 
   ThemeData get temaClaro => _construirTema(Brightness.light);

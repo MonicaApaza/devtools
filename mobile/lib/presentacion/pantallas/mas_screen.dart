@@ -36,9 +36,8 @@ class MasScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Card(
-          child: AnimatedBuilder(
-            animation: ThemeController.instance,
-            builder: (context, _) {
+          child: Obx(
+            () {
               final controlador = ThemeController.instance;
               return SwitchListTile(
                 secondary: Icon(

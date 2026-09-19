@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
 import '../../theme/theme_controller.dart';
 
@@ -62,9 +63,8 @@ class AjustesScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Card(
-            child: AnimatedBuilder(
-              animation: ThemeController.instance,
-              builder: (context, _) {
+            child: Obx(
+              () {
                 final controlador = ThemeController.instance;
                 return SwitchListTile(
                   secondary: Icon(

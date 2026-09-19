@@ -57,15 +57,15 @@ Strict three-layer Clean Architecture split, each with a single top-level folder
 
 ### State management (GetX)
 
-The app uses `package:get` throughout — no `Provider`/`Bloc`/`ChangeNotifier`-as-state-management (the one exception is `ThemeController`, see below).
+The app uses `package:get` throughout — no `Provider`/`Bloc`/`ChangeNotifier`-as-state-management, including `ThemeController` (see Theming below), which used to be the one exception.
 
-- **App-wide singletons**, registered once with `Get.put(..., permanent: true)` in `main()`: `AuthController` (session, login/logout), `CategoriasController` (in-memory cache of shortcut/command categories, reloads on login/logout via `ever(AuthController.instance.sesion, ...)`), `BusquedaController` (search text shared across Inicio/Shortcuts/Comandos tabs).
+- **App-wide singletons**, registered once with `Get.put(..., permanent: true)` in `main()`: `ThemeController` (light/dark `ThemeMode`), `AuthController` (session, login/logout), `CategoriasController` (in-memory cache of shortcut/command categories, reloads on login/logout via `ever(AuthController.instance.sesion, ...)`), `BusquedaController` (search text shared across Inicio/Shortcuts/Comandos tabs).
 - **Screen-scoped controllers**, `Get.put()` in `initState()` and `Get.delete<T>()` in `dispose()`: `EstadisticasController`, `ReportesController`, and the per-tab controllers under `lib/presentacion/controladores/`. When a screen needs to react to category changes it listens with `ever(CategoriasController.instance.version, ...)` rather than depending on `CategoriasController` being a screen-scoped controller itself.
 - `main()` awaits `AuthController.cargarSesionInicial()` **before** `runApp()` (not left to `onInit()`, which isn't awaited) so the app can pick the initial route (`/` vs `/login`) based on a valid saved JWT — mirroring the web app's guard.
 
 ### Theming
 
-- `lib/theme/theme_controller.dart` — the one place still using the older private-constructor + static `instance` + `ChangeNotifier` singleton pattern (predates the GetX migration). Builds Material 3 `ThemeData` from a single seed color (`colorSemilla`) via `ColorScheme.fromSeed`, for both light and dark. `MainApp` (in `main.dart`) rebuilds via `AnimatedBuilder(animation: ThemeController.instance, ...)`. Prefer deriving new visual styles from `Theme.of(context).colorScheme` rather than hardcoding colors, to keep light/dark parity.
+- `lib/theme/theme_controller.dart` — `ThemeController extends GetxController`, same `static instance => Get.find<ThemeController>()` pattern as the other app-wide singletons. Holds `ThemeMode` in a private `Rx`, toggled by `alternar()`. Builds Material 3 `ThemeData` from a single seed color (`colorSemilla`) via `ColorScheme.fromSeed`, for both light and dark. `MainApp` (in `main.dart`) rebuilds via `Obx(() => GetMaterialApp(theme: ..., darkTheme: ..., themeMode: ThemeController.instance.modo, ...))`; the theme switch itself (`mas_screen.dart`, `ajustes_screen.dart`, `app_drawer.dart`) is likewise wrapped in `Obx`, not `AnimatedBuilder`. Prefer deriving new visual styles from `Theme.of(context).colorScheme` rather than hardcoding colors, to keep light/dark parity.
 
 ### Navigation
 
